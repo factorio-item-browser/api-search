@@ -1,0 +1,53 @@
+<?php
+
+declare(strict_types=1);
+
+namespace FactorioItemBrowser\Api\Search\Collection;
+
+use FactorioItemBrowser\Api\Search\Entity\Result\ResultInterface;
+
+/**
+ * The collection able to split results to different pages without manipulating their order.
+ *
+ * @author BluePsyduck <bluepsyduck@gmx.com>
+ * @license http://opensource.org/licenses/GPL-3.0 GPL v3
+ */
+class PaginatedResultCollection
+{
+    /**
+     * The results of the collection.
+     * @var array|ResultInterface[]
+     */
+    protected $results = [];
+
+    /**
+     * Adds a result to the collection.
+     * @param ResultInterface $result
+     * @return PaginatedResultCollection
+     */
+    public function add(ResultInterface $result): self
+    {
+        $this->results[] = $result;
+        return $this;
+    }
+
+    /**
+     * Returns the total number of results in the collection.
+     * @return int
+     */
+    public function count(): int
+    {
+        return count($this->results);
+    }
+
+    /**
+     * Returns a page of the results.
+     * @param int $offset
+     * @param int $limit
+     * @return array|ResultInterface[]
+     */
+    public function getResults(int $offset, int $limit): array
+    {
+        return array_values(array_slice($this->results, $offset, $limit));
+    }
+}
