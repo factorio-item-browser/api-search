@@ -37,6 +37,11 @@
       "FactorioItemBrowserTest\\Api\\Search\\": "test/src/"
     }
   },
+  "extra": {
+    "zf": {
+      "config-provider": "FactorioItemBrowser\\Api\\Search\\ConfigProvider"
+    }
+  },
   "scripts": {
     "coverage-check": "coverage-check test/log/clover.xml 100",
     "phpcbf": "phpcbf -p --colors",
