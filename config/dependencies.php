@@ -11,12 +11,18 @@ declare(strict_types=1);
 
 namespace FactorioItemBrowser\Api\Search;
 
+use Blast\ReflectionFactory\ReflectionFactory;
 use Zend\ServiceManager\Factory\InvokableFactory;
 
 return [
     'dependencies' => [
         'factories'  => [
-            Parser\QueryParser::class => InvokableFactory::class
+            Fetcher\ItemFetcher::class => ReflectionFactory::class,
+            Fetcher\MissingItemIdFetcher::class => ReflectionFactory::class,
+
+            Mapper\ItemToItemResultMapper::class => InvokableFactory::class,
+
+            Parser\QueryParser::class => InvokableFactory::class,
         ],
     ],
 ];

@@ -83,8 +83,8 @@ class QueryTest extends TestCase
     public function testGetTerms(): void
     {
         $terms = [
-            $this->createMock(TermCollection::class),
-            $this->createMock(TermCollection::class),
+            $this->createMock(Term::class),
+            $this->createMock(Term::class),
         ];
 
         /* @var TermCollection&MockObject $termCollection */
@@ -133,8 +133,8 @@ class QueryTest extends TestCase
     {
         $type = 'abc';
         $terms = [
-            $this->createMock(TermCollection::class),
-            $this->createMock(TermCollection::class),
+            $this->createMock(Term::class),
+            $this->createMock(Term::class),
         ];
 
         /* @var TermCollection&MockObject $termCollection */
@@ -161,8 +161,8 @@ class QueryTest extends TestCase
     {
         $types = ['abc', 'def'];
         $terms = [
-            $this->createMock(TermCollection::class),
-            $this->createMock(TermCollection::class),
+            $this->createMock(Term::class),
+            $this->createMock(Term::class),
         ];
 
         /* @var TermCollection&MockObject $termCollection */

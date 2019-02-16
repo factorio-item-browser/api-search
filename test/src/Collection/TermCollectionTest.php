@@ -25,7 +25,7 @@ class TermCollectionTest extends TestCase
     /**
      * Tests the constructing.
      * @throws ReflectionException
-     * @coversNothing 
+     * @coversNothing
      */
     public function testConstruct(): void
     {
@@ -251,7 +251,7 @@ class TermCollectionTest extends TestCase
                            ->getMock();
         $collection->expects($this->once())
                    ->method('getByTypes')
-                   ->with($this->identicalTo($types)) 
+                   ->with($this->identicalTo($types))
                    ->willReturn($terms);
         $collection->expects($this->once())
                    ->method('getValues')
@@ -283,7 +283,7 @@ class TermCollectionTest extends TestCase
                            ->getMock();
         $collection->expects($this->once())
                    ->method('getByType')
-                   ->with($this->identicalTo($type)) 
+                   ->with($this->identicalTo($type))
                    ->willReturn($terms);
         $collection->expects($this->once())
                    ->method('getValues')
