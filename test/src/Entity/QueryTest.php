@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace FactorioItemBrowserTest\Api\Search\Entity;
 
 use BluePsyduck\Common\Test\ReflectionTrait;
+use FactorioItemBrowser\Api\Search\Collection\TermCollection;
 use FactorioItemBrowser\Api\Search\Entity\Query;
 use FactorioItemBrowser\Api\Search\Entity\Term;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use ReflectionException;
 
@@ -23,6 +25,7 @@ class QueryTest extends TestCase
 
     /**
      * Tests the constructing.
+     * @throws ReflectionException
      * @covers ::__construct
      */
     public function testConstruct(): void
@@ -31,7 +34,8 @@ class QueryTest extends TestCase
         
         $query = new Query($queryString);
         
-        $this->assertSame($queryString, $query->getQueryString());
+        $this->assertSame($queryString, $this->extractProperty($query, 'queryString'));
+        $this->assertInstanceOf(TermCollection::class, $this->extractProperty($query, 'terms'));
     }
 
     /**
@@ -49,6 +53,182 @@ class QueryTest extends TestCase
     }
 
     /**
+     * Tests the addTerm method.
+     * @throws ReflectionException
+     * @covers ::addTerm
+     */
+    public function testAddTerm(): void
+    {
+        /* @var Term&MockObject $term */
+        $term = $this->createMock(Term::class);
+
+        /* @var TermCollection&MockObject $termCollection */
+        $termCollection = $this->createMock(TermCollection::class);
+        $termCollection->expects($this->once())
+                       ->method('add')
+                       ->with($this->identicalTo($term));
+
+        $query = new Query('foo');
+        $this->injectProperty($query, 'terms', $termCollection);
+        $result = $query->addTerm($term);
+
+        $this->assertSame($query, $result);
+    }
+
+    /**
+     * Tests the getTerms method.
+     * @throws ReflectionException
+     * @covers ::getTerms
+     */
+    public function testGetTerms(): void
+    {
+        $terms = [
+            $this->createMock(TermCollection::class),
+            $this->createMock(TermCollection::class),
+        ];
+
+        /* @var TermCollection&MockObject $termCollection */
+        $termCollection = $this->createMock(TermCollection::class);
+        $termCollection->expects($this->once())
+                       ->method('getAll')
+                       ->willReturn($terms);
+
+
+        $query = new Query('foo');
+        $this->injectProperty($query, 'terms', $termCollection);
+        $result = $query->getTerms();
+
+        $this->assertSame($terms, $result);
+    }
+
+    /**
+     * Tests the getTermValues method.
+     * @throws ReflectionException
+     * @covers ::getTermValues
+     */
+    public function testGetTermValues(): void
+    {
+        $values = ['abc', 'def'];
+
+        /* @var TermCollection&MockObject $termCollection */
+        $termCollection = $this->createMock(TermCollection::class);
+        $termCollection->expects($this->once())
+                       ->method('getAllValues')
+                       ->willReturn($values);
+
+
+        $query = new Query('foo');
+        $this->injectProperty($query, 'terms', $termCollection);
+        $result = $query->getTermValues();
+
+        $this->assertSame($values, $result);
+    }
+
+    /**
+     * Tests the getTermsByType method.
+     * @throws ReflectionException
+     * @covers ::getTermsByType
+     */
+    public function testGetTermsByType(): void
+    {
+        $type = 'abc';
+        $terms = [
+            $this->createMock(TermCollection::class),
+            $this->createMock(TermCollection::class),
+        ];
+
+        /* @var TermCollection&MockObject $termCollection */
+        $termCollection = $this->createMock(TermCollection::class);
+        $termCollection->expects($this->once())
+                       ->method('getByType')
+                       ->with($this->identicalTo($type))
+                       ->willReturn($terms);
+
+
+        $query = new Query('foo');
+        $this->injectProperty($query, 'terms', $termCollection);
+        $result = $query->getTermsByType($type);
+
+        $this->assertSame($terms, $result);
+    }
+
+    /**
+     * Tests the getTermsByTypes method.
+     * @throws ReflectionException
+     * @covers ::getTermsByTypes
+     */
+    public function testGetTermsByTypes(): void
+    {
+        $types = ['abc', 'def'];
+        $terms = [
+            $this->createMock(TermCollection::class),
+            $this->createMock(TermCollection::class),
+        ];
+
+        /* @var TermCollection&MockObject $termCollection */
+        $termCollection = $this->createMock(TermCollection::class);
+        $termCollection->expects($this->once())
+                       ->method('getByTypes')
+                       ->with($this->identicalTo($types))
+                       ->willReturn($terms);
+
+
+        $query = new Query('foo');
+        $this->injectProperty($query, 'terms', $termCollection);
+        $result = $query->getTermsByTypes($types);
+
+        $this->assertSame($terms, $result);
+    }
+
+    /**
+     * Tests the getTermValuesByType method.
+     * @throws ReflectionException
+     * @covers ::getTermValuesByType
+     */
+    public function testGetTermValuesByType(): void
+    {
+        $type = 'abc';
+        $values = ['def', 'ghi'];
+
+        /* @var TermCollection&MockObject $termCollection */
+        $termCollection = $this->createMock(TermCollection::class);
+        $termCollection->expects($this->once())
+                       ->method('getValuesByType')
+                       ->with($this->identicalTo($type))
+                       ->willReturn($values);
+
+        $query = new Query('foo');
+        $this->injectProperty($query, 'terms', $termCollection);
+        $result = $query->getTermValuesByType($type);
+
+        $this->assertSame($values, $result);
+    }
+    
+    /**
+     * Tests the getTermValuesByTypes method.
+     * @throws ReflectionException
+     * @covers ::getTermValuesByTypes
+     */
+    public function testGetTermValuesByTypes(): void
+    {
+        $types = ['abc', 'def'];
+        $values = ['ghi', 'jkl'];
+
+        /* @var TermCollection&MockObject $termCollection */
+        $termCollection = $this->createMock(TermCollection::class);
+        $termCollection->expects($this->once())
+                       ->method('getValuesByTypes')
+                       ->with($this->identicalTo($types))
+                       ->willReturn($values);
+
+        $query = new Query('foo');
+        $this->injectProperty($query, 'terms', $termCollection);
+        $result = $query->getTermValuesByTypes($types);
+
+        $this->assertSame($values, $result);
+    }
+    
+    /**
      * Tests the setting and getting the hash.
      * @covers ::getHash
      * @covers ::setHash
@@ -60,186 +240,5 @@ class QueryTest extends TestCase
 
         $this->assertSame($query, $query->setHash($hash));
         $this->assertSame($hash, $query->getHash());
-    }
-
-    /**
-     * Provides the data for the addTerm test.
-     * @return array
-     */
-    public function provideAddTerm(): array
-    {
-        $term1 = new Term('abc', 'def');
-        $term2 = new Term('abc', 'ghi');
-        $term3 = new Term('jkl', 'mno');
-
-        return [
-            [
-                [],
-                $term1,
-                ['abc' => [$term1]],
-            ],
-            [
-                ['abc' => [$term1]],
-                $term2,
-                ['abc' => [$term1, $term2]],
-            ],
-            [
-                ['abc' => [$term1]],
-                $term3,
-                ['abc' => [$term1], 'jkl' => [$term3]],
-            ],
-        ];
-    }
-
-    /**
-     * Tests the addTerm method.
-     * @param array|Term[][] $terms
-     * @param Term $term
-     * @param array|Term[][] $expectedTerms
-     * @throws ReflectionException
-     * @covers ::addTerm
-     * @dataProvider provideAddTerm
-     */
-    public function testAddTerm(array $terms, Term $term, array $expectedTerms): void
-    {
-        $query = new Query('foo');
-        $this->injectProperty($query, 'terms', $terms);
-        $result = $query->addTerm($term);
-
-        $this->assertSame($query, $result);
-        $this->assertSame($expectedTerms, $this->extractProperty($query, 'terms'));
-    }
-
-    /**
-     * Provides the data for the getTerms test.
-     * @return array
-     */
-    public function provideGetTerms(): array
-    {
-        $term1 = new Term('abc', 'def');
-        $term2 = new Term('abc', 'ghi');
-        $term3 = new Term('jkl', 'mno');
-
-        return [
-            [
-                ['abc' => [$term1, $term2], 'jkl' => [$term3]],
-                [$term1, $term2, $term3],
-            ],
-            [
-                [],
-                [],
-            ],
-        ];
-    }
-
-    /**
-     * Tests the getTerms method.
-     * @param array|Term[][] $terms
-     * @param array|Term[] $expectedResult
-     * @throws ReflectionException
-     * @covers ::getTerms
-     * @dataProvider provideGetTerms
-     */
-    public function testGetTerms(array $terms, array $expectedResult): void
-    {
-        $query = new Query('foo');
-        $this->injectProperty($query, 'terms', $terms);
-        $result = $query->getTerms();
-
-        $this->assertSame($expectedResult, $result);
-    }
-
-    /**
-     * Provides the data for the getTermsByType test.
-     * @return array
-     */
-    public function provideGetTermsByType(): array
-    {
-        $term1 = new Term('abc', 'def');
-        $term2 = new Term('abc', 'ghi');
-        $term3 = new Term('jkl', 'mno');
-
-        return [
-            [
-                ['abc' => [$term1, $term2], 'jkl' => [$term3]],
-                'abc',
-                [$term1, $term2],
-            ],
-            [
-                ['abc' => [$term1, $term2], 'jkl' => [$term3]],
-                'pqr',
-                [],
-            ],
-        ];
-    }
-
-    /**
-     * Tests the getTermsByType method.
-     * @param array|Term[][] $terms
-     * @param string $type
-     * @param array|Term[] $expectedResult
-     * @throws ReflectionException
-     * @covers ::getTermsByType
-     * @dataProvider provideGetTermsByType
-     */
-    public function testGetTermsByType(array $terms, string $type, array $expectedResult): void
-    {
-        $query = new Query('foo');
-        $this->injectProperty($query, 'terms', $terms);
-        $result = $query->getTermsByType($type);
-
-        $this->assertSame($expectedResult, $result);
-    }
-
-    /**
-     * Provides the data for the getTermsByTypes test.
-     * @return array
-     */
-    public function provideGetTermsByTypes(): array
-    {
-        $term1 = new Term('abc', 'def');
-        $term2 = new Term('abc', 'ghi');
-        $term3 = new Term('jkl', 'mno');
-
-        return [
-            [
-                ['abc' => [$term1, $term2], 'jkl' => [$term3]],
-                ['abc', 'jkl'],
-                [$term1, $term2, $term3],
-            ],
-            [
-                ['abc' => [$term1, $term2], 'jkl' => [$term3]],
-                ['abc'],
-                [$term1, $term2],
-            ],
-            [
-                ['abc' => [$term1, $term2], 'jkl' => [$term3]],
-                ['pqr'],
-                [],
-            ],
-            [
-                ['abc' => [$term1, $term2], 'jkl' => [$term3]],
-                [],
-                [],
-            ],
-        ];
-    }
-
-    /**
-     * Tests the getTermsByTypes method.
-     * @param array|Term[][] $terms
-     * @param array|string[] $types
-     * @param array|Term[] $expectedResult
-     * @throws ReflectionException
-     * @covers ::getTermsByTypes
-     * @dataProvider provideGetTermsByTypes
-     */
-    public function testGetTermsByTypes(array $terms, array $types, array $expectedResult): void
-    {
-        $query = new Query('foo');
-        $this->injectProperty($query, 'terms', $terms);
-        $result = $query->getTermsByTypes($types);
-
-        $this->assertSame($expectedResult, $result);
     }
 }

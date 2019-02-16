@@ -16,7 +16,7 @@ install:
 script:
   - composer validate --strict
   - vendor/bin/phpunit --coverage-clover=coverage.xml
-  - then vendor/bin/coverage-check coverage.xml 100
+  - vendor/bin/coverage-check coverage.xml 100
   - vendor/bin/phpcs -np --colors
   - vendor/bin/phpstan analyse --no-interaction
 

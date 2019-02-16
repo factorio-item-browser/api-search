@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace FactorioItemBrowser\Api\Search\Entity;
 
+use FactorioItemBrowser\Api\Search\Collection\TermCollection;
+
 /**
  * The class representing a search query.
  *
@@ -20,9 +22,9 @@ class Query
 
     /**
      * The terms of the query.
-     * @var array|Term[][]
+     * @var TermCollection
      */
-    protected $terms = [];
+    protected $terms;
 
     /**
      * The hash of the parsed search query.
@@ -37,6 +39,8 @@ class Query
     public function __construct(string $queryString)
     {
         $this->queryString = $queryString;
+
+        $this->terms = new TermCollection();
     }
 
     /**
@@ -66,7 +70,7 @@ class Query
      */
     public function addTerm(Term $term): self
     {
-        $this->terms[$term->getType()][] = $term;
+        $this->terms->add($term);
         return $this;
     }
 
@@ -76,11 +80,16 @@ class Query
      */
     public function getTerms(): array
     {
-        $result = [];
-        if (count($this->terms) > 0) {
-            $result = array_merge(...array_values($this->terms));
-        }
-        return $result;
+        return $this->terms->getAll();
+    }
+
+    /**
+     * Returns the values of all terms.
+     * @return array|string[]
+     */
+    public function getTermValues(): array
+    {
+        return $this->terms->getAllValues();
     }
 
     /**
@@ -90,7 +99,7 @@ class Query
      */
     public function getTermsByType(string $type): array
     {
-        return $this->terms[$type] ?? [];
+        return $this->terms->getByType($type);
     }
 
     /**
@@ -100,11 +109,27 @@ class Query
      */
     public function getTermsByTypes(array $types): array
     {
-        $result = [];
-        foreach ($types as $type) {
-            $result = array_merge($result, $this->terms[$type] ?? []);
-        }
-        return $result;
+        return $this->terms->getByTypes($types);
+    }
+
+    /**
+     * Returns the term values with the specified type.
+     * @param string $type
+     * @return array|string[]
+     */
+    public function getTermValuesByType(string $type): array
+    {
+        return $this->terms->getValuesByType($type);
+    }
+
+    /**
+     * Returns the term values with any of the specified types.
+     * @param array|string[] $types
+     * @return array|string[]
+     */
+    public function getTermValuesByTypes(array $types): array
+    {
+        return $this->terms->getValuesByTypes($types);
     }
 
     /**
