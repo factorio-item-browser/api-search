@@ -47,15 +47,14 @@ class ItemFetcher implements FetcherInterface
 
     /**
      * Fetches the data matching the specified query.
-     * @param array|int[] $modCombinationIds
      * @param Query $query
      * @param AggregatingResultCollection $searchResults
      * @throws MapperException
      */
-    public function fetch(array $modCombinationIds, Query $query, AggregatingResultCollection $searchResults): void
+    public function fetch(Query $query, AggregatingResultCollection $searchResults): void
     {
         $keywords = $query->getTermValuesByType(TermType::GENERIC);
-        $items = $this->itemRepository->findByKeywords($keywords, $modCombinationIds);
+        $items = $this->itemRepository->findByKeywords($keywords, $query->getModCombinationIds());
         foreach ($items as $item) {
             $searchResults->addItem($this->mapItem($item));
         }

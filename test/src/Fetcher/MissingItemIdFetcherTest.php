@@ -76,8 +76,6 @@ class MissingItemIdFetcherTest extends TestCase
         $namesByTypes = ['abc' => ['def', 'ghi']];
         $modCombinationIds = [42, 1337];
 
-        /* @var Query&MockObject $query */
-        $query = $this->createMock(Query::class);
         /* @var Item&MockObject $item1 */
         $item1 = $this->createMock(Item::class);
         /* @var Item&MockObject $item2 */
@@ -88,6 +86,12 @@ class MissingItemIdFetcherTest extends TestCase
         $itemResult2 = $this->createMock(ItemResult::class);
 
         $items = [$item1, $item2];
+
+        /* @var Query&MockObject $query */
+        $query = $this->createMock(Query::class);
+        $query->expects($this->once())
+              ->method('getModCombinationIds')
+              ->willReturn($modCombinationIds);
 
         /* @var AggregatingResultCollection&MockObject $searchResults */
         $searchResults = $this->createMock(AggregatingResultCollection::class);
@@ -123,7 +127,7 @@ class MissingItemIdFetcherTest extends TestCase
                     $itemResult2
                 );
 
-        $fetcher->fetch($modCombinationIds, $query, $searchResults);
+        $fetcher->fetch($query, $searchResults);
     }
 
     /**

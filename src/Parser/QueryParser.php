@@ -19,11 +19,12 @@ class QueryParser
     /**
      * Parses the query string into an actual query.
      * @param string $queryString
+     * @param array|int[] $modCombinationIds
      * @return Query
      */
-    public function parse(string $queryString): Query
+    public function parse(string $queryString, array $modCombinationIds): Query
     {
-        $result = $this->createQuery($queryString);
+        $result = $this->createQuery($queryString, $modCombinationIds);
         $this->parseQueryString($queryString, $result);
         $result->setHash($this->calculateHash($result));
         return $result;
@@ -32,11 +33,12 @@ class QueryParser
     /**
      * Creates a new query instance.
      * @param string $queryString
+     * @param array|int[] $modCombinationIds
      * @return Query
      */
-    protected function createQuery(string $queryString): Query
+    protected function createQuery(string $queryString, array $modCombinationIds): Query
     {
-        return new Query($queryString);
+        return new Query($queryString, $modCombinationIds);
     }
 
     /**
@@ -73,7 +75,10 @@ class QueryParser
     protected function calculateHash(Query $query): string
     {
         $data = $this->extractQueryData($query);
-        return substr(hash('md5', (string) json_encode($data)), 0, 16);
+        return substr(hash('md5', (string) json_encode([
+            $data,
+            $query->getModCombinationIds(),
+        ])), 0, 16);
     }
 
     /**

@@ -95,6 +95,9 @@ class ItemFetcherTest extends TestCase
               ->method('getTermValuesByType')
               ->with($this->identicalTo(TermType::GENERIC))
               ->willReturn($keywords);
+        $query->expects($this->once())
+              ->method('getModCombinationIds')
+              ->willReturn($modCombinationIds);
 
         /* @var AggregatingResultCollection&MockObject $searchResults */
         $searchResults = $this->createMock(AggregatingResultCollection::class);
@@ -126,7 +129,7 @@ class ItemFetcherTest extends TestCase
                     $itemResult2
                 );
 
-        $fetcher->fetch($modCombinationIds, $query, $searchResults);
+        $fetcher->fetch($query, $searchResults);
     }
 
     /**

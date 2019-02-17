@@ -32,6 +32,7 @@ class QueryParserTest extends TestCase
     public function testParse(): void
     {
         $queryString = 'abc';
+        $modCombinationIds = [42, 1337];
         $hash = '12ab34cd';
 
         /* @var Query&MockObject $query */
@@ -46,7 +47,7 @@ class QueryParserTest extends TestCase
                        ->getMock();
         $parser->expects($this->once())
                ->method('createQuery')
-               ->with($this->identicalTo($queryString))
+               ->with($this->identicalTo($queryString), $this->identicalTo($modCombinationIds))
                ->willReturn($query);
         $parser->expects($this->once())
                ->method('parseQueryString')
@@ -56,7 +57,7 @@ class QueryParserTest extends TestCase
                ->with($this->identicalTo($query))
                ->willReturn($hash);
 
-        $result = $parser->parse($queryString);
+        $result = $parser->parse($queryString, $modCombinationIds);
 
         $this->assertSame($query, $result);
     }
@@ -69,10 +70,11 @@ class QueryParserTest extends TestCase
     public function testCreateQuery(): void
     {
         $queryString = 'abc';
-        $expectedResult = new Query($queryString);
+        $modCombinationIds = [42, 1337];
+        $expectedResult = new Query($queryString, $modCombinationIds);
 
         $parser = new QueryParser();
-        $result = $this->invokeMethod($parser, 'createQuery', $queryString);
+        $result = $this->invokeMethod($parser, 'createQuery', $queryString, $modCombinationIds);
 
         $this->assertEquals($expectedResult, $result);
     }
@@ -151,10 +153,14 @@ class QueryParserTest extends TestCase
     public function testCalculateHash(): void
     {
         $queryData = ['abc' => 'def'];
-        $expectedResult = 'ecadfcaf838cc316';
+        $modCombinationIds = [42, 1337];
+        $expectedResult = 'ae0819dc7f3f4cac';
 
         /* @var Query&MockObject $query */
         $query = $this->createMock(Query::class);
+        $query->expects($this->once())
+              ->method('getModCombinationIds')
+              ->willReturn($modCombinationIds);
 
         /* @var QueryParser&MockObject $parser */
         $parser = $this->getMockBuilder(QueryParser::class)

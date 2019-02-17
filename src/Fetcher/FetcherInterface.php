@@ -17,9 +17,8 @@ interface FetcherInterface
 {
     /**
      * Fetches the data matching the specified query.
-     * @param array|int[] $modCombinationIds
      * @param Query $query
      * @param AggregatingResultCollection $searchResults
      */
-    public function fetch(array $modCombinationIds, Query $query, AggregatingResultCollection $searchResults): void;
+    public function fetch(Query $query, AggregatingResultCollection $searchResults): void;
 }

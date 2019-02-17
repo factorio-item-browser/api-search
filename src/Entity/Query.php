@@ -21,6 +21,12 @@ class Query
     protected $queryString;
 
     /**
+     * The ids of the mod combinations to use.
+     * @var array|int[]
+     */
+    protected $modCombinationIds;
+
+    /**
      * The terms of the query.
      * @var TermCollection
      */
@@ -35,10 +41,12 @@ class Query
     /**
      * Initializes the query.
      * @param string $queryString
+     * @param array|int[] $modCombinationIds
      */
-    public function __construct(string $queryString)
+    public function __construct(string $queryString, array $modCombinationIds)
     {
         $this->queryString = $queryString;
+        $this->modCombinationIds = $modCombinationIds;
 
         $this->terms = new TermCollection();
     }
@@ -61,6 +69,26 @@ class Query
     public function getQueryString(): string
     {
         return $this->queryString;
+    }
+
+    /**
+     * Sets the ids of the mod combinations to use.
+     * @param array|int[] $modCombinationIds
+     * @return $this
+     */
+    public function setModCombinationIds(array $modCombinationIds): self
+    {
+        $this->modCombinationIds = $modCombinationIds;
+        return $this;
+    }
+
+    /**
+     * Returns the ids of the mod combinations to use.
+     * @return array|int[]
+     */
+    public function getModCombinationIds(): array
+    {
+        return $this->modCombinationIds;
     }
 
     /**
