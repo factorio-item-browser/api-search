@@ -27,6 +27,8 @@ return [
             Serializer\ItemResultSerializer::class => ReflectionFactory::class,
             Serializer\SerializerManager::class => Serializer\SerializerManagerFactory::class,
             Serializer\RecipeResultSerializer::class => InvokableFactory::class,
+
+            Service\CachedSearchResultService::class => ReflectionFactory::class,
         ],
     ],
 ];
