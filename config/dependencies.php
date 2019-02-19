@@ -17,12 +17,15 @@ use Zend\ServiceManager\Factory\InvokableFactory;
 return [
     'dependencies' => [
         'factories'  => [
+            Fetcher\FetcherManager::class => Fetcher\FetcherManagerFactory::class,
             Fetcher\ItemFetcher::class => ReflectionFactory::class,
             Fetcher\MissingItemIdFetcher::class => ReflectionFactory::class,
 
             Mapper\ItemToItemResultMapper::class => InvokableFactory::class,
 
             Parser\QueryParser::class => InvokableFactory::class,
+
+            SearchManagerInterface::class => ReflectionFactory::class,
 
             Serializer\ItemResultSerializer::class => ReflectionFactory::class,
             Serializer\SerializerManager::class => Serializer\SerializerManagerFactory::class,
