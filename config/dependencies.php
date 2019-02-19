@@ -16,6 +16,9 @@ use Zend\ServiceManager\Factory\InvokableFactory;
 
 return [
     'dependencies' => [
+        'aliases' => [
+            SearchManagerInterface::class => SearchManager::class,
+        ],
         'factories'  => [
             Fetcher\FetcherManager::class => Fetcher\FetcherManagerFactory::class,
             Fetcher\ItemFetcher::class => ReflectionFactory::class,
@@ -25,7 +28,7 @@ return [
 
             Parser\QueryParser::class => InvokableFactory::class,
 
-            SearchManagerInterface::class => ReflectionFactory::class,
+            SearchManager::class => ReflectionFactory::class,
 
             Serializer\ItemResultSerializer::class => ReflectionFactory::class,
             Serializer\SerializerManager::class => Serializer\SerializerManagerFactory::class,
