@@ -9,7 +9,7 @@ use FactorioItemBrowser\Api\Search\Collection\AggregatingResultCollection;
 use FactorioItemBrowser\Api\Search\Collection\PaginatedResultCollection;
 use FactorioItemBrowser\Api\Search\Entity\Query;
 use FactorioItemBrowser\Api\Search\Entity\Result\ResultInterface;
-use FactorioItemBrowser\Api\Search\Fetcher\FetcherManager;
+use FactorioItemBrowser\Api\Search\Service\FetcherService;
 use FactorioItemBrowser\Api\Search\Parser\QueryParser;
 use FactorioItemBrowser\Api\Search\SearchManager;
 use FactorioItemBrowser\Api\Search\Service\CachedSearchResultService;
@@ -35,10 +35,10 @@ class SearchManagerTest extends TestCase
     protected $cachedSearchResultService;
 
     /**
-     * The mocked fetcher manager.
-     * @var FetcherManager&MockObject
+     * The mocked fetcher service.
+     * @var FetcherService&MockObject
      */
-    protected $fetcherManager;
+    protected $fetcherService;
 
     /**
      * The mocked query parser.
@@ -55,7 +55,7 @@ class SearchManagerTest extends TestCase
         parent::setUp();
 
         $this->cachedSearchResultService = $this->createMock(CachedSearchResultService::class);
-        $this->fetcherManager = $this->createMock(FetcherManager::class);
+        $this->fetcherService = $this->createMock(FetcherService::class);
         $this->queryParser = $this->createMock(QueryParser::class);
     }
 
@@ -66,13 +66,13 @@ class SearchManagerTest extends TestCase
      */
     public function testConstruct(): void
     {
-        $manager = new SearchManager($this->cachedSearchResultService, $this->fetcherManager, $this->queryParser);
+        $manager = new SearchManager($this->cachedSearchResultService, $this->fetcherService, $this->queryParser);
 
         $this->assertSame(
             $this->cachedSearchResultService,
             $this->extractProperty($manager, 'cachedSearchResultService')
         );
-        $this->assertSame($this->fetcherManager, $this->extractProperty($manager, 'fetcherManager'));
+        $this->assertSame($this->fetcherService, $this->extractProperty($manager, 'fetcherService'));
         $this->assertSame($this->queryParser, $this->extractProperty($manager, 'queryParser'));
     }
 
@@ -99,7 +99,7 @@ class SearchManagerTest extends TestCase
                           )
                           ->willReturn($query);
 
-        $manager = new SearchManager($this->cachedSearchResultService, $this->fetcherManager, $this->queryParser);
+        $manager = new SearchManager($this->cachedSearchResultService, $this->fetcherService, $this->queryParser);
         $result = $manager->parseQuery($queryString, $modCombinationIds, $locale);
 
         $this->assertSame($query, $result);
@@ -127,7 +127,7 @@ class SearchManagerTest extends TestCase
                         ->setMethods(['executeQuery'])
                         ->setConstructorArgs([
                             $this->cachedSearchResultService,
-                            $this->fetcherManager,
+                            $this->fetcherService,
                             $this->queryParser
                         ])
                         ->getMock();
@@ -167,7 +167,7 @@ class SearchManagerTest extends TestCase
                         ->setMethods(['executeQuery'])
                         ->setConstructorArgs([
                             $this->cachedSearchResultService,
-                            $this->fetcherManager,
+                            $this->fetcherService,
                             $this->queryParser
                         ])
                         ->getMock();
@@ -193,7 +193,7 @@ class SearchManagerTest extends TestCase
         /* @var PaginatedResultCollection&MockObject $searchResults */
         $searchResults = $this->createMock(PaginatedResultCollection::class);
 
-        $this->fetcherManager->expects($this->once())
+        $this->fetcherService->expects($this->once())
                              ->method('fetch')
                              ->with(
                                  $this->identicalTo($query),
@@ -205,7 +205,7 @@ class SearchManagerTest extends TestCase
                         ->setMethods(['createPaginatedCollection'])
                         ->setConstructorArgs([
                             $this->cachedSearchResultService,
-                            $this->fetcherManager,
+                            $this->fetcherService,
                             $this->queryParser
                         ])
                         ->getMock();
@@ -241,7 +241,7 @@ class SearchManagerTest extends TestCase
                       ->method('getMergedResults')
                       ->willReturn([$result1, $result2]);
 
-        $manager = new SearchManager($this->cachedSearchResultService, $this->fetcherManager, $this->queryParser);
+        $manager = new SearchManager($this->cachedSearchResultService, $this->fetcherService, $this->queryParser);
         $result = $this->invokeMethod($manager, 'createPaginatedCollection', $searchResults);
 
         $this->assertEquals($expectedResult, $result);

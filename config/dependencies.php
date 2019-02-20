@@ -20,7 +20,6 @@ return [
             SearchManagerInterface::class => SearchManager::class,
         ],
         'factories'  => [
-            Fetcher\FetcherManager::class => Fetcher\FetcherManagerFactory::class,
             Fetcher\ItemFetcher::class => ReflectionFactory::class,
             Fetcher\MissingItemIdFetcher::class => ReflectionFactory::class,
             Fetcher\MissingRecipeIdFetcher::class => ReflectionFactory::class,
@@ -34,10 +33,11 @@ return [
             SearchManager::class => ReflectionFactory::class,
 
             Serializer\ItemResultSerializer::class => ReflectionFactory::class,
-            Serializer\SerializerManager::class => Serializer\SerializerManagerFactory::class,
             Serializer\RecipeResultSerializer::class => InvokableFactory::class,
 
             Service\CachedSearchResultService::class => ReflectionFactory::class,
+            Service\FetcherService::class => Service\FetcherServiceFactory::class,
+            Service\SerializerService::class => Service\SerializerServiceFactory::class,
         ],
     ],
 ];

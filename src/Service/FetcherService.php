@@ -2,10 +2,11 @@
 
 declare(strict_types=1);
 
-namespace FactorioItemBrowser\Api\Search\Fetcher;
+namespace FactorioItemBrowser\Api\Search\Service;
 
 use FactorioItemBrowser\Api\Search\Collection\AggregatingResultCollection;
 use FactorioItemBrowser\Api\Search\Entity\Query;
+use FactorioItemBrowser\Api\Search\Fetcher\FetcherInterface;
 
 /**
  * The manager of the data fetchers.
@@ -13,7 +14,7 @@ use FactorioItemBrowser\Api\Search\Entity\Query;
  * @author BluePsyduck <bluepsyduck@gmx.com>
  * @license http://opensource.org/licenses/GPL-3.0 GPL v3
  */
-class FetcherManager
+class FetcherService
 {
     /**
      * The data fetchers.

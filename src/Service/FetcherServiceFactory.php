@@ -2,8 +2,13 @@
 
 declare(strict_types=1);
 
-namespace FactorioItemBrowser\Api\Search\Fetcher;
+namespace FactorioItemBrowser\Api\Search\Service;
 
+use FactorioItemBrowser\Api\Search\Fetcher\FetcherInterface;
+use FactorioItemBrowser\Api\Search\Fetcher\ItemFetcher;
+use FactorioItemBrowser\Api\Search\Fetcher\MissingItemIdFetcher;
+use FactorioItemBrowser\Api\Search\Fetcher\MissingRecipeIdFetcher;
+use FactorioItemBrowser\Api\Search\Fetcher\RecipeFetcher;
 use Interop\Container\ContainerInterface;
 
 /**
@@ -12,7 +17,7 @@ use Interop\Container\ContainerInterface;
  * @author BluePsyduck <bluepsyduck@gmx.com>
  * @license http://opensource.org/licenses/GPL-3.0 GPL v3
  */
-class FetcherManagerFactory
+class FetcherServiceFactory
 {
     /**
      * The fetcher classes to use.
@@ -26,15 +31,15 @@ class FetcherManagerFactory
     ];
 
     /**
-     * Creates the fetcher manager.
+     * Creates the service.
      * @param  ContainerInterface $container
      * @param  string $requestedName
      * @param  null|array $options
-     * @return FetcherManager
+     * @return FetcherService
      */
     public function __invoke(ContainerInterface $container, $requestedName, array $options = null)
     {
-        return new FetcherManager($this->createFetchers($container));
+        return new FetcherService($this->createFetchers($container));
     }
 
     /**

@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace FactorioItemBrowserTest\Api\Search\Serializer;
+namespace FactorioItemBrowserTest\Api\Search\Service;
 
 use BluePsyduck\Common\Test\ReflectionTrait;
 use FactorioItemBrowser\Api\Search\Serializer\ItemResultSerializer;
 use FactorioItemBrowser\Api\Search\Serializer\RecipeResultSerializer;
 use FactorioItemBrowser\Api\Search\Serializer\SerializerInterface;
-use FactorioItemBrowser\Api\Search\Serializer\SerializerManager;
-use FactorioItemBrowser\Api\Search\Serializer\SerializerManagerFactory;
+use FactorioItemBrowser\Api\Search\Service\SerializerService;
+use FactorioItemBrowser\Api\Search\Service\SerializerServiceFactory;
 use Interop\Container\ContainerInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -20,9 +20,9 @@ use ReflectionException;
  *
  * @author BluePsyduck <bluepsyduck@gmx.com>
  * @license http://opensource.org/licenses/GPL-3.0 GPL v3
- * @coversDefaultClass \FactorioItemBrowser\Api\Search\Serializer\SerializerManagerFactory
+ * @coversDefaultClass \FactorioItemBrowser\Api\Search\Service\SerializerServiceFactory
  */
-class SerializerManagerFactoryTest extends TestCase
+class SerializerServiceFactoryTest extends TestCase
 {
     use ReflectionTrait;
 
@@ -41,8 +41,8 @@ class SerializerManagerFactoryTest extends TestCase
         /* @var ContainerInterface&MockObject $container */
         $container = $this->createMock(ContainerInterface::class);
 
-        /* @var SerializerManagerFactory&MockObject $factory */
-        $factory = $this->getMockBuilder(SerializerManagerFactory::class)
+        /* @var SerializerServiceFactory&MockObject $factory */
+        $factory = $this->getMockBuilder(SerializerServiceFactory::class)
                         ->setMethods(['createSerializers'])
                         ->getMock();
         $factory->expects($this->once())
@@ -50,7 +50,7 @@ class SerializerManagerFactoryTest extends TestCase
                 ->with($this->identicalTo($container))
                 ->willReturn($serializers);
 
-        $factory($container, SerializerManager::class);
+        $factory($container, SerializerService::class);
     }
 
     /**
@@ -80,7 +80,7 @@ class SerializerManagerFactoryTest extends TestCase
                       $recipeResultSerializer
                   );
 
-        $factory = new SerializerManagerFactory();
+        $factory = new SerializerServiceFactory();
         $result = $this->invokeMethod($factory, 'createSerializers', $container);
 
         $this->assertEquals($expectedResult, $result);

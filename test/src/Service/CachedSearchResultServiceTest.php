@@ -11,7 +11,7 @@ use FactorioItemBrowser\Api\Database\Entity\CachedSearchResult;
 use FactorioItemBrowser\Api\Database\Repository\CachedSearchResultRepository;
 use FactorioItemBrowser\Api\Search\Collection\PaginatedResultCollection;
 use FactorioItemBrowser\Api\Search\Entity\Query;
-use FactorioItemBrowser\Api\Search\Serializer\SerializerManager;
+use FactorioItemBrowser\Api\Search\Service\SerializerService;
 use FactorioItemBrowser\Api\Search\Service\CachedSearchResultService;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -35,10 +35,10 @@ class CachedSearchResultServiceTest extends TestCase
     protected $cachedSearchResultRepository;
 
     /**
-     * The mocked serializer manager.
-     * @var SerializerManager&MockObject
+     * The mocked serializer service.
+     * @var SerializerService&MockObject
      */
-    protected $serializerManager;
+    protected $serializerService;
 
     /**
      * Sets up the test case.
@@ -49,7 +49,7 @@ class CachedSearchResultServiceTest extends TestCase
         parent::setUp();
 
         $this->cachedSearchResultRepository = $this->createMock(CachedSearchResultRepository::class);
-        $this->serializerManager = $this->createMock(SerializerManager::class);
+        $this->serializerService = $this->createMock(SerializerService::class);
     }
 
     /**
@@ -59,13 +59,13 @@ class CachedSearchResultServiceTest extends TestCase
      */
     public function testConstruct(): void
     {
-        $service = new CachedSearchResultService($this->cachedSearchResultRepository, $this->serializerManager);
+        $service = new CachedSearchResultService($this->cachedSearchResultRepository, $this->serializerService);
 
         $this->assertSame(
             $this->cachedSearchResultRepository,
             $this->extractProperty($service, 'cachedSearchResultRepository')
         );
-        $this->assertSame($this->serializerManager, $this->extractProperty($service, 'serializerManager'));
+        $this->assertSame($this->serializerService, $this->extractProperty($service, 'serializerService'));
     }
 
     /**
@@ -87,7 +87,7 @@ class CachedSearchResultServiceTest extends TestCase
               ->method('getHash')
               ->willReturn($hash);
 
-        $this->serializerManager->expects($this->once())
+        $this->serializerService->expects($this->once())
                                 ->method('unserialize')
                                 ->with($this->identicalTo($serializedResult))
                                 ->willReturn($searchResult);
@@ -95,7 +95,7 @@ class CachedSearchResultServiceTest extends TestCase
         /* @var CachedSearchResultService&MockObject $service */
         $service = $this->getMockBuilder(CachedSearchResultService::class)
                         ->setMethods(['fetchSerializedResults'])
-                        ->setConstructorArgs([$this->cachedSearchResultRepository, $this->serializerManager])
+                        ->setConstructorArgs([$this->cachedSearchResultRepository, $this->serializerService])
                         ->getMock();
         $service->expects($this->once())
                 ->method('fetchSerializedResults')
@@ -123,13 +123,13 @@ class CachedSearchResultServiceTest extends TestCase
               ->method('getHash')
               ->willReturn($hash);
 
-        $this->serializerManager->expects($this->never())
+        $this->serializerService->expects($this->never())
                                 ->method('unserialize');
 
         /* @var CachedSearchResultService&MockObject $service */
         $service = $this->getMockBuilder(CachedSearchResultService::class)
                         ->setMethods(['fetchSerializedResults'])
-                        ->setConstructorArgs([$this->cachedSearchResultRepository, $this->serializerManager])
+                        ->setConstructorArgs([$this->cachedSearchResultRepository, $this->serializerService])
                         ->getMock();
         $service->expects($this->once())
                 ->method('fetchSerializedResults')
@@ -169,7 +169,7 @@ class CachedSearchResultServiceTest extends TestCase
                                            ->with($this->identicalTo([$hash]), $this->isInstanceOf(DateTime::class))
                                            ->willReturn($entities);
 
-        $service = new CachedSearchResultService($this->cachedSearchResultRepository, $this->serializerManager);
+        $service = new CachedSearchResultService($this->cachedSearchResultRepository, $this->serializerService);
         $result = $this->invokeMethod($service, 'fetchSerializedResults', $hash);
 
         $this->assertSame($resultData, $result);
@@ -190,7 +190,7 @@ class CachedSearchResultServiceTest extends TestCase
                                            ->with($this->identicalTo([$hash]), $this->isInstanceOf(DateTime::class))
                                            ->willReturn($entities);
 
-        $service = new CachedSearchResultService($this->cachedSearchResultRepository, $this->serializerManager);
+        $service = new CachedSearchResultService($this->cachedSearchResultRepository, $this->serializerService);
         $result = $this->invokeMethod($service, 'fetchSerializedResults', $hash);
 
         $this->assertNull($result);
@@ -210,7 +210,7 @@ class CachedSearchResultServiceTest extends TestCase
                                            ->with($this->identicalTo([$hash]), $this->isInstanceOf(DateTime::class))
                                            ->willThrowException(new Exception());
 
-        $service = new CachedSearchResultService($this->cachedSearchResultRepository, $this->serializerManager);
+        $service = new CachedSearchResultService($this->cachedSearchResultRepository, $this->serializerService);
         $result = $this->invokeMethod($service, 'fetchSerializedResults', $hash);
 
         $this->assertNull($result);
@@ -235,7 +235,7 @@ class CachedSearchResultServiceTest extends TestCase
         /* @var PaginatedResultCollection&MockObject $searchResults */
         $searchResults = $this->createMock(PaginatedResultCollection::class);
 
-        $this->serializerManager->expects($this->once())
+        $this->serializerService->expects($this->once())
                                 ->method('serialize')
                                 ->with($this->identicalTo($searchResults))
                                 ->willReturn($resultData);
@@ -249,7 +249,7 @@ class CachedSearchResultServiceTest extends TestCase
                 return true;
             }));
 
-        $service = new CachedSearchResultService($this->cachedSearchResultRepository, $this->serializerManager);
+        $service = new CachedSearchResultService($this->cachedSearchResultRepository, $this->serializerService);
         $service->persistResults($query, $searchResults);
     }
 
@@ -271,12 +271,12 @@ class CachedSearchResultServiceTest extends TestCase
         /* @var PaginatedResultCollection&MockObject $searchResults */
         $searchResults = $this->createMock(PaginatedResultCollection::class);
 
-        $this->serializerManager->expects($this->once())
+        $this->serializerService->expects($this->once())
                                 ->method('serialize')
                                 ->with($this->identicalTo($searchResults))
                                 ->willThrowException(new Exception());
 
-        $service = new CachedSearchResultService($this->cachedSearchResultRepository, $this->serializerManager);
+        $service = new CachedSearchResultService($this->cachedSearchResultRepository, $this->serializerService);
         $service->persistResults($query, $searchResults);
     }
 }

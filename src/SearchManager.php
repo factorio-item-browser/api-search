@@ -7,7 +7,7 @@ namespace FactorioItemBrowser\Api\Search;
 use FactorioItemBrowser\Api\Search\Collection\AggregatingResultCollection;
 use FactorioItemBrowser\Api\Search\Collection\PaginatedResultCollection;
 use FactorioItemBrowser\Api\Search\Entity\Query;
-use FactorioItemBrowser\Api\Search\Fetcher\FetcherManager;
+use FactorioItemBrowser\Api\Search\Service\FetcherService;
 use FactorioItemBrowser\Api\Search\Parser\QueryParser;
 use FactorioItemBrowser\Api\Search\Service\CachedSearchResultService;
 
@@ -26,10 +26,10 @@ class SearchManager implements SearchManagerInterface
     protected $cachedSearchResultService;
 
     /**
-     * The fetcher manager.
-     * @var FetcherManager
+     * The fetcher service.
+     * @var FetcherService
      */
-    protected $fetcherManager;
+    protected $fetcherService;
 
     /**
      * The query parser.
@@ -40,16 +40,16 @@ class SearchManager implements SearchManagerInterface
     /**
      * Initializes the manager.
      * @param CachedSearchResultService $cachedSearchResultService
-     * @param FetcherManager $fetcherManager
+     * @param FetcherService $fetcherService
      * @param QueryParser $queryParser
      */
     public function __construct(
         CachedSearchResultService $cachedSearchResultService,
-        FetcherManager $fetcherManager,
+        FetcherService $fetcherService,
         QueryParser $queryParser
     ) {
         $this->cachedSearchResultService = $cachedSearchResultService;
-        $this->fetcherManager = $fetcherManager;
+        $this->fetcherService = $fetcherService;
         $this->queryParser = $queryParser;
     }
 
@@ -88,7 +88,7 @@ class SearchManager implements SearchManagerInterface
     protected function executeQuery(Query $query): PaginatedResultCollection
     {
         $searchResults = new AggregatingResultCollection();
-        $this->fetcherManager->fetch($query, $searchResults);
+        $this->fetcherService->fetch($query, $searchResults);
         return $this->createPaginatedCollection($searchResults);
     }
 

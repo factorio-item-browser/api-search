@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace FactorioItemBrowserTest\Api\Search\Fetcher;
+namespace FactorioItemBrowserTest\Api\Search\Service;
 
 use BluePsyduck\Common\Test\ReflectionTrait;
 use FactorioItemBrowser\Api\Search\Fetcher\FetcherInterface;
-use FactorioItemBrowser\Api\Search\Fetcher\FetcherManager;
-use FactorioItemBrowser\Api\Search\Fetcher\FetcherManagerFactory;
+use FactorioItemBrowser\Api\Search\Service\FetcherService;
+use FactorioItemBrowser\Api\Search\Service\FetcherServiceFactory;
 use FactorioItemBrowser\Api\Search\Fetcher\ItemFetcher;
 use FactorioItemBrowser\Api\Search\Fetcher\MissingItemIdFetcher;
 use FactorioItemBrowser\Api\Search\Fetcher\MissingRecipeIdFetcher;
@@ -22,9 +22,9 @@ use ReflectionException;
  *
  * @author BluePsyduck <bluepsyduck@gmx.com>
  * @license http://opensource.org/licenses/GPL-3.0 GPL v3
- * @coversDefaultClass \FactorioItemBrowser\Api\Search\Fetcher\FetcherManagerFactory
+ * @coversDefaultClass \FactorioItemBrowser\Api\Search\Service\FetcherServiceFactory
  */
-class FetcherManagerFactoryTest extends TestCase
+class FetcherServiceFactoryTest extends TestCase
 {
     use ReflectionTrait;
 
@@ -43,8 +43,8 @@ class FetcherManagerFactoryTest extends TestCase
         /* @var ContainerInterface&MockObject $container */
         $container = $this->createMock(ContainerInterface::class);
 
-        /* @var FetcherManagerFactory&MockObject $factory */
-        $factory = $this->getMockBuilder(FetcherManagerFactory::class)
+        /* @var FetcherServiceFactory&MockObject $factory */
+        $factory = $this->getMockBuilder(FetcherServiceFactory::class)
                         ->setMethods(['createFetchers'])
                         ->getMock();
         $factory->expects($this->once())
@@ -52,7 +52,7 @@ class FetcherManagerFactoryTest extends TestCase
                 ->with($this->identicalTo($container))
                 ->willReturn($fetchers);
 
-        $factory($container, FetcherManager::class);
+        $factory($container, FetcherService::class);
     }
 
     /**
@@ -95,7 +95,7 @@ class FetcherManagerFactoryTest extends TestCase
                       $missingRecipeIdFetcher
                   );
 
-        $factory = new FetcherManagerFactory();
+        $factory = new FetcherServiceFactory();
         $result = $this->invokeMethod($factory, 'createFetchers', $container);
 
         $this->assertEquals($expectedResult, $result);

@@ -2,25 +2,25 @@
 
 declare(strict_types=1);
 
-namespace FactorioItemBrowserTest\Api\Search\Serializer;
+namespace FactorioItemBrowserTest\Api\Search\Service;
 
 use BluePsyduck\Common\Test\ReflectionTrait;
 use FactorioItemBrowser\Api\Search\Collection\PaginatedResultCollection;
 use FactorioItemBrowser\Api\Search\Entity\Result\ResultInterface;
 use FactorioItemBrowser\Api\Search\Serializer\SerializerInterface;
-use FactorioItemBrowser\Api\Search\Serializer\SerializerManager;
+use FactorioItemBrowser\Api\Search\Service\SerializerService;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use ReflectionException;
 
 /**
- * The PHPUnit test of the SerializerManager class.
+ * The PHPUnit test of the SerializerService class.
  *
  * @author BluePsyduck <bluepsyduck@gmx.com>
  * @license http://opensource.org/licenses/GPL-3.0 GPL v3
- * @coversDefaultClass \FactorioItemBrowser\Api\Search\Serializer\SerializerManager
+ * @coversDefaultClass \FactorioItemBrowser\Api\Search\Service\SerializerService
  */
-class SerializerManagerTest extends TestCase
+class SerializerServiceTest extends TestCase
 {
     use ReflectionTrait;
 
@@ -59,10 +59,10 @@ class SerializerManagerTest extends TestCase
             'y' => $serializer2,
         ];
 
-        $manager = new SerializerManager($serializers);
+        $service = new SerializerService($serializers);
 
-        $this->assertSame($expectedSerializersByClassName, $this->extractProperty($manager, 'serializersByClassName'));
-        $this->assertSame($expectedSerializersByType, $this->extractProperty($manager, 'serializersByType'));
+        $this->assertSame($expectedSerializersByClassName, $this->extractProperty($service, 'serializersByClassName'));
+        $this->assertSame($expectedSerializersByType, $this->extractProperty($service, 'serializersByType'));
     }
 
     /**
@@ -96,12 +96,12 @@ class SerializerManagerTest extends TestCase
                                   ->with($this->identicalTo(0), $this->identicalTo(2))
                                   ->willReturn($searchResults);
 
-        /* @var SerializerManager&MockObject $manager */
-        $manager = $this->getMockBuilder(SerializerManager::class)
+        /* @var SerializerService&MockObject $service */
+        $service = $this->getMockBuilder(SerializerService::class)
                         ->setMethods(['serializeResult'])
                         ->disableOriginalConstructor()
                         ->getMock();
-        $manager->expects($this->exactly(3))
+        $service->expects($this->exactly(3))
                 ->method('serializeResult')
                 ->withConsecutive(
                     [$this->identicalTo($searchResult1)],
@@ -114,7 +114,7 @@ class SerializerManagerTest extends TestCase
                     $serializedResult3
                 );
 
-        $result = $manager->serialize($paginatedResultCollection);
+        $result = $service->serialize($paginatedResultCollection);
 
         $this->assertSame($expectedResult, $result);
     }
@@ -146,10 +146,10 @@ class SerializerManagerTest extends TestCase
                    ->with($searchResult)
                    ->willReturn($searializedResult);
 
-        $manager = new SerializerManager([]);
-        $this->injectProperty($manager, 'serializersByClassName', [$mockedClassName => $serializer]);
+        $service = new SerializerService([]);
+        $this->injectProperty($service, 'serializersByClassName', [$mockedClassName => $serializer]);
 
-        $result = $this->invokeMethod($manager, 'serializeResult', $searchResult);
+        $result = $this->invokeMethod($service, 'serializeResult', $searchResult);
 
         $this->assertSame($expectedResult, $result);
     }
@@ -166,8 +166,8 @@ class SerializerManagerTest extends TestCase
         /* @var ResultInterface&MockObject $searchResult */
         $searchResult = $this->createMock(ResultInterface::class);
 
-        $manager = new SerializerManager([]);
-        $result = $this->invokeMethod($manager, 'serializeResult', $searchResult);
+        $service = new SerializerService([]);
+        $result = $this->invokeMethod($service, 'serializeResult', $searchResult);
 
         $this->assertSame($expectedResult, $result);
     }
@@ -198,15 +198,15 @@ class SerializerManagerTest extends TestCase
                              [$this->identicalTo($searchResult2)]
                          );
 
-        /* @var SerializerManager&MockObject $manager */
-        $manager = $this->getMockBuilder(SerializerManager::class)
+        /* @var SerializerService&MockObject $service */
+        $service = $this->getMockBuilder(SerializerService::class)
                         ->setMethods(['createResultCollection', 'unserializeResult'])
                         ->disableOriginalConstructor()
                         ->getMock();
-        $manager->expects($this->once())
+        $service->expects($this->once())
                 ->method('createResultCollection')
                 ->willReturn($resultCollection);
-        $manager->expects($this->exactly(3))
+        $service->expects($this->exactly(3))
                 ->method('unserializeResult')
                 ->withConsecutive(
                     [$this->identicalTo($serializedResult1)],
@@ -219,7 +219,7 @@ class SerializerManagerTest extends TestCase
                     $searchResult2
                 );
 
-        $result = $manager->unserialize($serializedResults);
+        $result = $service->unserialize($serializedResults);
 
         $this->assertSame($resultCollection, $result);
     }
@@ -233,8 +233,8 @@ class SerializerManagerTest extends TestCase
     {
         $expectedResult = new PaginatedResultCollection();
 
-        $manager = new SerializerManager([]);
-        $result = $this->invokeMethod($manager, 'createResultCollection');
+        $service = new SerializerService([]);
+        $result = $this->invokeMethod($service, 'createResultCollection');
 
         $this->assertEquals($expectedResult, $result);
     }
@@ -259,10 +259,10 @@ class SerializerManagerTest extends TestCase
                    ->with($this->identicalTo($expectedSerializedResult))
                    ->willReturn($searchResult);
 
-        $manager = new SerializerManager([]);
-        $this->injectProperty($manager, 'serializersByType', ['a' => $serializer]);
+        $service = new SerializerService([]);
+        $this->injectProperty($service, 'serializersByType', ['a' => $serializer]);
 
-        $result = $this->invokeMethod($manager, 'unserializeResult', $serializedResult);
+        $result = $this->invokeMethod($service, 'unserializeResult', $serializedResult);
         $this->assertSame($searchResult, $result);
     }
 
@@ -275,9 +275,9 @@ class SerializerManagerTest extends TestCase
     {
         $serializedResult = 'abc';
 
-        $manager = new SerializerManager([]);
+        $service = new SerializerService([]);
 
-        $result = $this->invokeMethod($manager, 'unserializeResult', $serializedResult);
+        $result = $this->invokeMethod($service, 'unserializeResult', $serializedResult);
         $this->assertNull($result);
     }
 }

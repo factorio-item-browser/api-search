@@ -2,24 +2,24 @@
 
 declare(strict_types=1);
 
-namespace FactorioItemBrowserTest\Api\Search\Fetcher;
+namespace FactorioItemBrowserTest\Api\Search\Service;
 
 use FactorioItemBrowser\Api\Search\Collection\AggregatingResultCollection;
 use FactorioItemBrowser\Api\Search\Entity\Query;
 use FactorioItemBrowser\Api\Search\Fetcher\FetcherInterface;
-use FactorioItemBrowser\Api\Search\Fetcher\FetcherManager;
+use FactorioItemBrowser\Api\Search\Service\FetcherService;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use ReflectionException;
 
 /**
- * The PHPUnit test of the FetcherManager class.
+ * The PHPUnit test of the FetcherService class.
  *
  * @author BluePsyduck <bluepsyduck@gmx.com>
  * @license http://opensource.org/licenses/GPL-3.0 GPL v3
- * @coversDefaultClass \FactorioItemBrowser\Api\Search\Fetcher\FetcherManager
+ * @coversDefaultClass \FactorioItemBrowser\Api\Search\Service\FetcherService
  */
-class FetcherManagerTest extends TestCase
+class FetcherServiceTest extends TestCase
 {
     /**
      * Tests the fetch method.
@@ -48,7 +48,7 @@ class FetcherManagerTest extends TestCase
 
         $fetchers = [$fetcher1, $fetcher2];
 
-        $manager = new FetcherManager($fetchers);
-        $manager->fetch($query, $searchResults);
+        $service = new FetcherService($fetchers);
+        $service->fetch($query, $searchResults);
     }
 }

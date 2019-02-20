@@ -17,6 +17,7 @@ return [
     ConfigKey::MAIN => [
         ConfigKey::MAPPERS => [
             Mapper\ItemToItemResultMapper::class,
+            Mapper\RecipeDataToRecipeResultMapper::class,
         ],
     ],
 ];

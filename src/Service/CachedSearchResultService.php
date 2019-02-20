@@ -11,7 +11,6 @@ use FactorioItemBrowser\Api\Database\Repository\CachedSearchResultRepository;
 use FactorioItemBrowser\Api\Search\Collection\PaginatedResultCollection;
 use FactorioItemBrowser\Api\Search\Constant\Config;
 use FactorioItemBrowser\Api\Search\Entity\Query;
-use FactorioItemBrowser\Api\Search\Serializer\SerializerManager;
 
 /**
  * The service for the cached search results.
@@ -28,22 +27,22 @@ class CachedSearchResultService
     protected $cachedSearchResultRepository;
 
     /**
-     * The serializer manager.
-     * @var SerializerManager
+     * The serializer service.
+     * @var SerializerService
      */
-    protected $serializerManager;
+    protected $serializerService;
 
     /**
      * Initializes the service.
      * @param CachedSearchResultRepository $cachedSearchResultRepository
-     * @param SerializerManager $serializerManager
+     * @param SerializerService $serializerService
      */
     public function __construct(
         CachedSearchResultRepository $cachedSearchResultRepository,
-        SerializerManager $serializerManager
+        SerializerService $serializerService
     ) {
         $this->cachedSearchResultRepository = $cachedSearchResultRepository;
-        $this->serializerManager = $serializerManager;
+        $this->serializerService = $serializerService;
     }
 
     /**
@@ -56,7 +55,7 @@ class CachedSearchResultService
         $result = null;
         $serializedResult = $this->fetchSerializedResults($query->getHash());
         if (is_string($serializedResult)) {
-            $result = $this->serializerManager->unserialize($serializedResult);
+            $result = $this->serializerService->unserialize($serializedResult);
         }
         return $result;
     }
@@ -92,7 +91,7 @@ class CachedSearchResultService
     {
         try {
             $entity = new CachedSearchResult($query->getHash());
-            $entity->setResultData($this->serializerManager->serialize($searchResults));
+            $entity->setResultData($this->serializerService->serialize($searchResults));
 
             $this->cachedSearchResultRepository->persist($entity);
         } catch (Exception $e) {

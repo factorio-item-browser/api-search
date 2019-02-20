@@ -2,18 +2,21 @@
 
 declare(strict_types=1);
 
-namespace FactorioItemBrowser\Api\Search\Serializer;
+namespace FactorioItemBrowser\Api\Search\Service;
 
+use FactorioItemBrowser\Api\Search\Serializer\ItemResultSerializer;
+use FactorioItemBrowser\Api\Search\Serializer\RecipeResultSerializer;
+use FactorioItemBrowser\Api\Search\Serializer\SerializerInterface;
 use Interop\Container\ContainerInterface;
 use Zend\ServiceManager\Factory\FactoryInterface;
 
 /**
- * The factory of the serializer manager.
+ * The factory of the serializer service.
  *
  * @author BluePsyduck <bluepsyduck@gmx.com>
  * @license http://opensource.org/licenses/GPL-3.0 GPL v3
  */
-class SerializerManagerFactory implements FactoryInterface
+class SerializerServiceFactory implements FactoryInterface
 {
     /**
      * The serializer classes to use.
@@ -24,15 +27,15 @@ class SerializerManagerFactory implements FactoryInterface
     ];
 
     /**
-     * Creates the serializer manager.
-     * @param  ContainerInterface $container
-     * @param  string $requestedName
-     * @param  null|array $options
-     * @return SerializerManager
+     * Creates the service.
+     * @param ContainerInterface $container
+     * @param string $requestedName
+     * @param null|array $options
+     * @return SerializerService
      */
     public function __invoke(ContainerInterface $container, $requestedName, array $options = null)
     {
-        return new SerializerManager($this->createSerializers($container));
+        return new SerializerService($this->createSerializers($container));
     }
 
     /**

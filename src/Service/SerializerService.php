@@ -2,18 +2,19 @@
 
 declare(strict_types=1);
 
-namespace FactorioItemBrowser\Api\Search\Serializer;
+namespace FactorioItemBrowser\Api\Search\Service;
 
 use FactorioItemBrowser\Api\Search\Collection\PaginatedResultCollection;
 use FactorioItemBrowser\Api\Search\Entity\Result\ResultInterface;
+use FactorioItemBrowser\Api\Search\Serializer\SerializerInterface;
 
 /**
- * The manager of the serializers.
+ * The service handling the serializers.
  *
  * @author BluePsyduck <bluepsyduck@gmx.com>
  * @license http://opensource.org/licenses/GPL-3.0 GPL v3
  */
-class SerializerManager
+class SerializerService
 {
     /**
      * The serializers by their handled result class.
@@ -28,7 +29,7 @@ class SerializerManager
     protected $serializersByType = [];
 
     /**
-     * Initializes the manager.
+     * Initializes the service.
      * @param array|SerializerInterface[] $serializers
      */
     public function __construct(array $serializers)
