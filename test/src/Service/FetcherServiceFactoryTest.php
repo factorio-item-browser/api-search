@@ -6,6 +6,7 @@ namespace FactorioItemBrowserTest\Api\Search\Service;
 
 use BluePsyduck\Common\Test\ReflectionTrait;
 use FactorioItemBrowser\Api\Search\Fetcher\FetcherInterface;
+use FactorioItemBrowser\Api\Search\Fetcher\TranslationFetcher;
 use FactorioItemBrowser\Api\Search\Service\FetcherService;
 use FactorioItemBrowser\Api\Search\Service\FetcherServiceFactory;
 use FactorioItemBrowser\Api\Search\Fetcher\ItemFetcher;
@@ -66,6 +67,8 @@ class FetcherServiceFactoryTest extends TestCase
         $itemFetcher = $this->createMock(ItemFetcher::class);
         /* @var RecipeFetcher&MockObject $recipeFetcher */
         $recipeFetcher = $this->createMock(RecipeFetcher::class);
+        /* @var TranslationFetcher&MockObject $translationFetcher */
+        $translationFetcher = $this->createMock(TranslationFetcher::class);
         /* @var MissingItemIdFetcher&MockObject $missingItemIdFetcher */
         $missingItemIdFetcher = $this->createMock(MissingItemIdFetcher::class);
         /* @var MissingRecipeIdFetcher&MockObject $missingRecipeIdFetcher */
@@ -74,23 +77,26 @@ class FetcherServiceFactoryTest extends TestCase
         $expectedResult = [
             $itemFetcher,
             $recipeFetcher,
+            $translationFetcher,
             $missingItemIdFetcher,
             $missingRecipeIdFetcher,
         ];
 
         /* @var ContainerInterface&MockObject $container */
         $container = $this->createMock(ContainerInterface::class);
-        $container->expects($this->exactly(4))
+        $container->expects($this->exactly(5))
                   ->method('get')
                   ->withConsecutive(
                       [$this->identicalTo(ItemFetcher::class)],
                       [$this->identicalTo(RecipeFetcher::class)],
+                      [$this->identicalTo(TranslationFetcher::class)],
                       [$this->identicalTo(MissingItemIdFetcher::class)],
                       [$this->identicalTo(MissingRecipeIdFetcher::class)]
                   )
                   ->willReturnOnConsecutiveCalls(
                       $itemFetcher,
                       $recipeFetcher,
+                      $translationFetcher,
                       $missingItemIdFetcher,
                       $missingRecipeIdFetcher
                   );

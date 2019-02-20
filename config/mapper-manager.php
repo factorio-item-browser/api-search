@@ -18,6 +18,8 @@ return [
         ConfigKey::MAPPERS => [
             Mapper\ItemToItemResultMapper::class,
             Mapper\RecipeDataToRecipeResultMapper::class,
+            Mapper\TranslationPriorityDataToItemResultMapper::class,
+            Mapper\TranslationPriorityDataToRecipeResultMapper::class,
         ],
     ],
 ];
