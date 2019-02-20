@@ -74,8 +74,9 @@ class MissingItemIdFetcherTest extends TestCase
     public function testFetch(): void
     {
         $namesByTypes = ['abc' => ['def', 'ghi']];
-        $modCombinationIds = [42, 1337];
 
+        /* @var Query&MockObject $query */
+        $query = $this->createMock(Query::class);
         /* @var Item&MockObject $item1 */
         $item1 = $this->createMock(Item::class);
         /* @var Item&MockObject $item2 */
@@ -87,12 +88,6 @@ class MissingItemIdFetcherTest extends TestCase
 
         $items = [$item1, $item2];
 
-        /* @var Query&MockObject $query */
-        $query = $this->createMock(Query::class);
-        $query->expects($this->once())
-              ->method('getModCombinationIds')
-              ->willReturn($modCombinationIds);
-
         /* @var AggregatingResultCollection&MockObject $searchResults */
         $searchResults = $this->createMock(AggregatingResultCollection::class);
         $searchResults->expects($this->exactly(2))
@@ -102,20 +97,20 @@ class MissingItemIdFetcherTest extends TestCase
                           [$this->identicalTo($itemResult2)]
                       );
 
-        $this->itemRepository->expects($this->once())
-                             ->method('findByTypesAndNames')
-                             ->with($this->identicalTo($namesByTypes), $this->identicalTo($modCombinationIds))
-                             ->willReturn($items);
-
         /* @var MissingItemIdFetcher&MockObject $fetcher */
         $fetcher = $this->getMockBuilder(MissingItemIdFetcher::class)
-                        ->setMethods(['getTypesAndNamesWithMissingIds', 'mapItem'])
+                        ->setMethods(['getTypesAndNamesWithMissingIds', 'fetchItems', 'mapItem'])
                         ->setConstructorArgs([$this->itemRepository, $this->mapperManager])
                         ->getMock();
         $fetcher->expects($this->once())
                 ->method('getTypesAndNamesWithMissingIds')
                 ->with($this->identicalTo($searchResults))
                 ->willReturn($namesByTypes);
+        $fetcher->expects($this->once())
+                ->method('fetchItems')
+                ->with($this->identicalTo($namesByTypes), $this->identicalTo($query))
+                ->willReturn($items);
+
         $fetcher->expects($this->exactly(2))
                 ->method('mapItem')
                 ->withConsecutive(
@@ -137,8 +132,8 @@ class MissingItemIdFetcherTest extends TestCase
      */
     public function testGetTypesAndNamesWithMissingIds(): void
     {
-        /* @var Item&MockObject $item1 */
-        $item1 = $this->createMock(Item::class);
+        /* @var ItemResult&MockObject $item1 */
+        $item1 = $this->createMock(ItemResult::class);
         $item1->expects($this->once())
               ->method('getId')
               ->willReturn(0);
@@ -149,14 +144,14 @@ class MissingItemIdFetcherTest extends TestCase
               ->method('getName')
               ->willReturn('def');
 
-        /* @var Item&MockObject $item2 */
-        $item2 = $this->createMock(Item::class);
+        /* @var ItemResult&MockObject $item2 */
+        $item2 = $this->createMock(ItemResult::class);
         $item2->expects($this->once())
               ->method('getId')
               ->willReturn(1337);
 
-        /* @var Item&MockObject $item3 */
-        $item3 = $this->createMock(Item::class);
+        /* @var ItemResult&MockObject $item3 */
+        $item3 = $this->createMock(ItemResult::class);
         $item3->expects($this->once())
               ->method('getId')
               ->willReturn(0);
@@ -182,6 +177,40 @@ class MissingItemIdFetcherTest extends TestCase
         $result = $this->invokeMethod($fetcher, 'getTypesAndNamesWithMissingIds', $searchResults);
 
         $this->assertEquals($expectedResult, $result);
+    }
+
+    /**
+     * Tests the fetchItems method.
+     * @throws ReflectionException
+     * @covers ::fetchItems
+     */
+    public function testFetchItems(): void
+    {
+        $namesByTypes = [
+            'abc' => ['def', 'ghi'],
+        ];
+        $modCombinationIds = [42, 1337];
+
+        $items = [
+            $this->createMock(Item::class),
+            $this->createMock(Item::class),
+        ];
+
+        /* @var Query&MockObject $query */
+        $query = $this->createMock(Query::class);
+        $query->expects($this->once())
+              ->method($this->identicalTo('getModCombinationIds'))
+              ->willReturn($modCombinationIds);
+
+        $this->itemRepository->expects($this->once())
+                             ->method('findByTypesAndNames')
+                             ->with($this->identicalTo($namesByTypes), $this->identicalTo($modCombinationIds))
+                             ->willReturn($items);
+
+        $fetcher = new MissingItemIdFetcher($this->itemRepository, $this->mapperManager);
+        $result = $this->invokeMethod($fetcher, 'fetchItems', $namesByTypes, $query);
+
+        $this->assertSame($items, $result);
     }
 
     /**

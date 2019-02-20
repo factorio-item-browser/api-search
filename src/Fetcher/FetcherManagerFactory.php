@@ -19,7 +19,10 @@ class FetcherManagerFactory
      */
     protected const FETCHER_CLASSES = [
         ItemFetcher::class,
+        RecipeFetcher::class,
+
         MissingItemIdFetcher::class,
+        MissingRecipeIdFetcher::class,
     ];
 
     /**

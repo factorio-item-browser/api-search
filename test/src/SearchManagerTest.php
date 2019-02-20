@@ -85,17 +85,22 @@ class SearchManagerTest extends TestCase
     {
         $queryString = 'abc';
         $modCombinationIds = [42, 1337];
+        $locale = 'def';
 
         /* @var Query&MockObject $query */
         $query = $this->createMock(Query::class);
 
         $this->queryParser->expects($this->once())
                           ->method('parse')
-                          ->with($this->identicalTo($queryString), $this->identicalTo($modCombinationIds))
+                          ->with(
+                              $this->identicalTo($queryString),
+                              $this->identicalTo($modCombinationIds),
+                              $this->identicalTo($locale)
+                          )
                           ->willReturn($query);
 
         $manager = new SearchManager($this->cachedSearchResultService, $this->fetcherManager, $this->queryParser);
-        $result = $manager->parseQuery($queryString, $modCombinationIds);
+        $result = $manager->parseQuery($queryString, $modCombinationIds, $locale);
 
         $this->assertSame($query, $result);
     }

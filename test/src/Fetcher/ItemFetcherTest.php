@@ -75,9 +75,8 @@ class ItemFetcherTest extends TestCase
      */
     public function testFetch(): void
     {
-        $keywords = ['abc', 'def'];
-        $modCombinationIds = [42, 1337];
-
+        /* @var Query&MockObject $query */
+        $query = $this->createMock(Query::class);
         /* @var Item&MockObject $item1 */
         $item1 = $this->createMock(Item::class);
         /* @var Item&MockObject $item2 */
@@ -89,16 +88,6 @@ class ItemFetcherTest extends TestCase
 
         $items = [$item1, $item2];
 
-        /* @var Query&MockObject $query */
-        $query = $this->createMock(Query::class);
-        $query->expects($this->once())
-              ->method('getTermValuesByType')
-              ->with($this->identicalTo(TermType::GENERIC))
-              ->willReturn($keywords);
-        $query->expects($this->once())
-              ->method('getModCombinationIds')
-              ->willReturn($modCombinationIds);
-
         /* @var AggregatingResultCollection&MockObject $searchResults */
         $searchResults = $this->createMock(AggregatingResultCollection::class);
         $searchResults->expects($this->exactly(2))
@@ -108,16 +97,16 @@ class ItemFetcherTest extends TestCase
                           [$this->identicalTo($itemResult2)]
                       );
 
-        $this->itemRepository->expects($this->once())
-                             ->method('findByKeywords')
-                             ->with($this->identicalTo($keywords), $this->identicalTo($modCombinationIds))
-                             ->willReturn($items);
-
         /* @var ItemFetcher&MockObject $fetcher */
         $fetcher = $this->getMockBuilder(ItemFetcher::class)
-                        ->setMethods(['mapItem'])
+                        ->setMethods(['fetchItems', 'mapItem'])
                         ->setConstructorArgs([$this->itemRepository, $this->mapperManager])
                         ->getMock();
+        $fetcher->expects($this->once())
+                ->method('fetchItems')
+                ->with($this->identicalTo($query))
+                ->willReturn($items);
+
         $fetcher->expects($this->exactly(2))
                 ->method('mapItem')
                 ->withConsecutive(
@@ -130,6 +119,42 @@ class ItemFetcherTest extends TestCase
                 );
 
         $fetcher->fetch($query, $searchResults);
+    }
+
+    /**
+     * Tests the fetchItems method.
+     * @throws ReflectionException
+     * @covers ::fetchItems
+     */
+    public function testFetchItems(): void
+    {
+        $keywords = ['abc', 'def'];
+        $modCombinationIds = [42, 1337];
+
+        $items = [
+            $this->createMock(Item::class),
+            $this->createMock(Item::class),
+        ];
+
+        /* @var Query&MockObject $query */
+        $query = $this->createMock(Query::class);
+        $query->expects($this->once())
+              ->method('getTermValuesByType')
+              ->with($this->identicalTo(TermType::GENERIC))
+              ->willReturn($keywords);
+        $query->expects($this->once())
+              ->method($this->identicalTo('getModCombinationIds'))
+              ->willReturn($modCombinationIds);
+
+        $this->itemRepository->expects($this->once())
+                             ->method('findByKeywords')
+                             ->with($this->identicalTo($keywords), $this->identicalTo($modCombinationIds))
+                             ->willReturn($items);
+
+        $fetcher = new ItemFetcher($this->itemRepository, $this->mapperManager);
+        $result = $this->invokeMethod($fetcher, 'fetchItems', $query);
+
+        $this->assertSame($items, $result);
     }
 
     /**

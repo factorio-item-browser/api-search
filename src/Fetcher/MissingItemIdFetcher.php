@@ -52,8 +52,7 @@ class MissingItemIdFetcher implements FetcherInterface
     public function fetch(Query $query, AggregatingResultCollection $searchResults): void
     {
         $namesByTypes = $this->getTypesAndNamesWithMissingIds($searchResults);
-        $items = $this->itemRepository->findByTypesAndNames($namesByTypes, $query->getModCombinationIds());
-        foreach ($items as $item) {
+        foreach ($this->fetchItems($namesByTypes, $query) as $item) {
             $searchResults->addItem($this->mapItem($item));
         }
     }
@@ -72,6 +71,20 @@ class MissingItemIdFetcher implements FetcherInterface
             }
         }
         return $result;
+    }
+
+    /**
+     * Fetches the items matching the criteria.
+     * @param array|string[][] $namesByTypes
+     * @param Query $query
+     * @return array|Item[]
+     */
+    protected function fetchItems(array $namesByTypes, Query $query): array
+    {
+        return $this->itemRepository->findByTypesAndNames(
+            $namesByTypes,
+            $query->getModCombinationIds()
+        );
     }
 
     /**

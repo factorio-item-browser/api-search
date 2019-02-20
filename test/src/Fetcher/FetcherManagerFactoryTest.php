@@ -10,6 +10,8 @@ use FactorioItemBrowser\Api\Search\Fetcher\FetcherManager;
 use FactorioItemBrowser\Api\Search\Fetcher\FetcherManagerFactory;
 use FactorioItemBrowser\Api\Search\Fetcher\ItemFetcher;
 use FactorioItemBrowser\Api\Search\Fetcher\MissingItemIdFetcher;
+use FactorioItemBrowser\Api\Search\Fetcher\MissingRecipeIdFetcher;
+use FactorioItemBrowser\Api\Search\Fetcher\RecipeFetcher;
 use Interop\Container\ContainerInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -62,25 +64,35 @@ class FetcherManagerFactoryTest extends TestCase
     {
         /* @var ItemFetcher&MockObject $itemFetcher */
         $itemFetcher = $this->createMock(ItemFetcher::class);
+        /* @var RecipeFetcher&MockObject $recipeFetcher */
+        $recipeFetcher = $this->createMock(RecipeFetcher::class);
         /* @var MissingItemIdFetcher&MockObject $missingItemIdFetcher */
         $missingItemIdFetcher = $this->createMock(MissingItemIdFetcher::class);
+        /* @var MissingRecipeIdFetcher&MockObject $missingRecipeIdFetcher */
+        $missingRecipeIdFetcher = $this->createMock(MissingRecipeIdFetcher::class);
 
         $expectedResult = [
             $itemFetcher,
-            $missingItemIdFetcher
+            $recipeFetcher,
+            $missingItemIdFetcher,
+            $missingRecipeIdFetcher,
         ];
 
         /* @var ContainerInterface&MockObject $container */
         $container = $this->createMock(ContainerInterface::class);
-        $container->expects($this->exactly(2))
+        $container->expects($this->exactly(4))
                   ->method('get')
                   ->withConsecutive(
                       [$this->identicalTo(ItemFetcher::class)],
-                      [$this->identicalTo(MissingItemIdFetcher::class)]
+                      [$this->identicalTo(RecipeFetcher::class)],
+                      [$this->identicalTo(MissingItemIdFetcher::class)],
+                      [$this->identicalTo(MissingRecipeIdFetcher::class)]
                   )
                   ->willReturnOnConsecutiveCalls(
                       $itemFetcher,
-                      $missingItemIdFetcher
+                      $recipeFetcher,
+                      $missingItemIdFetcher,
+                      $missingRecipeIdFetcher
                   );
 
         $factory = new FetcherManagerFactory();

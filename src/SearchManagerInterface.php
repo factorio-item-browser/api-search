@@ -26,9 +26,10 @@ interface SearchManagerInterface
      * Parses the query string to an actual query entity.
      * @param string $queryString
      * @param array|int[] $modCombinationIds
+     * @param string $locale
      * @return Query
      */
-    public function parseQuery(string $queryString, array $modCombinationIds): Query;
+    public function parseQuery(string $queryString, array $modCombinationIds, string $locale): Query;
 
     /**
      * Searches for results using the query.

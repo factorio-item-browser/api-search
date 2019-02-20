@@ -33,6 +33,7 @@ class QueryParserTest extends TestCase
     {
         $queryString = 'abc';
         $modCombinationIds = [42, 1337];
+        $locale = 'def';
         $hash = '12ab34cd';
 
         /* @var Query&MockObject $query */
@@ -47,7 +48,11 @@ class QueryParserTest extends TestCase
                        ->getMock();
         $parser->expects($this->once())
                ->method('createQuery')
-               ->with($this->identicalTo($queryString), $this->identicalTo($modCombinationIds))
+               ->with(
+                   $this->identicalTo($queryString),
+                   $this->identicalTo($modCombinationIds),
+                   $this->identicalTo($locale)
+               )
                ->willReturn($query);
         $parser->expects($this->once())
                ->method('parseQueryString')
@@ -57,7 +62,7 @@ class QueryParserTest extends TestCase
                ->with($this->identicalTo($query))
                ->willReturn($hash);
 
-        $result = $parser->parse($queryString, $modCombinationIds);
+        $result = $parser->parse($queryString, $modCombinationIds, $locale);
 
         $this->assertSame($query, $result);
     }
@@ -71,10 +76,11 @@ class QueryParserTest extends TestCase
     {
         $queryString = 'abc';
         $modCombinationIds = [42, 1337];
-        $expectedResult = new Query($queryString, $modCombinationIds);
+        $locale = 'def';
+        $expectedResult = new Query($queryString, $modCombinationIds, $locale);
 
         $parser = new QueryParser();
-        $result = $this->invokeMethod($parser, 'createQuery', $queryString, $modCombinationIds);
+        $result = $this->invokeMethod($parser, 'createQuery', $queryString, $modCombinationIds, $locale);
 
         $this->assertEquals($expectedResult, $result);
     }
@@ -154,13 +160,17 @@ class QueryParserTest extends TestCase
     {
         $queryData = ['abc' => 'def'];
         $modCombinationIds = [42, 1337];
-        $expectedResult = 'ae0819dc7f3f4cac';
+        $locale = 'ghi';
+        $expectedResult = 'd72197e632fa2195';
 
         /* @var Query&MockObject $query */
         $query = $this->createMock(Query::class);
         $query->expects($this->once())
               ->method('getModCombinationIds')
               ->willReturn($modCombinationIds);
+        $query->expects($this->once())
+              ->method('getLocale')
+              ->willReturn($locale);
 
         /* @var QueryParser&MockObject $parser */
         $parser = $this->getMockBuilder(QueryParser::class)

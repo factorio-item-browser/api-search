@@ -32,11 +32,13 @@ class QueryTest extends TestCase
     {
         $queryString = 'abc';
         $modCombinationIds = [42, 1337];
+        $locale = 'def';
         
-        $query = new Query($queryString, $modCombinationIds);
+        $query = new Query($queryString, $modCombinationIds, $locale);
         
         $this->assertSame($queryString, $this->extractProperty($query, 'queryString'));
         $this->assertSame($modCombinationIds, $this->extractProperty($query, 'modCombinationIds'));
+        $this->assertSame($locale, $this->extractProperty($query, 'locale'));
         $this->assertInstanceOf(TermCollection::class, $this->extractProperty($query, 'terms'));
     }
 
@@ -48,7 +50,7 @@ class QueryTest extends TestCase
     public function testSetAndGetQueryString(): void
     {
         $queryString = 'abc';
-        $query = new Query('foo', [42]);
+        $query = new Query('foo', [42], 'bar');
 
         $this->assertSame($query, $query->setQueryString($queryString));
         $this->assertSame($queryString, $query->getQueryString());
@@ -62,10 +64,24 @@ class QueryTest extends TestCase
     public function testSetAndGetModCombinationIds(): void
     {
         $modCombinationIds = [42, 1337];
-        $query = new Query('foo', $modCombinationIds);
+        $query = new Query('foo', [], 'bar');
 
         $this->assertSame($query, $query->setModCombinationIds($modCombinationIds));
         $this->assertSame($modCombinationIds, $query->getModCombinationIds());
+    }
+
+    /**
+     * Tests the setting and getting the locale.
+     * @covers ::getLocale
+     * @covers ::setLocale
+     */
+    public function testSetAndGetLocale(): void
+    {
+        $locale = 'abc';
+        $query = new Query('foo', [], 'bar');
+
+        $this->assertSame($query, $query->setLocale($locale));
+        $this->assertSame($locale, $query->getLocale());
     }
 
     /**
@@ -84,7 +100,7 @@ class QueryTest extends TestCase
                        ->method('add')
                        ->with($this->identicalTo($term));
 
-        $query = new Query('foo', [42]);
+        $query = new Query('foo', [42], 'bar');
         $this->injectProperty($query, 'terms', $termCollection);
         $result = $query->addTerm($term);
 
@@ -110,7 +126,7 @@ class QueryTest extends TestCase
                        ->willReturn($terms);
 
 
-        $query = new Query('foo', [42]);
+        $query = new Query('foo', [42], 'bar');
         $this->injectProperty($query, 'terms', $termCollection);
         $result = $query->getTerms();
 
@@ -133,7 +149,7 @@ class QueryTest extends TestCase
                        ->willReturn($values);
 
 
-        $query = new Query('foo', [42]);
+        $query = new Query('foo', [42], 'bar');
         $this->injectProperty($query, 'terms', $termCollection);
         $result = $query->getTermValues();
 
@@ -161,7 +177,7 @@ class QueryTest extends TestCase
                        ->willReturn($terms);
 
 
-        $query = new Query('foo', [42]);
+        $query = new Query('foo', [42], 'bar');
         $this->injectProperty($query, 'terms', $termCollection);
         $result = $query->getTermsByType($type);
 
@@ -189,7 +205,7 @@ class QueryTest extends TestCase
                        ->willReturn($terms);
 
 
-        $query = new Query('foo', [42]);
+        $query = new Query('foo', [42], 'bar');
         $this->injectProperty($query, 'terms', $termCollection);
         $result = $query->getTermsByTypes($types);
 
@@ -213,7 +229,7 @@ class QueryTest extends TestCase
                        ->with($this->identicalTo($type))
                        ->willReturn($values);
 
-        $query = new Query('foo', [42]);
+        $query = new Query('foo', [42], 'bar');
         $this->injectProperty($query, 'terms', $termCollection);
         $result = $query->getTermValuesByType($type);
 
@@ -237,7 +253,7 @@ class QueryTest extends TestCase
                        ->with($this->identicalTo($types))
                        ->willReturn($values);
 
-        $query = new Query('foo', [42]);
+        $query = new Query('foo', [42], 'bar');
         $this->injectProperty($query, 'terms', $termCollection);
         $result = $query->getTermValuesByTypes($types);
 
@@ -252,7 +268,7 @@ class QueryTest extends TestCase
     public function testSetAndGetHash(): void
     {
         $hash = 'abc';
-        $query = new Query('foo', [42]);
+        $query = new Query('foo', [42], 'bar');
 
         $this->assertSame($query, $query->setHash($hash));
         $this->assertSame($hash, $query->getHash());

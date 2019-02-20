@@ -23,8 +23,11 @@ return [
             Fetcher\FetcherManager::class => Fetcher\FetcherManagerFactory::class,
             Fetcher\ItemFetcher::class => ReflectionFactory::class,
             Fetcher\MissingItemIdFetcher::class => ReflectionFactory::class,
+            Fetcher\MissingRecipeIdFetcher::class => ReflectionFactory::class,
+            Fetcher\RecipeFetcher::class => ReflectionFactory::class,
 
             Mapper\ItemToItemResultMapper::class => InvokableFactory::class,
+            Mapper\RecipeDataToRecipeResultMapper::class => InvokableFactory::class,
 
             Parser\QueryParser::class => InvokableFactory::class,
 

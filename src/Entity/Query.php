@@ -27,6 +27,12 @@ class Query
     protected $modCombinationIds;
 
     /**
+     * The locale to prefer in translations.
+     * @var string
+     */
+    protected $locale;
+
+    /**
      * The terms of the query.
      * @var TermCollection
      */
@@ -42,11 +48,13 @@ class Query
      * Initializes the query.
      * @param string $queryString
      * @param array|int[] $modCombinationIds
+     * @param string $locale
      */
-    public function __construct(string $queryString, array $modCombinationIds)
+    public function __construct(string $queryString, array $modCombinationIds, string $locale)
     {
         $this->queryString = $queryString;
         $this->modCombinationIds = $modCombinationIds;
+        $this->locale = $locale;
 
         $this->terms = new TermCollection();
     }
@@ -90,6 +98,28 @@ class Query
     {
         return $this->modCombinationIds;
     }
+
+    /**
+     * Sets the locale to prefer in translations.
+     * @param string $locale
+     * @return $this
+     */
+    public function setLocale(string $locale): self
+    {
+        $this->locale = $locale;
+        return $this;
+    }
+
+    /**
+     * Returns the locale to prefer in translations.
+     * @return string
+     */
+    public function getLocale(): string
+    {
+        return $this->locale;
+    }
+
+
 
     /**
      * Adds a term to the query.
