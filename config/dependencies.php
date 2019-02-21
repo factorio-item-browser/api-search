@@ -20,6 +20,7 @@ return [
             SearchManagerInterface::class => SearchManager::class,
         ],
         'factories'  => [
+            Fetcher\DuplicateRecipeFetcher::class => InvokableFactory::class,
             Fetcher\ItemFetcher::class => ReflectionFactory::class,
             Fetcher\MissingItemIdFetcher::class => ReflectionFactory::class,
             Fetcher\MissingRecipeIdFetcher::class => ReflectionFactory::class,

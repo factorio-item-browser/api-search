@@ -25,6 +25,7 @@ return [
                 Fetcher\MissingRecipeIdFetcher::class,
 
                 Fetcher\ProductRecipeFetcher::class,
+                Fetcher\DuplicateRecipeFetcher::class,
             ],
             ConfigKey::SERIALIZERS => [
                 Serializer\ItemResultSerializer::class,
