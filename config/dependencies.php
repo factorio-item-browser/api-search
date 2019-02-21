@@ -23,6 +23,7 @@ return [
             Fetcher\ItemFetcher::class => ReflectionFactory::class,
             Fetcher\MissingItemIdFetcher::class => ReflectionFactory::class,
             Fetcher\MissingRecipeIdFetcher::class => ReflectionFactory::class,
+            Fetcher\ProductRecipeFetcher::class => ReflectionFactory::class,
             Fetcher\RecipeFetcher::class => ReflectionFactory::class,
             Fetcher\TranslationFetcher::class => ReflectionFactory::class,
 

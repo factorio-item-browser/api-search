@@ -23,6 +23,8 @@ return [
 
                 Fetcher\MissingItemIdFetcher::class,
                 Fetcher\MissingRecipeIdFetcher::class,
+
+                Fetcher\ProductRecipeFetcher::class,
             ],
             ConfigKey::SERIALIZERS => [
                 Serializer\ItemResultSerializer::class,
