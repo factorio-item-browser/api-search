@@ -4,12 +4,8 @@ declare(strict_types=1);
 
 namespace FactorioItemBrowser\Api\Search\Service;
 
+use FactorioItemBrowser\Api\Search\Constant\ConfigKey;
 use FactorioItemBrowser\Api\Search\Fetcher\FetcherInterface;
-use FactorioItemBrowser\Api\Search\Fetcher\ItemFetcher;
-use FactorioItemBrowser\Api\Search\Fetcher\MissingItemIdFetcher;
-use FactorioItemBrowser\Api\Search\Fetcher\MissingRecipeIdFetcher;
-use FactorioItemBrowser\Api\Search\Fetcher\RecipeFetcher;
-use FactorioItemBrowser\Api\Search\Fetcher\TranslationFetcher;
 use Interop\Container\ContainerInterface;
 
 /**
@@ -21,18 +17,6 @@ use Interop\Container\ContainerInterface;
 class FetcherServiceFactory
 {
     /**
-     * The fetcher classes to use.
-     */
-    protected const FETCHER_CLASSES = [
-        ItemFetcher::class,
-        RecipeFetcher::class,
-        TranslationFetcher::class,
-
-        MissingItemIdFetcher::class,
-        MissingRecipeIdFetcher::class,
-    ];
-
-    /**
      * Creates the service.
      * @param  ContainerInterface $container
      * @param  string $requestedName
@@ -41,18 +25,22 @@ class FetcherServiceFactory
      */
     public function __invoke(ContainerInterface $container, $requestedName, array $options = null)
     {
-        return new FetcherService($this->createFetchers($container));
+        $config = $container->get('config');
+        $libraryConfig = $config[ConfigKey::PROJECT][ConfigKey::LIBRARY];
+
+        return new FetcherService($this->createFetchers($container, $libraryConfig[ConfigKey::FETCHERS]));
     }
 
     /**
      * Creates the fetchers to use.
      * @param ContainerInterface $container
+     * @param array|string[] $aliases
      * @return array|FetcherInterface[]
      */
-    protected function createFetchers(ContainerInterface $container): array
+    protected function createFetchers(ContainerInterface $container, array $aliases): array
     {
         $result = [];
-        foreach (self::FETCHER_CLASSES as $alias) {
+        foreach ($aliases as $alias) {
             $result[] = $container->get($alias);
         }
         return $result;

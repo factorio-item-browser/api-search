@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace FactorioItemBrowser\Api\Search\Service;
 
+use FactorioItemBrowser\Api\Search\Constant\ConfigKey;
 use FactorioItemBrowser\Api\Search\Serializer\ItemResultSerializer;
 use FactorioItemBrowser\Api\Search\Serializer\RecipeResultSerializer;
 use FactorioItemBrowser\Api\Search\Serializer\SerializerInterface;
@@ -35,18 +36,22 @@ class SerializerServiceFactory implements FactoryInterface
      */
     public function __invoke(ContainerInterface $container, $requestedName, array $options = null)
     {
-        return new SerializerService($this->createSerializers($container));
+        $config = $container->get('config');
+        $libraryConfig = $config[ConfigKey::PROJECT][ConfigKey::LIBRARY];
+
+        return new SerializerService($this->createSerializers($container, $libraryConfig[ConfigKey::SERIALIZERS]));
     }
 
     /**
      * Creates the serializers to use.
      * @param ContainerInterface $container
+     * @param array|string[] $aliases
      * @return array|SerializerInterface[]
      */
-    protected function createSerializers(ContainerInterface $container): array
+    protected function createSerializers(ContainerInterface $container, array $aliases): array
     {
         $result = [];
-        foreach (self::SERIALIZER_CLASSES as $alias) {
+        foreach ($aliases as $alias) {
             $result[] = $container->get($alias);
         }
         return $result;

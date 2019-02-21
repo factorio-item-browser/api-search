@@ -5,8 +5,7 @@ declare(strict_types=1);
 namespace FactorioItemBrowserTest\Api\Search\Service;
 
 use BluePsyduck\Common\Test\ReflectionTrait;
-use FactorioItemBrowser\Api\Search\Serializer\ItemResultSerializer;
-use FactorioItemBrowser\Api\Search\Serializer\RecipeResultSerializer;
+use FactorioItemBrowser\Api\Search\Constant\ConfigKey;
 use FactorioItemBrowser\Api\Search\Serializer\SerializerInterface;
 use FactorioItemBrowser\Api\Search\Service\SerializerService;
 use FactorioItemBrowser\Api\Search\Service\SerializerServiceFactory;
@@ -33,6 +32,15 @@ class SerializerServiceFactoryTest extends TestCase
      */
     public function testInvoke(): void
     {
+        $aliases = ['abc', 'def'];
+        $config = [
+            ConfigKey::PROJECT => [
+                ConfigKey::LIBRARY => [
+                    ConfigKey::SERIALIZERS => $aliases,
+                ],
+            ],
+        ];
+
         $serializers = [
             $this->createMock(SerializerInterface::class),
             $this->createMock(SerializerInterface::class),
@@ -40,6 +48,10 @@ class SerializerServiceFactoryTest extends TestCase
 
         /* @var ContainerInterface&MockObject $container */
         $container = $this->createMock(ContainerInterface::class);
+        $container->expects($this->once())
+                  ->method('get')
+                  ->with($this->identicalTo('config'))
+                  ->willReturn($config);
 
         /* @var SerializerServiceFactory&MockObject $factory */
         $factory = $this->getMockBuilder(SerializerServiceFactory::class)
@@ -47,7 +59,7 @@ class SerializerServiceFactoryTest extends TestCase
                         ->getMock();
         $factory->expects($this->once())
                 ->method('createSerializers')
-                ->with($this->identicalTo($container))
+                ->with($this->identicalTo($container), $this->identicalTo($aliases))
                 ->willReturn($serializers);
 
         $factory($container, SerializerService::class);
@@ -60,28 +72,30 @@ class SerializerServiceFactoryTest extends TestCase
      */
     public function testCreateSerializers(): void
     {
-        /* @var ItemResultSerializer&MockObject $itemResultSerializer */
-        $itemResultSerializer = $this->createMock(ItemResultSerializer::class);
-        /* @var RecipeResultSerializer&MockObject $recipeResultSerializer */
-        $recipeResultSerializer = $this->createMock(RecipeResultSerializer::class);
+        $aliases = ['abc', 'def'];
 
-        $expectedResult = [$itemResultSerializer, $recipeResultSerializer];
+        /* @var SerializerInterface&MockObject $serializer1 */
+        $serializer1 = $this->createMock(SerializerInterface::class);
+        /* @var SerializerInterface&MockObject $serializer2 */
+        $serializer2 = $this->createMock(SerializerInterface::class);
+
+        $expectedResult = [$serializer1, $serializer2];
 
         /* @var ContainerInterface&MockObject $container */
         $container = $this->createMock(ContainerInterface::class);
         $container->expects($this->exactly(2))
                   ->method('get')
                   ->withConsecutive(
-                      [$this->identicalTo(ItemResultSerializer::class)],
-                      [$this->identicalTo(RecipeResultSerializer::class)]
+                      [$this->identicalTo('abc')],
+                      [$this->identicalTo('def')]
                   )
                   ->willReturnOnConsecutiveCalls(
-                      $itemResultSerializer,
-                      $recipeResultSerializer
+                      $serializer1,
+                      $serializer2
                   );
 
         $factory = new SerializerServiceFactory();
-        $result = $this->invokeMethod($factory, 'createSerializers', $container);
+        $result = $this->invokeMethod($factory, 'createSerializers', $container, $aliases);
 
         $this->assertEquals($expectedResult, $result);
     }

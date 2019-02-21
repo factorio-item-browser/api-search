@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace FactorioItemBrowserTest\Api\Search;
 
-use BluePsyduck\MapperManager\Constant\ConfigKey;
+use BluePsyduck\MapperManager\Constant\ConfigKey as MapperManagerConfigKey;
 use FactorioItemBrowser\Api\Search\ConfigProvider;
+use FactorioItemBrowser\Api\Search\Constant\ConfigKey;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -26,10 +27,15 @@ class ConfigProviderTest extends TestCase
         $configProvider = new ConfigProvider();
         $result = $configProvider();
 
+        $this->assertArrayHasKey(ConfigKey::PROJECT, $result);
+        $this->assertArrayHasKey(ConfigKey::LIBRARY, $result[ConfigKey::PROJECT]);
+        $this->assertArrayHasKey(ConfigKey::FETCHERS, $result[ConfigKey::PROJECT][ConfigKey::LIBRARY]);
+        $this->assertArrayHasKey(ConfigKey::SERIALIZERS, $result[ConfigKey::PROJECT][ConfigKey::LIBRARY]);
+
         $this->assertArrayHasKey('dependencies', $result);
         $this->assertArrayHasKey('factories', $result['dependencies']);
 
-        $this->assertArrayHasKey(ConfigKey::MAIN, $result);
-        $this->assertArrayHasKey(ConfigKey::MAPPERS, $result[ConfigKey::MAIN]);
+        $this->assertArrayHasKey(MapperManagerConfigKey::MAIN, $result);
+        $this->assertArrayHasKey(MapperManagerConfigKey::MAPPERS, $result[MapperManagerConfigKey::MAIN]);
     }
 }

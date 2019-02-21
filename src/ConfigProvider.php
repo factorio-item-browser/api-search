@@ -19,6 +19,7 @@ class ConfigProvider
     public function __invoke(): array
     {
         return array_merge(
+            require(__DIR__ . '/../config/api-search.php'),
             require(__DIR__ . '/../config/dependencies.php'),
             require(__DIR__ . '/../config/mapper-manager.php')
         );

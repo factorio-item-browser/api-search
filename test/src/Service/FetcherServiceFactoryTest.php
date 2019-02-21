@@ -5,14 +5,10 @@ declare(strict_types=1);
 namespace FactorioItemBrowserTest\Api\Search\Service;
 
 use BluePsyduck\Common\Test\ReflectionTrait;
+use FactorioItemBrowser\Api\Search\Constant\ConfigKey;
 use FactorioItemBrowser\Api\Search\Fetcher\FetcherInterface;
-use FactorioItemBrowser\Api\Search\Fetcher\TranslationFetcher;
 use FactorioItemBrowser\Api\Search\Service\FetcherService;
 use FactorioItemBrowser\Api\Search\Service\FetcherServiceFactory;
-use FactorioItemBrowser\Api\Search\Fetcher\ItemFetcher;
-use FactorioItemBrowser\Api\Search\Fetcher\MissingItemIdFetcher;
-use FactorioItemBrowser\Api\Search\Fetcher\MissingRecipeIdFetcher;
-use FactorioItemBrowser\Api\Search\Fetcher\RecipeFetcher;
 use Interop\Container\ContainerInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -36,6 +32,15 @@ class FetcherServiceFactoryTest extends TestCase
      */
     public function testInvoke(): void
     {
+        $aliases = ['abc', 'def'];
+        $config = [
+            ConfigKey::PROJECT => [
+                ConfigKey::LIBRARY => [
+                    ConfigKey::FETCHERS => $aliases,
+                ],
+            ],
+        ];
+
         $fetchers = [
             $this->createMock(FetcherInterface::class),
             $this->createMock(FetcherInterface::class),
@@ -43,6 +48,11 @@ class FetcherServiceFactoryTest extends TestCase
 
         /* @var ContainerInterface&MockObject $container */
         $container = $this->createMock(ContainerInterface::class);
+        $container->expects($this->once())
+                  ->method('get')
+                  ->with($this->identicalTo('config'))
+                  ->willReturn($config);
+
 
         /* @var FetcherServiceFactory&MockObject $factory */
         $factory = $this->getMockBuilder(FetcherServiceFactory::class)
@@ -50,7 +60,7 @@ class FetcherServiceFactoryTest extends TestCase
                         ->getMock();
         $factory->expects($this->once())
                 ->method('createFetchers')
-                ->with($this->identicalTo($container))
+                ->with($this->identicalTo($container), $this->identicalTo($aliases))
                 ->willReturn($fetchers);
 
         $factory($container, FetcherService::class);
@@ -63,46 +73,30 @@ class FetcherServiceFactoryTest extends TestCase
      */
     public function testCreateFetchers(): void
     {
-        /* @var ItemFetcher&MockObject $itemFetcher */
-        $itemFetcher = $this->createMock(ItemFetcher::class);
-        /* @var RecipeFetcher&MockObject $recipeFetcher */
-        $recipeFetcher = $this->createMock(RecipeFetcher::class);
-        /* @var TranslationFetcher&MockObject $translationFetcher */
-        $translationFetcher = $this->createMock(TranslationFetcher::class);
-        /* @var MissingItemIdFetcher&MockObject $missingItemIdFetcher */
-        $missingItemIdFetcher = $this->createMock(MissingItemIdFetcher::class);
-        /* @var MissingRecipeIdFetcher&MockObject $missingRecipeIdFetcher */
-        $missingRecipeIdFetcher = $this->createMock(MissingRecipeIdFetcher::class);
+        $aliases = ['abc', 'def'];
 
-        $expectedResult = [
-            $itemFetcher,
-            $recipeFetcher,
-            $translationFetcher,
-            $missingItemIdFetcher,
-            $missingRecipeIdFetcher,
-        ];
+        /* @var FetcherInterface&MockObject $fetcher1 */
+        $fetcher1 = $this->createMock(FetcherInterface::class);
+        /* @var FetcherInterface&MockObject $fetcher2 */
+        $fetcher2 = $this->createMock(FetcherInterface::class);
+
+        $expectedResult = [$fetcher1, $fetcher2];
 
         /* @var ContainerInterface&MockObject $container */
         $container = $this->createMock(ContainerInterface::class);
-        $container->expects($this->exactly(5))
+        $container->expects($this->exactly(2))
                   ->method('get')
                   ->withConsecutive(
-                      [$this->identicalTo(ItemFetcher::class)],
-                      [$this->identicalTo(RecipeFetcher::class)],
-                      [$this->identicalTo(TranslationFetcher::class)],
-                      [$this->identicalTo(MissingItemIdFetcher::class)],
-                      [$this->identicalTo(MissingRecipeIdFetcher::class)]
+                      [$this->identicalTo('abc')],
+                      [$this->identicalTo('def')]
                   )
                   ->willReturnOnConsecutiveCalls(
-                      $itemFetcher,
-                      $recipeFetcher,
-                      $translationFetcher,
-                      $missingItemIdFetcher,
-                      $missingRecipeIdFetcher
+                      $fetcher1,
+                      $fetcher2
                   );
 
         $factory = new FetcherServiceFactory();
-        $result = $this->invokeMethod($factory, 'createFetchers', $container);
+        $result = $this->invokeMethod($factory, 'createFetchers', $container, $aliases);
 
         $this->assertEquals($expectedResult, $result);
     }
