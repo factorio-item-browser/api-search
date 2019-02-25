@@ -41,8 +41,14 @@ class RecipeResultSerializer implements SerializerInterface
      */
     public function serialize($recipe): string
     {
-        $result = implode('+', [$recipe->getNormalRecipeId(), $recipe->getExpensiveRecipeId()]);
-        return rtrim(ltrim($result, '0'), '+0');
+        $result = '';
+        if ($recipe->getNormalRecipeId() > 0) {
+            $result .= (string) $recipe->getNormalRecipeId();
+        }
+        if ($recipe->getExpensiveRecipeId() > 0) {
+            $result .= '+' . (string) $recipe->getExpensiveRecipeId();
+        }
+        return $result;
     }
 
     /**

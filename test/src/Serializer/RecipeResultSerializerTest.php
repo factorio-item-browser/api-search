@@ -59,14 +59,24 @@ class RecipeResultSerializerTest extends TestCase
                 ->setExpensiveRecipeId(1337);
 
         $recipe4 = new RecipeResult();
-        $recipe4->setNormalRecipeId(0)
+        $recipe4->setNormalRecipeId(50)
+                ->setExpensiveRecipeId(0);
+
+        $recipe5 = new RecipeResult();
+        $recipe5->setNormalRecipeId(0)
+                ->setExpensiveRecipeId(50);
+
+        $recipe6 = new RecipeResult();
+        $recipe6->setNormalRecipeId(0)
                 ->setExpensiveRecipeId(0);
 
         return [
             [$recipe1, '42+1337'],
             [$recipe2, '42'],
             [$recipe3, '+1337'],
-            [$recipe4, ''],
+            [$recipe4, '50'],
+            [$recipe5, '+50'],
+            [$recipe6, ''],
         ];
     }
 
@@ -104,14 +114,24 @@ class RecipeResultSerializerTest extends TestCase
                 ->setExpensiveRecipeId(1337);
 
         $recipe4 = new RecipeResult();
-        $recipe4->setNormalRecipeId(0)
+        $recipe4->setNormalRecipeId(50)
+                ->setExpensiveRecipeId(0);
+
+        $recipe5 = new RecipeResult();
+        $recipe5->setNormalRecipeId(0)
+                ->setExpensiveRecipeId(50);
+
+        $recipe6 = new RecipeResult();
+        $recipe6->setNormalRecipeId(0)
                 ->setExpensiveRecipeId(0);
 
         return [
             ['42+1337', $recipe1],
             ['42', $recipe2],
             ['+1337', $recipe3],
-            ['', $recipe4],
+            ['50', $recipe4],
+            ['+50', $recipe5],
+            ['', $recipe6],
         ];
     }
 
