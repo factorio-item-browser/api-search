@@ -17,9 +17,12 @@ use Zend\ServiceManager\Factory\InvokableFactory;
 return [
     'dependencies' => [
         'aliases' => [
+            SearchCacheClearInterface::class => Service\CachedSearchResultService::class,
             SearchManagerInterface::class => SearchManager::class,
         ],
         'factories'  => [
+            Entity\Config::class => Entity\ConfigFactory::class,
+
             Fetcher\DuplicateRecipeFetcher::class => InvokableFactory::class,
             Fetcher\ItemFetcher::class => ReflectionFactory::class,
             Fetcher\MissingItemIdFetcher::class => ReflectionFactory::class,
@@ -35,12 +38,12 @@ return [
 
             Parser\QueryParser::class => InvokableFactory::class,
 
-            SearchManager::class => ReflectionFactory::class,
+            SearchManager::class => SearchManagerFactory::class,
 
             Serializer\ItemResultSerializer::class => ReflectionFactory::class,
             Serializer\RecipeResultSerializer::class => InvokableFactory::class,
 
-            Service\CachedSearchResultService::class => ReflectionFactory::class,
+            Service\CachedSearchResultService::class => Service\CachedSearchResultServiceFactory::class,
             Service\FetcherService::class => Service\FetcherServiceFactory::class,
             Service\SerializerService::class => Service\SerializerServiceFactory::class,
         ],

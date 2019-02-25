@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace FactorioItemBrowser\Api\Search\Service;
 
-use FactorioItemBrowser\Api\Search\Constant\ConfigKey;
+use FactorioItemBrowser\Api\Search\Entity\Config;
 use FactorioItemBrowser\Api\Search\Fetcher\FetcherInterface;
 use Interop\Container\ContainerInterface;
 
@@ -25,10 +25,10 @@ class FetcherServiceFactory
      */
     public function __invoke(ContainerInterface $container, $requestedName, array $options = null)
     {
-        $config = $container->get('config');
-        $libraryConfig = $config[ConfigKey::PROJECT][ConfigKey::LIBRARY];
+        /* @var Config $config */
+        $config = $container->get(Config::class);
 
-        return new FetcherService($this->createFetchers($container, $libraryConfig[ConfigKey::FETCHERS]));
+        return new FetcherService($this->createFetchers($container, $config->getFetcherAliases()));
     }
 
     /**

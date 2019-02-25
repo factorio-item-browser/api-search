@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace FactorioItemBrowserTest\Api\Search\Service;
 
 use BluePsyduck\Common\Test\ReflectionTrait;
-use FactorioItemBrowser\Api\Search\Constant\ConfigKey;
+use FactorioItemBrowser\Api\Search\Entity\Config;
 use FactorioItemBrowser\Api\Search\Fetcher\FetcherInterface;
 use FactorioItemBrowser\Api\Search\Service\FetcherService;
 use FactorioItemBrowser\Api\Search\Service\FetcherServiceFactory;
@@ -33,26 +33,24 @@ class FetcherServiceFactoryTest extends TestCase
     public function testInvoke(): void
     {
         $aliases = ['abc', 'def'];
-        $config = [
-            ConfigKey::PROJECT => [
-                ConfigKey::LIBRARY => [
-                    ConfigKey::FETCHERS => $aliases,
-                ],
-            ],
-        ];
 
         $fetchers = [
             $this->createMock(FetcherInterface::class),
             $this->createMock(FetcherInterface::class),
         ];
 
+        /* @var Config&MockObject $config */
+        $config = $this->createMock(Config::class);
+        $config->expects($this->once())
+               ->method('getFetcherAliases')
+               ->willReturn($aliases);
+
         /* @var ContainerInterface&MockObject $container */
         $container = $this->createMock(ContainerInterface::class);
         $container->expects($this->once())
                   ->method('get')
-                  ->with($this->identicalTo('config'))
+                  ->with($this->identicalTo(Config::class))
                   ->willReturn($config);
-
 
         /* @var FetcherServiceFactory&MockObject $factory */
         $factory = $this->getMockBuilder(FetcherServiceFactory::class)

@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace FactorioItemBrowser\Api\Search\Service;
 
-use DateTime;
+use DateTimeInterface;
 use Exception;
 use FactorioItemBrowser\Api\Database\Entity\CachedSearchResult;
 use FactorioItemBrowser\Api\Database\Repository\CachedSearchResultRepository;
+use FactorioItemBrowser\Api\Search\SearchCacheClearInterface;
 use FactorioItemBrowser\Api\Search\Collection\PaginatedResultCollection;
-use FactorioItemBrowser\Api\Search\Constant\Config;
 use FactorioItemBrowser\Api\Search\Entity\Query;
 
 /**
@@ -18,7 +18,7 @@ use FactorioItemBrowser\Api\Search\Entity\Query;
  * @author BluePsyduck <bluepsyduck@gmx.com>
  * @license http://opensource.org/licenses/GPL-3.0 GPL v3
  */
-class CachedSearchResultService
+class CachedSearchResultService implements SearchCacheClearInterface
 {
     /**
      * The cached search result repository.
@@ -33,16 +33,25 @@ class CachedSearchResultService
     protected $serializerService;
 
     /**
+     * The maximal age of the cache entries.
+     * @var DateTimeInterface
+     */
+    protected $maxCacheAge;
+
+    /**
      * Initializes the service.
      * @param CachedSearchResultRepository $cachedSearchResultRepository
      * @param SerializerService $serializerService
+     * @param DateTimeInterface $maxCacheAge
      */
     public function __construct(
         CachedSearchResultRepository $cachedSearchResultRepository,
-        SerializerService $serializerService
+        SerializerService $serializerService,
+        DateTimeInterface $maxCacheAge
     ) {
         $this->cachedSearchResultRepository = $cachedSearchResultRepository;
         $this->serializerService = $serializerService;
+        $this->maxCacheAge = $maxCacheAge;
     }
 
     /**
@@ -69,9 +78,7 @@ class CachedSearchResultService
     {
         $result = null;
         try {
-            $maxAge = new DateTime(Config::MAX_CACHE_AGE);
-
-            $entities = $this->cachedSearchResultRepository->findByHashes([$hash], $maxAge);
+            $entities = $this->cachedSearchResultRepository->findByHashes([$hash], $this->maxCacheAge);
             $entity = array_shift($entities);
             if ($entity instanceof CachedSearchResult) {
                 $result = $entity->getResultData();
@@ -97,5 +104,21 @@ class CachedSearchResultService
         } catch (Exception $e) {
             // Silently ignore any cache errors.
         }
+    }
+
+    /**
+     * Cleans already invalidated data from the cache.
+     */
+    public function cleanCache(): void
+    {
+        $this->cachedSearchResultRepository->cleanup($this->maxCacheAge);
+    }
+
+    /**
+     * Completely clears the cache from all results.
+     */
+    public function clearCache(): void
+    {
+        $this->cachedSearchResultRepository->clear();
     }
 }

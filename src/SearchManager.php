@@ -38,19 +38,28 @@ class SearchManager implements SearchManagerInterface
     protected $queryParser;
 
     /**
+     * The maximal number of search results to return.
+     * @var int
+     */
+    protected $maxSearchResults;
+
+    /**
      * Initializes the manager.
      * @param CachedSearchResultService $cachedSearchResultService
      * @param FetcherService $fetcherService
      * @param QueryParser $queryParser
+     * @param int $maxSearchResults
      */
     public function __construct(
         CachedSearchResultService $cachedSearchResultService,
         FetcherService $fetcherService,
-        QueryParser $queryParser
+        QueryParser $queryParser,
+        int $maxSearchResults
     ) {
         $this->cachedSearchResultService = $cachedSearchResultService;
         $this->fetcherService = $fetcherService;
         $this->queryParser = $queryParser;
+        $this->maxSearchResults = $maxSearchResults;
     }
 
     /**
@@ -100,7 +109,7 @@ class SearchManager implements SearchManagerInterface
     protected function createPaginatedCollection(AggregatingResultCollection $searchResults): PaginatedResultCollection
     {
         $result = new PaginatedResultCollection();
-        foreach ($searchResults->getMergedResults() as $searchResult) {
+        foreach (array_slice($searchResults->getMergedResults(), 0, $this->maxSearchResults) as $searchResult) {
             $result->add($searchResult);
         }
         return $result;

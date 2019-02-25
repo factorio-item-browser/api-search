@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace FactorioItemBrowserTest\Api\Search\Service;
 
 use BluePsyduck\Common\Test\ReflectionTrait;
-use FactorioItemBrowser\Api\Search\Constant\ConfigKey;
+use FactorioItemBrowser\Api\Search\Entity\Config;
 use FactorioItemBrowser\Api\Search\Serializer\SerializerInterface;
 use FactorioItemBrowser\Api\Search\Service\SerializerService;
 use FactorioItemBrowser\Api\Search\Service\SerializerServiceFactory;
@@ -33,24 +33,24 @@ class SerializerServiceFactoryTest extends TestCase
     public function testInvoke(): void
     {
         $aliases = ['abc', 'def'];
-        $config = [
-            ConfigKey::PROJECT => [
-                ConfigKey::LIBRARY => [
-                    ConfigKey::SERIALIZERS => $aliases,
-                ],
-            ],
-        ];
 
         $serializers = [
             $this->createMock(SerializerInterface::class),
             $this->createMock(SerializerInterface::class),
         ];
 
+        /* @var Config&MockObject $config */
+        $config = $this->createMock(Config::class);
+        $config->expects($this->once())
+               ->method('getSerializerAliases')
+               ->willReturn($aliases);
+
+
         /* @var ContainerInterface&MockObject $container */
         $container = $this->createMock(ContainerInterface::class);
         $container->expects($this->once())
                   ->method('get')
-                  ->with($this->identicalTo('config'))
+                  ->with($this->identicalTo(Config::class))
                   ->willReturn($config);
 
         /* @var SerializerServiceFactory&MockObject $factory */

@@ -6,6 +6,7 @@ namespace FactorioItemBrowserTest\Api\Search\Service;
 
 use BluePsyduck\Common\Test\ReflectionTrait;
 use DateTime;
+use DateTimeInterface;
 use Exception;
 use FactorioItemBrowser\Api\Database\Entity\CachedSearchResult;
 use FactorioItemBrowser\Api\Database\Repository\CachedSearchResultRepository;
@@ -41,6 +42,12 @@ class CachedSearchResultServiceTest extends TestCase
     protected $serializerService;
 
     /**
+     * The mocked max cache age.
+     * @var DateTimeInterface&MockObject
+     */
+    protected $maxCacheAge;
+
+    /**
      * Sets up the test case.
      * @throws ReflectionException
      */
@@ -50,6 +57,7 @@ class CachedSearchResultServiceTest extends TestCase
 
         $this->cachedSearchResultRepository = $this->createMock(CachedSearchResultRepository::class);
         $this->serializerService = $this->createMock(SerializerService::class);
+        $this->maxCacheAge = $this->createMock(DateTime::class);
     }
 
     /**
@@ -59,13 +67,18 @@ class CachedSearchResultServiceTest extends TestCase
      */
     public function testConstruct(): void
     {
-        $service = new CachedSearchResultService($this->cachedSearchResultRepository, $this->serializerService);
+        $service = new CachedSearchResultService(
+            $this->cachedSearchResultRepository,
+            $this->serializerService,
+            $this->maxCacheAge
+        );
 
         $this->assertSame(
             $this->cachedSearchResultRepository,
             $this->extractProperty($service, 'cachedSearchResultRepository')
         );
         $this->assertSame($this->serializerService, $this->extractProperty($service, 'serializerService'));
+        $this->assertSame($this->maxCacheAge, $this->extractProperty($service, 'maxCacheAge'));
     }
 
     /**
@@ -95,7 +108,11 @@ class CachedSearchResultServiceTest extends TestCase
         /* @var CachedSearchResultService&MockObject $service */
         $service = $this->getMockBuilder(CachedSearchResultService::class)
                         ->setMethods(['fetchSerializedResults'])
-                        ->setConstructorArgs([$this->cachedSearchResultRepository, $this->serializerService])
+                        ->setConstructorArgs([
+                            $this->cachedSearchResultRepository,
+                            $this->serializerService,
+                            $this->maxCacheAge,
+                        ])
                         ->getMock();
         $service->expects($this->once())
                 ->method('fetchSerializedResults')
@@ -129,7 +146,11 @@ class CachedSearchResultServiceTest extends TestCase
         /* @var CachedSearchResultService&MockObject $service */
         $service = $this->getMockBuilder(CachedSearchResultService::class)
                         ->setMethods(['fetchSerializedResults'])
-                        ->setConstructorArgs([$this->cachedSearchResultRepository, $this->serializerService])
+                        ->setConstructorArgs([
+                            $this->cachedSearchResultRepository,
+                            $this->serializerService,
+                            $this->maxCacheAge,
+                        ])
                         ->getMock();
         $service->expects($this->once())
                 ->method('fetchSerializedResults')
@@ -166,10 +187,14 @@ class CachedSearchResultServiceTest extends TestCase
 
         $this->cachedSearchResultRepository->expects($this->once())
                                            ->method('findByHashes')
-                                           ->with($this->identicalTo([$hash]), $this->isInstanceOf(DateTime::class))
+                                           ->with($this->identicalTo([$hash]), $this->identicalTo($this->maxCacheAge))
                                            ->willReturn($entities);
 
-        $service = new CachedSearchResultService($this->cachedSearchResultRepository, $this->serializerService);
+        $service = new CachedSearchResultService(
+            $this->cachedSearchResultRepository,
+            $this->serializerService,
+            $this->maxCacheAge
+        );
         $result = $this->invokeMethod($service, 'fetchSerializedResults', $hash);
 
         $this->assertSame($resultData, $result);
@@ -187,10 +212,14 @@ class CachedSearchResultServiceTest extends TestCase
 
         $this->cachedSearchResultRepository->expects($this->once())
                                            ->method('findByHashes')
-                                           ->with($this->identicalTo([$hash]), $this->isInstanceOf(DateTime::class))
+                                           ->with($this->identicalTo([$hash]), $this->identicalTo($this->maxCacheAge))
                                            ->willReturn($entities);
 
-        $service = new CachedSearchResultService($this->cachedSearchResultRepository, $this->serializerService);
+        $service = new CachedSearchResultService(
+            $this->cachedSearchResultRepository,
+            $this->serializerService,
+            $this->maxCacheAge
+        );
         $result = $this->invokeMethod($service, 'fetchSerializedResults', $hash);
 
         $this->assertNull($result);
@@ -207,10 +236,14 @@ class CachedSearchResultServiceTest extends TestCase
 
         $this->cachedSearchResultRepository->expects($this->once())
                                            ->method('findByHashes')
-                                           ->with($this->identicalTo([$hash]), $this->isInstanceOf(DateTime::class))
+                                           ->with($this->identicalTo([$hash]), $this->identicalTo($this->maxCacheAge))
                                            ->willThrowException(new Exception());
 
-        $service = new CachedSearchResultService($this->cachedSearchResultRepository, $this->serializerService);
+        $service = new CachedSearchResultService(
+            $this->cachedSearchResultRepository,
+            $this->serializerService,
+            $this->maxCacheAge
+        );
         $result = $this->invokeMethod($service, 'fetchSerializedResults', $hash);
 
         $this->assertNull($result);
@@ -249,7 +282,11 @@ class CachedSearchResultServiceTest extends TestCase
                 return true;
             }));
 
-        $service = new CachedSearchResultService($this->cachedSearchResultRepository, $this->serializerService);
+        $service = new CachedSearchResultService(
+            $this->cachedSearchResultRepository,
+            $this->serializerService,
+            $this->maxCacheAge
+        );
         $service->persistResults($query, $searchResults);
     }
 
@@ -276,7 +313,46 @@ class CachedSearchResultServiceTest extends TestCase
                                 ->with($this->identicalTo($searchResults))
                                 ->willThrowException(new Exception());
 
-        $service = new CachedSearchResultService($this->cachedSearchResultRepository, $this->serializerService);
+        $service = new CachedSearchResultService(
+            $this->cachedSearchResultRepository,
+            $this->serializerService,
+            $this->maxCacheAge
+        );
         $service->persistResults($query, $searchResults);
+    }
+
+    /**
+     * Tests the cleanCache method.
+     * @covers ::cleanCache
+     */
+    public function testCleanCache(): void
+    {
+        $this->cachedSearchResultRepository->expects($this->once())
+                                           ->method('cleanup')
+                                           ->with($this->identicalTo($this->maxCacheAge));
+
+        $service = new CachedSearchResultService(
+            $this->cachedSearchResultRepository,
+            $this->serializerService,
+            $this->maxCacheAge
+        );
+        $service->cleanCache();
+    }
+
+    /**
+     * Tests the clearCache method.
+     * @covers ::clearCache
+     */
+    public function testClearCache(): void
+    {
+        $this->cachedSearchResultRepository->expects($this->once())
+                                           ->method('clear');
+
+        $service = new CachedSearchResultService(
+            $this->cachedSearchResultRepository,
+            $this->serializerService,
+            $this->maxCacheAge
+        );
+        $service->clearCache();
     }
 }

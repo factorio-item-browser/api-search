@@ -23,6 +23,16 @@ interface ConfigKey
     public const LIBRARY = 'api-search';
 
     /**
+     * The key for the maximal number of search results to return.
+     */
+    public const MAX_SEARCH_RESULTS = 'max-search-results';
+
+    /**
+     * The key for the maximal age of the cache entries.
+     */
+    public const MAX_CACHE_AGE = 'max-cache-age';
+
+    /**
      * The key for the fetchers.
      */
     public const FETCHERS = 'fetchers';
