@@ -56,7 +56,6 @@ class RecipeCollection
      */
     public function getAll(): array
     {
-        sort($this->recipes);
         return array_values($this->recipes);
     }
 
