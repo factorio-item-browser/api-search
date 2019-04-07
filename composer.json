@@ -16,7 +16,7 @@
     "ext-json": "*",
     "bluepsyduck/common": "^1.0",
     "bluepsyduck/mapper-manager": "^1.0",
-    "factorio-item-browser/api-database": "dev-refactor-doctrine",
+    "factorio-item-browser/api-database": "^2.0",
     "mtymek/blast-reflection-factory": "^1.0",
     "psr/container": "^1.0",
     "zendframework/zend-servicemanager": "^3.0"
