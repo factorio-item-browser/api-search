@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace FactorioItemBrowserTest\Api\Search\Collection;
 
-use BluePsyduck\Common\Test\ReflectionTrait;
+use BluePsyduck\TestHelper\ReflectionTrait;
 use FactorioItemBrowser\Api\Search\Collection\TermCollection;
 use FactorioItemBrowser\Api\Search\Entity\Term;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -123,7 +123,6 @@ class TermCollectionTest extends TestCase
 
     /**
      * Tests the getAllValues method.
-     * @throws ReflectionException
      * @covers ::getAllValues
      */
     public function testGetAllValues(): void
@@ -205,7 +204,6 @@ class TermCollectionTest extends TestCase
 
     /**
      * Tests the getByType method.
-     * @throws ReflectionException
      * @covers ::getByType
      */
     public function testGetByType(): void
@@ -233,7 +231,6 @@ class TermCollectionTest extends TestCase
 
     /**
      * Tests the getValuesByTypes method.
-     * @throws ReflectionException
      * @covers ::getValuesByTypes
      */
     public function testGetValuesByTypes(): void
@@ -265,7 +262,6 @@ class TermCollectionTest extends TestCase
     
     /**
      * Tests the getValuesByType method.
-     * @throws ReflectionException
      * @covers ::getValuesByType
      */
     public function testGetValuesByType(): void

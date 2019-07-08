@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace FactorioItemBrowserTest\Api\Search\Service;
 
-use BluePsyduck\Common\Test\ReflectionTrait;
+use BluePsyduck\TestHelper\ReflectionTrait;
 use DateTimeImmutable;
 use Exception;
 use FactorioItemBrowser\Api\Database\Entity\CachedSearchResult;

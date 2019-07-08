@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace FactorioItemBrowserTest\Api\Search\Parser;
 
-use BluePsyduck\Common\Test\ReflectionTrait;
+use BluePsyduck\TestHelper\ReflectionTrait;
 use FactorioItemBrowser\Api\Search\Constant\TermType;
 use FactorioItemBrowser\Api\Search\Entity\Query;
 use FactorioItemBrowser\Api\Search\Entity\Term;
@@ -26,7 +26,6 @@ class QueryParserTest extends TestCase
 
     /**
      * Tests the parse method.
-     * @throws ReflectionException
      * @covers ::parse
      */
     public function testParse(): void

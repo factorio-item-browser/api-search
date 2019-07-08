@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace FactorioItemBrowserTest\Api\Search\Serializer;
 
-use BluePsyduck\Common\Test\ReflectionTrait;
+use BluePsyduck\TestHelper\ReflectionTrait;
 use FactorioItemBrowser\Api\Search\Constant\SerializedResultType;
 use FactorioItemBrowser\Api\Search\Entity\Result\ItemResult;
 use FactorioItemBrowser\Api\Search\Entity\Result\RecipeResult;
@@ -33,7 +33,6 @@ class ItemResultSerializerTest extends TestCase
 
     /**
      * Sets up the test case.
-     * @throws ReflectionException
      */
     public function setUp(): void
     {
@@ -78,7 +77,6 @@ class ItemResultSerializerTest extends TestCase
 
     /**
      * Tests the serialize method.
-     * @throws ReflectionException
      * @covers ::serialize
      */
     public function testSerialize(): void
@@ -168,7 +166,6 @@ class ItemResultSerializerTest extends TestCase
      * @param string $serializedResult
      * @param int $expectedItemId
      * @param array|string[] $expectedSerializedRecipes
-     * @throws ReflectionException
      * @covers ::unserialize
      * @dataProvider provideUnserialize
      */

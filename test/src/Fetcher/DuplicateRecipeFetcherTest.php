@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace FactorioItemBrowserTest\Api\Search\Fetcher;
 
-use BluePsyduck\Common\Test\ReflectionTrait;
+use BluePsyduck\TestHelper\ReflectionTrait;
 use FactorioItemBrowser\Api\Search\Collection\AggregatingResultCollection;
 use FactorioItemBrowser\Api\Search\Entity\Query;
 use FactorioItemBrowser\Api\Search\Entity\Result\ItemResult;
@@ -27,7 +27,6 @@ class DuplicateRecipeFetcherTest extends TestCase
 
     /**
      * Tests the fetch method.
-     * @throws ReflectionException
      * @covers ::fetch
      */
     public function testFetch(): void

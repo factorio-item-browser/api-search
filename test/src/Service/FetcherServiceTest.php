@@ -10,7 +10,6 @@ use FactorioItemBrowser\Api\Search\Fetcher\FetcherInterface;
 use FactorioItemBrowser\Api\Search\Service\FetcherService;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use ReflectionException;
 
 /**
  * The PHPUnit test of the FetcherService class.
@@ -23,7 +22,6 @@ class FetcherServiceTest extends TestCase
 {
     /**
      * Tests the fetch method.
-     * @throws ReflectionException
      * @covers ::__construct
      * @covers ::fetch
      */
