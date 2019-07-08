@@ -5,8 +5,7 @@ declare(strict_types=1);
 namespace FactorioItemBrowserTest\Api\Search\Service;
 
 use BluePsyduck\Common\Test\ReflectionTrait;
-use DateTime;
-use DateTimeInterface;
+use DateTimeImmutable;
 use Exception;
 use FactorioItemBrowser\Api\Database\Entity\CachedSearchResult;
 use FactorioItemBrowser\Api\Database\Repository\CachedSearchResultRepository;
@@ -16,7 +15,6 @@ use FactorioItemBrowser\Api\Search\Service\SerializerService;
 use FactorioItemBrowser\Api\Search\Service\CachedSearchResultService;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use ReflectionException;
 
 /**
  * The PHPUnit test of the CachedSearchResultService class.
@@ -42,14 +40,7 @@ class CachedSearchResultServiceTest extends TestCase
     protected $serializerService;
 
     /**
-     * The mocked max cache age.
-     * @var DateTimeInterface&MockObject
-     */
-    protected $maxCacheAge;
-
-    /**
      * Sets up the test case.
-     * @throws ReflectionException
      */
     protected function setUp(): void
     {
@@ -57,12 +48,11 @@ class CachedSearchResultServiceTest extends TestCase
 
         $this->cachedSearchResultRepository = $this->createMock(CachedSearchResultRepository::class);
         $this->serializerService = $this->createMock(SerializerService::class);
-        $this->maxCacheAge = $this->createMock(DateTime::class);
     }
 
     /**
      * Tests the constructing.
-     * @throws ReflectionException
+     * @throws Exception
      * @covers ::__construct
      */
     public function testConstruct(): void
@@ -70,7 +60,7 @@ class CachedSearchResultServiceTest extends TestCase
         $service = new CachedSearchResultService(
             $this->cachedSearchResultRepository,
             $this->serializerService,
-            $this->maxCacheAge
+            'today'
         );
 
         $this->assertSame(
@@ -78,12 +68,11 @@ class CachedSearchResultServiceTest extends TestCase
             $this->extractProperty($service, 'cachedSearchResultRepository')
         );
         $this->assertSame($this->serializerService, $this->extractProperty($service, 'serializerService'));
-        $this->assertSame($this->maxCacheAge, $this->extractProperty($service, 'maxCacheAge'));
+        $this->assertInstanceOf(DateTimeImmutable::class, $this->extractProperty($service, 'maxCacheAge'));
     }
 
     /**
      * Tests the getResults method with an actual cache hit.
-     * @throws ReflectionException
      * @covers ::getResults
      */
     public function testGetResultsWithHit(): void
@@ -111,7 +100,7 @@ class CachedSearchResultServiceTest extends TestCase
                         ->setConstructorArgs([
                             $this->cachedSearchResultRepository,
                             $this->serializerService,
-                            $this->maxCacheAge,
+                            'today',
                         ])
                         ->getMock();
         $service->expects($this->once())
@@ -126,7 +115,6 @@ class CachedSearchResultServiceTest extends TestCase
 
     /**
      * Tests the getResults method without an actual cache hit.
-     * @throws ReflectionException
      * @covers ::getResults
      */
     public function testGetResultsWithoutHit(): void
@@ -149,7 +137,7 @@ class CachedSearchResultServiceTest extends TestCase
                         ->setConstructorArgs([
                             $this->cachedSearchResultRepository,
                             $this->serializerService,
-                            $this->maxCacheAge,
+                            'today',
                         ])
                         ->getMock();
         $service->expects($this->once())
@@ -164,13 +152,16 @@ class CachedSearchResultServiceTest extends TestCase
 
     /**
      * Tests the fetchSerializedResults method.
-     * @throws ReflectionException
+     * @throws Exception
      * @covers ::fetchSerializedResults
      */
     public function testFetchSerializedResults(): void
     {
         $hash = 'ab12cd34';
         $resultData = 'abc';
+
+        /* @var DateTimeImmutable&MockObject $maxCacheAge */
+        $maxCacheAge = $this->createMock(DateTimeImmutable::class);
 
         /* @var CachedSearchResult&MockObject $entity1 */
         $entity1 = $this->createMock(CachedSearchResult::class);
@@ -187,14 +178,16 @@ class CachedSearchResultServiceTest extends TestCase
 
         $this->cachedSearchResultRepository->expects($this->once())
                                            ->method('findByHashes')
-                                           ->with($this->identicalTo([$hash]), $this->identicalTo($this->maxCacheAge))
+                                           ->with($this->identicalTo([$hash]), $this->identicalTo($maxCacheAge))
                                            ->willReturn($entities);
 
         $service = new CachedSearchResultService(
             $this->cachedSearchResultRepository,
             $this->serializerService,
-            $this->maxCacheAge
+            'today'
         );
+        $this->injectProperty($service, 'maxCacheAge', $maxCacheAge);
+
         $result = $this->invokeMethod($service, 'fetchSerializedResults', $hash);
 
         $this->assertSame($resultData, $result);
@@ -202,7 +195,7 @@ class CachedSearchResultServiceTest extends TestCase
 
     /**
      * Tests the fetchSerializedResults method without an actual result.
-     * @throws ReflectionException
+     * @throws Exception
      * @covers ::fetchSerializedResults
      */
     public function testFetchSerializedResultsWithoutResult(): void
@@ -210,16 +203,21 @@ class CachedSearchResultServiceTest extends TestCase
         $hash = 'ab12cd34';
         $entities = [];
 
+        /* @var DateTimeImmutable&MockObject $maxCacheAge */
+        $maxCacheAge = $this->createMock(DateTimeImmutable::class);
+
         $this->cachedSearchResultRepository->expects($this->once())
                                            ->method('findByHashes')
-                                           ->with($this->identicalTo([$hash]), $this->identicalTo($this->maxCacheAge))
+                                           ->with($this->identicalTo([$hash]), $this->identicalTo($maxCacheAge))
                                            ->willReturn($entities);
 
         $service = new CachedSearchResultService(
             $this->cachedSearchResultRepository,
             $this->serializerService,
-            $this->maxCacheAge
+            'today'
         );
+        $this->injectProperty($service, 'maxCacheAge', $maxCacheAge);
+
         $result = $this->invokeMethod($service, 'fetchSerializedResults', $hash);
 
         $this->assertNull($result);
@@ -227,23 +225,28 @@ class CachedSearchResultServiceTest extends TestCase
 
     /**
      * Tests the fetchSerializedResults method with throwing an exception.
-     * @throws ReflectionException
+     * @throws Exception
      * @covers ::fetchSerializedResults
      */
     public function testFetchSerializedResultsWithException(): void
     {
         $hash = 'ab12cd34';
 
+        /* @var DateTimeImmutable&MockObject $maxCacheAge */
+        $maxCacheAge = $this->createMock(DateTimeImmutable::class);
+
         $this->cachedSearchResultRepository->expects($this->once())
                                            ->method('findByHashes')
-                                           ->with($this->identicalTo([$hash]), $this->identicalTo($this->maxCacheAge))
+                                           ->with($this->identicalTo([$hash]), $this->identicalTo($maxCacheAge))
                                            ->willThrowException(new Exception());
 
         $service = new CachedSearchResultService(
             $this->cachedSearchResultRepository,
             $this->serializerService,
-            $this->maxCacheAge
+            'today'
         );
+        $this->injectProperty($service, 'maxCacheAge', $maxCacheAge);
+
         $result = $this->invokeMethod($service, 'fetchSerializedResults', $hash);
 
         $this->assertNull($result);
@@ -251,7 +254,7 @@ class CachedSearchResultServiceTest extends TestCase
 
     /**
      * Tests the persistResults method.
-     * @throws ReflectionException
+     * @throws Exception
      * @covers ::persistResults
      */
     public function testPersistResults(): void
@@ -285,14 +288,14 @@ class CachedSearchResultServiceTest extends TestCase
         $service = new CachedSearchResultService(
             $this->cachedSearchResultRepository,
             $this->serializerService,
-            $this->maxCacheAge
+            'today'
         );
         $service->persistResults($query, $searchResults);
     }
 
     /**
      * Tests the persistResults method with throwing an exception.
-     * @throws ReflectionException
+     * @throws Exception
      * @covers ::persistResults
      */
     public function testPersistResultsWithException(): void
@@ -316,31 +319,38 @@ class CachedSearchResultServiceTest extends TestCase
         $service = new CachedSearchResultService(
             $this->cachedSearchResultRepository,
             $this->serializerService,
-            $this->maxCacheAge
+            'today'
         );
         $service->persistResults($query, $searchResults);
     }
 
     /**
      * Tests the cleanCache method.
+     * @throws Exception
      * @covers ::cleanCache
      */
     public function testCleanCache(): void
     {
+        /* @var DateTimeImmutable&MockObject $maxCacheAge */
+        $maxCacheAge = $this->createMock(DateTimeImmutable::class);
+
         $this->cachedSearchResultRepository->expects($this->once())
                                            ->method('cleanup')
-                                           ->with($this->identicalTo($this->maxCacheAge));
+                                           ->with($this->identicalTo($maxCacheAge));
 
         $service = new CachedSearchResultService(
             $this->cachedSearchResultRepository,
             $this->serializerService,
-            $this->maxCacheAge
+            'today'
         );
+        $this->injectProperty($service, 'maxCacheAge', $maxCacheAge);
+
         $service->cleanCache();
     }
 
     /**
      * Tests the clearCache method.
+     * @throws Exception
      * @covers ::clearCache
      */
     public function testClearCache(): void
@@ -351,7 +361,7 @@ class CachedSearchResultServiceTest extends TestCase
         $service = new CachedSearchResultService(
             $this->cachedSearchResultRepository,
             $this->serializerService,
-            $this->maxCacheAge
+            'today'
         );
         $service->clearCache();
     }

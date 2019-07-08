@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace FactorioItemBrowser\Api\Search\Service;
 
+use DateTimeImmutable;
 use DateTimeInterface;
 use Exception;
 use FactorioItemBrowser\Api\Database\Entity\CachedSearchResult;
@@ -42,16 +43,17 @@ class CachedSearchResultService implements SearchCacheClearInterface
      * Initializes the service.
      * @param CachedSearchResultRepository $cachedSearchResultRepository
      * @param SerializerService $serializerService
-     * @param DateTimeInterface $maxCacheAge
+     * @param string $apiKeyMaxCacheAge
+     * @throws Exception
      */
     public function __construct(
         CachedSearchResultRepository $cachedSearchResultRepository,
         SerializerService $serializerService,
-        DateTimeInterface $maxCacheAge
+        string $apiKeyMaxCacheAge
     ) {
         $this->cachedSearchResultRepository = $cachedSearchResultRepository;
         $this->serializerService = $serializerService;
-        $this->maxCacheAge = $maxCacheAge;
+        $this->maxCacheAge = new DateTimeImmutable($apiKeyMaxCacheAge);
     }
 
     /**

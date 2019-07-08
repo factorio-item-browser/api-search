@@ -30,11 +30,11 @@ class SerializerService
 
     /**
      * Initializes the service.
-     * @param array|SerializerInterface[] $serializers
+     * @param array|SerializerInterface[] $apiSearchSerializers
      */
-    public function __construct(array $serializers)
+    public function __construct(array $apiSearchSerializers)
     {
-        foreach ($serializers as $serializer) {
+        foreach ($apiSearchSerializers as $serializer) {
             $this->serializersByClassName[$serializer->getHandledResultClass()] = $serializer;
             $this->serializersByType[$serializer->getSerializedType()] = $serializer;
         }
