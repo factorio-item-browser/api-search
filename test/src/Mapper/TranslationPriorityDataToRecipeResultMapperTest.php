@@ -9,7 +9,6 @@ use FactorioItemBrowser\Api\Search\Entity\Result\RecipeResult;
 use FactorioItemBrowser\Api\Search\Mapper\TranslationPriorityDataToRecipeResultMapper;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use ReflectionException;
 
 /**
  * The PHPUnit test of the TranslationPriorityDataToRecipeResultMapper class.
@@ -42,7 +41,6 @@ class TranslationPriorityDataToRecipeResultMapperTest extends TestCase
 
     /**
      * Tests the map method.
-     * @throws ReflectionException
      * @covers ::map
      */
     public function testMap(): void

@@ -20,7 +20,7 @@ interface ConfigKey
     /**
      * The key holding the name of the library itself.
      */
-    public const LIBRARY = 'api-search';
+    public const API_SEARCH = 'api-search';
 
     /**
      * The key for the maximal number of search results to return.

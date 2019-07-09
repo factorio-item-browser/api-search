@@ -28,9 +28,9 @@ class ConfigProviderTest extends TestCase
         $result = $configProvider();
 
         $this->assertArrayHasKey(ConfigKey::PROJECT, $result);
-        $this->assertArrayHasKey(ConfigKey::LIBRARY, $result[ConfigKey::PROJECT]);
-        $this->assertArrayHasKey(ConfigKey::FETCHERS, $result[ConfigKey::PROJECT][ConfigKey::LIBRARY]);
-        $this->assertArrayHasKey(ConfigKey::SERIALIZERS, $result[ConfigKey::PROJECT][ConfigKey::LIBRARY]);
+        $this->assertArrayHasKey(ConfigKey::API_SEARCH, $result[ConfigKey::PROJECT]);
+        $this->assertArrayHasKey(ConfigKey::FETCHERS, $result[ConfigKey::PROJECT][ConfigKey::API_SEARCH]);
+        $this->assertArrayHasKey(ConfigKey::SERIALIZERS, $result[ConfigKey::PROJECT][ConfigKey::API_SEARCH]);
 
         $this->assertArrayHasKey('dependencies', $result);
         $this->assertArrayHasKey('factories', $result['dependencies']);

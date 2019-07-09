@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace FactorioItemBrowserTest\Api\Search\Fetcher;
 
-use BluePsyduck\Common\Test\ReflectionTrait;
+use BluePsyduck\TestHelper\ReflectionTrait;
 use BluePsyduck\MapperManager\Exception\MapperException;
 use BluePsyduck\MapperManager\MapperManagerInterface;
 use FactorioItemBrowser\Api\Database\Constant\SearchResultPriority;
@@ -44,7 +44,6 @@ class ItemFetcherTest extends TestCase
 
     /**
      * Sets up the test case.
-     * @throws ReflectionException
      */
     protected function setUp(): void
     {
@@ -69,7 +68,6 @@ class ItemFetcherTest extends TestCase
 
     /**
      * Tests the fetch method.
-     * @throws ReflectionException
      * @throws MapperException
      * @covers ::fetch
      */

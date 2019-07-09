@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace FactorioItemBrowserTest\Api\Search\Service;
 
-use BluePsyduck\Common\Test\ReflectionTrait;
+use BluePsyduck\TestHelper\ReflectionTrait;
 use FactorioItemBrowser\Api\Search\Collection\PaginatedResultCollection;
 use FactorioItemBrowser\Api\Search\Entity\Result\ResultInterface;
 use FactorioItemBrowser\Api\Search\Serializer\SerializerInterface;
@@ -67,7 +67,6 @@ class SerializerServiceTest extends TestCase
 
     /**
      * Tests the serialize method.
-     * @throws ReflectionException
      * @covers ::serialize
      */
     public function testSerialize(): void
@@ -174,7 +173,6 @@ class SerializerServiceTest extends TestCase
 
     /**
      * Tests the unserialize method.
-     * @throws ReflectionException
      * @covers ::unserialize
      */
     public function testUnserialize(): void

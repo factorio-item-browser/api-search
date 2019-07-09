@@ -11,8 +11,10 @@ declare(strict_types=1);
 
 namespace FactorioItemBrowser\Api\Search;
 
-use Blast\ReflectionFactory\ReflectionFactory;
-use Zend\ServiceManager\Factory\InvokableFactory;
+use BluePsyduck\ZendAutoWireFactory\AutoWireFactory;
+use function BluePsyduck\ZendAutoWireFactory\injectAliasArray;
+use function BluePsyduck\ZendAutoWireFactory\readConfig;
+use FactorioItemBrowser\Api\Search\Constant\ConfigKey;
 
 return [
     'dependencies' => [
@@ -21,31 +23,37 @@ return [
             SearchManagerInterface::class => SearchManager::class,
         ],
         'factories'  => [
-            Entity\Config::class => Entity\ConfigFactory::class,
+            Fetcher\DuplicateRecipeFetcher::class => AutoWireFactory::class,
+            Fetcher\ItemFetcher::class => AutoWireFactory::class,
+            Fetcher\MissingItemIdFetcher::class => AutoWireFactory::class,
+            Fetcher\MissingRecipeIdFetcher::class => AutoWireFactory::class,
+            Fetcher\ProductRecipeFetcher::class => AutoWireFactory::class,
+            Fetcher\RecipeFetcher::class => AutoWireFactory::class,
+            Fetcher\TranslationFetcher::class => AutoWireFactory::class,
 
-            Fetcher\DuplicateRecipeFetcher::class => InvokableFactory::class,
-            Fetcher\ItemFetcher::class => ReflectionFactory::class,
-            Fetcher\MissingItemIdFetcher::class => ReflectionFactory::class,
-            Fetcher\MissingRecipeIdFetcher::class => ReflectionFactory::class,
-            Fetcher\ProductRecipeFetcher::class => ReflectionFactory::class,
-            Fetcher\RecipeFetcher::class => ReflectionFactory::class,
-            Fetcher\TranslationFetcher::class => ReflectionFactory::class,
+            Mapper\ItemToItemResultMapper::class => AutoWireFactory::class,
+            Mapper\RecipeDataToRecipeResultMapper::class => AutoWireFactory::class,
+            Mapper\TranslationPriorityDataToItemResultMapper::class => AutoWireFactory::class,
+            Mapper\TranslationPriorityDataToRecipeResultMapper::class => AutoWireFactory::class,
 
-            Mapper\ItemToItemResultMapper::class => InvokableFactory::class,
-            Mapper\RecipeDataToRecipeResultMapper::class => InvokableFactory::class,
-            Mapper\TranslationPriorityDataToItemResultMapper::class => InvokableFactory::class,
-            Mapper\TranslationPriorityDataToRecipeResultMapper::class => InvokableFactory::class,
+            Parser\QueryParser::class => AutoWireFactory::class,
 
-            Parser\QueryParser::class => InvokableFactory::class,
+            SearchManager::class => AutoWireFactory::class,
 
-            SearchManager::class => SearchManagerFactory::class,
+            Serializer\ItemResultSerializer::class => AutoWireFactory::class,
+            Serializer\RecipeResultSerializer::class => AutoWireFactory::class,
 
-            Serializer\ItemResultSerializer::class => ReflectionFactory::class,
-            Serializer\RecipeResultSerializer::class => InvokableFactory::class,
+            Service\CachedSearchResultService::class => AutoWireFactory::class,
+            Service\FetcherService::class => AutoWireFactory::class,
+            Service\SerializerService::class => AutoWireFactory::class,
 
-            Service\CachedSearchResultService::class => Service\CachedSearchResultServiceFactory::class,
-            Service\FetcherService::class => Service\FetcherServiceFactory::class,
-            Service\SerializerService::class => Service\SerializerServiceFactory::class,
+            // Auto-wire helpers
+            'array $apiSearchFetchers' => injectAliasArray(ConfigKey::PROJECT, ConfigKey::API_SEARCH, ConfigKey::FETCHERS),
+            'array $apiSearchSerializers' => injectAliasArray(ConfigKey::PROJECT, ConfigKey::API_SEARCH, ConfigKey::SERIALIZERS),
+
+            'int $apiSearchMaxSearchResults' => readConfig(ConfigKey::PROJECT, ConfigKey::API_SEARCH, ConfigKey::MAX_SEARCH_RESULTS),
+
+            'string $apiKeyMaxCacheAge' => readConfig(ConfigKey::PROJECT, ConfigKey::API_SEARCH, ConfigKey::MAX_CACHE_AGE),
         ],
     ],
 ];

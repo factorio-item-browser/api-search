@@ -10,7 +10,6 @@ use FactorioItemBrowser\Api\Search\Mapper\RecipeDataToRecipeResultMapper;
 use FactorioItemBrowser\Common\Constant\RecipeMode;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use ReflectionException;
 
 /**
  * The PHPUnit test of the RecipeDataToRecipeResultMapper class.
@@ -43,7 +42,6 @@ class RecipeDataToRecipeResultMapperTest extends TestCase
 
     /**
      * Tests the map method with a normal recipe.
-     * @throws ReflectionException
      * @covers ::map
      */
     public function testMapWithNormalRecipe(): void
@@ -75,7 +73,6 @@ class RecipeDataToRecipeResultMapperTest extends TestCase
 
     /**
      * Tests the map method.
-     * @throws ReflectionException
      * @covers ::map
      */
     public function testMapWithExpensiveRecipe(): void

@@ -48,18 +48,18 @@ class SearchManager implements SearchManagerInterface
      * @param CachedSearchResultService $cachedSearchResultService
      * @param FetcherService $fetcherService
      * @param QueryParser $queryParser
-     * @param int $maxSearchResults
+     * @param int $apiSearchMaxSearchResults
      */
     public function __construct(
         CachedSearchResultService $cachedSearchResultService,
         FetcherService $fetcherService,
         QueryParser $queryParser,
-        int $maxSearchResults
+        int $apiSearchMaxSearchResults
     ) {
         $this->cachedSearchResultService = $cachedSearchResultService;
         $this->fetcherService = $fetcherService;
         $this->queryParser = $queryParser;
-        $this->maxSearchResults = $maxSearchResults;
+        $this->maxSearchResults = $apiSearchMaxSearchResults;
     }
 
     /**

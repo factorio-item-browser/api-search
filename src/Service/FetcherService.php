@@ -23,12 +23,12 @@ class FetcherService
     protected $fetchers;
 
     /**
-     * Initializes the manager.
-     * @param array|FetcherInterface[] $fetchers
+     * Initializes the service.
+     * @param array|FetcherInterface[] $apiSearchFetchers
      */
-    public function __construct(array $fetchers)
+    public function __construct(array $apiSearchFetchers)
     {
-        $this->fetchers = $fetchers;
+        $this->fetchers = $apiSearchFetchers;
     }
 
     /**

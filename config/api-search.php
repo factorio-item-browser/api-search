@@ -15,7 +15,7 @@ use FactorioItemBrowser\Api\Search\Constant\ConfigKey;
 
 return [
     ConfigKey::PROJECT => [
-        ConfigKey::LIBRARY => [
+        ConfigKey::API_SEARCH => [
             ConfigKey::MAX_SEARCH_RESULTS => 1000,
             ConfigKey::MAX_CACHE_AGE => '-1 hour',
             ConfigKey::FETCHERS => [

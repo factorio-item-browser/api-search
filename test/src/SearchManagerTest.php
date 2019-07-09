@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace FactorioItemBrowserTest\Api\Search;
 
-use BluePsyduck\Common\Test\ReflectionTrait;
+use BluePsyduck\TestHelper\ReflectionTrait;
 use FactorioItemBrowser\Api\Search\Collection\AggregatingResultCollection;
 use FactorioItemBrowser\Api\Search\Collection\PaginatedResultCollection;
 use FactorioItemBrowser\Api\Search\Entity\Query;
@@ -48,7 +48,6 @@ class SearchManagerTest extends TestCase
 
     /**
      * Sets up the test case.
-     * @throws ReflectionException
      */
     protected function setUp(): void
     {
@@ -85,7 +84,6 @@ class SearchManagerTest extends TestCase
 
     /**
      * Tests the parseQuery method.
-     * @throws ReflectionException
      * @covers ::parseQuery
      */
     public function testParseQuery(): void
@@ -114,7 +112,6 @@ class SearchManagerTest extends TestCase
 
     /**
      * Tests the search method with a cached result.
-     * @throws ReflectionException
      * @covers ::search
      */
     public function testSearchWithCachedResult(): void
@@ -149,7 +146,6 @@ class SearchManagerTest extends TestCase
 
     /**
      * Tests the search method without a cached result.
-     * @throws ReflectionException
      * @covers ::search
      */
     public function testSearchWithoutCachedResult(): void

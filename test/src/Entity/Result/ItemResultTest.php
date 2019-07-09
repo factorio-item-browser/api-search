@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace FactorioItemBrowserTest\Api\Search\Entity\Result;
 
-use BluePsyduck\Common\Test\ReflectionTrait;
+use BluePsyduck\TestHelper\ReflectionTrait;
 use FactorioItemBrowser\Api\Database\Constant\SearchResultPriority;
 use FactorioItemBrowser\Api\Search\Collection\RecipeCollection;
 use FactorioItemBrowser\Api\Search\Entity\Result\ItemResult;
