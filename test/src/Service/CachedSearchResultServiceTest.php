@@ -327,7 +327,7 @@ class CachedSearchResultServiceTest extends TestCase
     /**
      * Tests the cleanCache method.
      * @throws Exception
-     * @covers ::cleanCache
+     * @covers ::clearExpiredResults
      */
     public function testCleanCache(): void
     {
@@ -345,13 +345,13 @@ class CachedSearchResultServiceTest extends TestCase
         );
         $this->injectProperty($service, 'maxCacheAge', $maxCacheAge);
 
-        $service->cleanCache();
+        $service->clearExpiredResults();
     }
 
     /**
      * Tests the clearCache method.
      * @throws Exception
-     * @covers ::clearCache
+     * @covers ::clearAll
      */
     public function testClearCache(): void
     {
@@ -363,6 +363,6 @@ class CachedSearchResultServiceTest extends TestCase
             $this->serializerService,
             'today'
         );
-        $service->clearCache();
+        $service->clearAll();
     }
 }

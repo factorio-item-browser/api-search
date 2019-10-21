@@ -11,6 +11,7 @@ use FactorioItemBrowser\Api\Search\Entity\Result\ItemResult;
 use FactorioItemBrowser\Api\Search\Entity\Result\RecipeResult;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Ramsey\Uuid\UuidInterface;
 use ReflectionException;
 
 /**
@@ -26,7 +27,7 @@ class ItemResultTest extends TestCase
 
     /**
      * Tests the constructing.
-     * @throws ReflectioNException
+     * @throws ReflectionException
      * @covers ::__construct
      */
     public function testConstruct(): void
@@ -35,7 +36,7 @@ class ItemResultTest extends TestCase
 
         $this->assertSame('', $result->getType());
         $this->assertSame('', $result->getName());
-        $this->assertSame(0, $result->getId());
+        $this->assertNull($result->getId());
         $this->assertSame(SearchResultPriority::ANY_MATCH, $result->getPriority());
         $this->assertInstanceOf(RecipeCollection::class, $this->extractProperty($result, 'recipes'));
     }
@@ -75,7 +76,8 @@ class ItemResultTest extends TestCase
      */
     public function testSetAndGetId(): void
     {
-        $id = 42;
+        /* @var UuidInterface&MockObject $id */
+        $id = $this->createMock(UuidInterface::class);
         $result = new ItemResult();
 
         $this->assertSame($result, $result->setId($id));
@@ -151,6 +153,11 @@ class ItemResultTest extends TestCase
      */
     public function testMergeWithData(): void
     {
+        /* @var UuidInterface&MockObject $id1 */
+        $id1 = $this->createMock(UuidInterface::class);
+        /* @var UuidInterface&MockObject $id2 */
+        $id2 = $this->createMock(UuidInterface::class);
+
         /* @var RecipeResult&MockObject $recipe */
         $recipe = $this->createMock(RecipeResult::class);
 
@@ -158,7 +165,7 @@ class ItemResultTest extends TestCase
         $itemToMerge = $this->createMock(ItemResult::class);
         $itemToMerge->expects($this->atLeastOnce())
                     ->method('getId')
-                    ->willReturn(42);
+                    ->willReturn($id1);
         $itemToMerge->expects($this->atLeastOnce())
                     ->method('getPriority')
                     ->willReturn(21);
@@ -173,13 +180,13 @@ class ItemResultTest extends TestCase
                          ->with($this->identicalTo($recipe));
 
         $item = new ItemResult();
-        $item->setId(24)
+        $item->setId($id2)
              ->setPriority(100);
         $this->injectProperty($item, 'recipes', $recipeCollection);
 
         $item->merge($itemToMerge);
 
-        $this->assertSame(42, $this->extractProperty($item, 'id'));
+        $this->assertSame($id1, $this->extractProperty($item, 'id'));
         $this->assertSame(21, $this->extractProperty($item, 'priority'));
     }
 
@@ -190,11 +197,14 @@ class ItemResultTest extends TestCase
      */
     public function testMergeWithoutData(): void
     {
+        /* @var UuidInterface&MockObject $id1 */
+        $id1 = $this->createMock(UuidInterface::class);
+
         /* @var ItemResult&MockObject $itemToMerge */
         $itemToMerge = $this->createMock(ItemResult::class);
         $itemToMerge->expects($this->atLeastOnce())
                     ->method('getId')
-                    ->willReturn(0);
+                    ->willReturn(null);
         $itemToMerge->expects($this->atLeastOnce())
                     ->method('getPriority')
                     ->willReturn(100);
@@ -208,13 +218,13 @@ class ItemResultTest extends TestCase
                          ->method('add');
 
         $item = new ItemResult();
-        $item->setId(42)
+        $item->setId($id1)
              ->setPriority(21);
         $this->injectProperty($item, 'recipes', $recipeCollection);
 
         $item->merge($itemToMerge);
 
-        $this->assertSame(42, $this->extractProperty($item, 'id'));
+        $this->assertSame($id1, $this->extractProperty($item, 'id'));
         $this->assertSame(21, $this->extractProperty($item, 'priority'));
     }
 }

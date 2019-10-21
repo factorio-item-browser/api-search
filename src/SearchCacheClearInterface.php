@@ -13,12 +13,12 @@ namespace FactorioItemBrowser\Api\Search;
 interface SearchCacheClearInterface
 {
     /**
-     * Cleans already invalidated data from the cache.
+     * Clears already expired data from the cache.
      */
-    public function cleanCache(): void;
+    public function clearExpiredResults(): void;
 
     /**
      * Completely clears the cache from all results.
      */
-    public function clearCache(): void;
+    public function clearAll(): void;
 }

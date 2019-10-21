@@ -6,6 +6,7 @@ namespace FactorioItemBrowser\Api\Search\Entity\Result;
 
 use FactorioItemBrowser\Api\Database\Constant\SearchResultPriority;
 use FactorioItemBrowser\Common\Constant\EntityType;
+use Ramsey\Uuid\UuidInterface;
 
 /**
  * The class representing a recipe result of the search.
@@ -23,15 +24,15 @@ class RecipeResult implements ResultInterface
 
     /**
      * The id of the normal variant of the recipe.
-     * @var int
+     * @var UuidInterface|null
      */
-    protected $normalRecipeId = 0;
+    protected $normalRecipeId;
 
     /**
      * The id of the expensive variant of the recipe.
-     * @var int
+     * @var UuidInterface|null
      */
-    protected $expensiveRecipeId = 0;
+    protected $expensiveRecipeId;
 
     /**
      * The priority of the result.
@@ -70,10 +71,10 @@ class RecipeResult implements ResultInterface
 
     /**
      * Sets the id of the normal variant of the recipe.
-     * @param int $normalRecipeId
+     * @param UuidInterface|null $normalRecipeId
      * @return $this
      */
-    public function setNormalRecipeId(int $normalRecipeId): self
+    public function setNormalRecipeId(?UuidInterface $normalRecipeId): self
     {
         $this->normalRecipeId = $normalRecipeId;
         return $this;
@@ -81,19 +82,19 @@ class RecipeResult implements ResultInterface
 
     /**
      * Returns the id of the normal variant of the recipe.
-     * @return int
+     * @return UuidInterface|null
      */
-    public function getNormalRecipeId(): int
+    public function getNormalRecipeId(): ?UuidInterface
     {
         return $this->normalRecipeId;
     }
 
     /**
      * Sets the id of the expensive variant of the recipe.
-     * @param int $expensiveRecipeId
+     * @param UuidInterface|null $expensiveRecipeId
      * @return $this
      */
-    public function setExpensiveRecipeId(int $expensiveRecipeId): self
+    public function setExpensiveRecipeId(?UuidInterface $expensiveRecipeId): self
     {
         $this->expensiveRecipeId = $expensiveRecipeId;
         return $this;
@@ -101,9 +102,9 @@ class RecipeResult implements ResultInterface
 
     /**
      * Returns the id of the expensive variant of the recipe.
-     * @return int
+     * @return UuidInterface|null
      */
-    public function getExpensiveRecipeId(): int
+    public function getExpensiveRecipeId(): ?UuidInterface
     {
         return $this->expensiveRecipeId;
     }
@@ -134,10 +135,10 @@ class RecipeResult implements ResultInterface
      */
     public function merge(RecipeResult $recipe): void
     {
-        if ($recipe->getNormalRecipeId() > 0) {
+        if ($recipe->getNormalRecipeId() !== null) {
             $this->normalRecipeId = $recipe->getNormalRecipeId();
         }
-        if ($recipe->getExpensiveRecipeId() > 0) {
+        if ($recipe->getExpensiveRecipeId() !== null) {
             $this->expensiveRecipeId = $recipe->getExpensiveRecipeId();
         }
         $this->priority = min($this->priority, $recipe->getPriority());

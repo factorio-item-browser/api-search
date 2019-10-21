@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace FactorioItemBrowser\Api\Search\Entity;
 
 use FactorioItemBrowser\Api\Search\Collection\TermCollection;
+use Ramsey\Uuid\UuidInterface;
 
 /**
  * The class representing a search query.
@@ -15,22 +16,22 @@ use FactorioItemBrowser\Api\Search\Collection\TermCollection;
 class Query
 {
     /**
-     * The unparsed query string.
-     * @var string
+     * The id of the combination to use.
+     * @var UuidInterface
      */
-    protected $queryString;
-
-    /**
-     * The ids of the mod combinations to use.
-     * @var array|int[]
-     */
-    protected $modCombinationIds;
+    protected $combinationId;
 
     /**
      * The locale to prefer in translations.
      * @var string
      */
     protected $locale;
+
+    /**
+     * The unparsed query string.
+     * @var string
+     */
+    protected $queryString;
 
     /**
      * The terms of the query.
@@ -40,63 +41,36 @@ class Query
 
     /**
      * The hash of the parsed search query.
-     * @var string
+     * @var UuidInterface
      */
-    protected $hash = '';
+    protected $hash;
 
     /**
      * Initializes the query.
-     * @param string $queryString
-     * @param array|int[] $modCombinationIds
-     * @param string $locale
      */
-    public function __construct(string $queryString, array $modCombinationIds, string $locale)
+    public function __construct()
     {
-        $this->queryString = $queryString;
-        $this->modCombinationIds = $modCombinationIds;
-        $this->locale = $locale;
-
         $this->terms = new TermCollection();
     }
 
     /**
-     * Sets the unparsed query string.
-     * @param string $queryString
+     * Sets the id of the combination to use.
+     * @param UuidInterface $combinationId
      * @return $this
      */
-    public function setQueryString(string $queryString): self
+    public function setCombinationId(UuidInterface $combinationId): self
     {
-        $this->queryString = $queryString;
+        $this->combinationId = $combinationId;
         return $this;
     }
 
     /**
-     * Returns the unparsed query string.
-     * @return string
+     * Returns the id of the combination to use.
+     * @return UuidInterface
      */
-    public function getQueryString(): string
+    public function getCombinationId(): UuidInterface
     {
-        return $this->queryString;
-    }
-
-    /**
-     * Sets the ids of the mod combinations to use.
-     * @param array|int[] $modCombinationIds
-     * @return $this
-     */
-    public function setModCombinationIds(array $modCombinationIds): self
-    {
-        $this->modCombinationIds = $modCombinationIds;
-        return $this;
-    }
-
-    /**
-     * Returns the ids of the mod combinations to use.
-     * @return array|int[]
-     */
-    public function getModCombinationIds(): array
-    {
-        return $this->modCombinationIds;
+        return $this->combinationId;
     }
 
     /**
@@ -119,7 +93,25 @@ class Query
         return $this->locale;
     }
 
+    /**
+     * Sets the unparsed query string.
+     * @param string $queryString
+     * @return $this
+     */
+    public function setQueryString(string $queryString): self
+    {
+        $this->queryString = $queryString;
+        return $this;
+    }
 
+    /**
+     * Returns the unparsed query string.
+     * @return string
+     */
+    public function getQueryString(): string
+    {
+        return $this->queryString;
+    }
 
     /**
      * Adds a term to the query.
@@ -192,10 +184,10 @@ class Query
 
     /**
      * Sets the hash of the parsed search query.
-     * @param string $hash
+     * @param UuidInterface $hash
      * @return $this
      */
-    public function setHash(string $hash): self
+    public function setHash(?UuidInterface $hash): self
     {
         $this->hash = $hash;
         return $this;
@@ -203,9 +195,9 @@ class Query
 
     /**
      * Returns the hash of the parsed search query.
-     * @return string
+     * @return UuidInterface
      */
-    public function getHash(): string
+    public function getHash(): ?UuidInterface
     {
         return $this->hash;
     }
