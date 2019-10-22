@@ -45,11 +45,11 @@
     }
   },
   "scripts": {
-    "coverage-check": "coverage-check test/log/clover.xml 100",
+    "coverage-check": "coverage-check test/coverage/clover.xml 100",
     "phpcbf": "phpcbf -p --colors",
     "phpcs": "phpcs -p --colors",
     "phpstan": "phpstan analyse --no-interaction --ansi",
-    "phpunit": "phpunit --colors=always --coverage-html=test/log --coverage-clover=test/log/clover.xml",
+    "phpunit": "phpunit --colors=always --coverage-html=test/coverage --coverage-clover=test/coverage/clover.xml",
     "test": [
       "@composer validate --strict",
       "@phpunit",
