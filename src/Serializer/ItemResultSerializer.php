@@ -8,6 +8,7 @@ use FactorioItemBrowser\Api\Search\Constant\SerializedResultType;
 use FactorioItemBrowser\Api\Search\Entity\Result\ItemResult;
 use FactorioItemBrowser\Api\Search\Entity\Result\RecipeResult;
 use FactorioItemBrowser\Api\Search\Entity\Result\ResultInterface;
+use Ramsey\Uuid\Uuid;
 
 /**
  * The serializer for the item results.
@@ -58,7 +59,7 @@ class ItemResultSerializer implements SerializerInterface
     public function serialize($item): string
     {
         return implode(',', array_merge(
-            [$item->getId()],
+            [($item->getId() !== null) ? $item->getId()->toString() : ''],
             array_filter($this->serializeRecipes($item->getRecipes()))
         ));
     }
@@ -85,10 +86,10 @@ class ItemResultSerializer implements SerializerInterface
     public function unserialize(string $serializedResult): ResultInterface
     {
         $ids = explode(',', $serializedResult);
-        $itemId = array_shift($ids);
+        $itemId = (string) array_shift($ids);
 
         $result = new ItemResult();
-        $result->setId((int) $itemId);
+        $result->setId(Uuid::fromString($itemId));
 
         $this->unserializeRecipes($ids, $result);
         return $result;

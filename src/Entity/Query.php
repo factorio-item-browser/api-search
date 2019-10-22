@@ -187,7 +187,7 @@ class Query
      * @param UuidInterface $hash
      * @return $this
      */
-    public function setHash(?UuidInterface $hash): self
+    public function setHash(UuidInterface $hash): self
     {
         $this->hash = $hash;
         return $this;
@@ -197,7 +197,7 @@ class Query
      * Returns the hash of the parsed search query.
      * @return UuidInterface
      */
-    public function getHash(): ?UuidInterface
+    public function getHash(): UuidInterface
     {
         return $this->hash;
     }

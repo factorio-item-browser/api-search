@@ -8,7 +8,6 @@ use BluePsyduck\MapperManager\Exception\MapperException;
 use BluePsyduck\MapperManager\MapperManagerInterface;
 use FactorioItemBrowser\Api\Database\Constant\SearchResultPriority;
 use FactorioItemBrowser\Api\Database\Data\RecipeData;
-use FactorioItemBrowser\Api\Database\Filter\DataFilter;
 use FactorioItemBrowser\Api\Database\Repository\RecipeRepository;
 use FactorioItemBrowser\Api\Search\Collection\AggregatingResultCollection;
 use FactorioItemBrowser\Api\Search\Constant\TermType;
@@ -24,12 +23,6 @@ use FactorioItemBrowser\Api\Search\Entity\Result\RecipeResult;
 class RecipeFetcher implements FetcherInterface
 {
     /**
-     * The data filter.
-     * @var DataFilter
-     */
-    protected $dataFilter;
-
-    /**
      * The mapper manager.
      * @var MapperManagerInterface
      */
@@ -43,16 +36,13 @@ class RecipeFetcher implements FetcherInterface
 
     /**
      * Initializes the fetcher.
-     * @param DataFilter $dataFilter
      * @param MapperManagerInterface $mapperManager
      * @param RecipeRepository $recipeRepository
      */
     public function __construct(
-        DataFilter $dataFilter,
         MapperManagerInterface $mapperManager,
         RecipeRepository $recipeRepository
     ) {
-        $this->dataFilter = $dataFilter;
         $this->mapperManager = $mapperManager;
         $this->recipeRepository = $recipeRepository;
     }
@@ -65,11 +55,8 @@ class RecipeFetcher implements FetcherInterface
      */
     public function fetch(Query $query, AggregatingResultCollection $searchResults): void
     {
-        $recipes = $this->fetchRecipes($query);
-        foreach ($this->dataFilter->filter($recipes) as $recipe) {
-            if ($recipe instanceof RecipeData) {
-                $searchResults->addRecipe($this->mapRecipeData($recipe));
-            }
+        foreach ($this->fetchRecipes($query) as $recipe) {
+            $searchResults->addRecipe($this->mapRecipeData($recipe));
         }
     }
 
@@ -81,8 +68,8 @@ class RecipeFetcher implements FetcherInterface
     protected function fetchRecipes(Query $query): array
     {
         return $this->recipeRepository->findDataByKeywords(
-            $query->getTermValuesByType(TermType::GENERIC),
-            $query->getModCombinationIds()
+            $query->getCombinationId(),
+            $query->getTermValuesByType(TermType::GENERIC)
         );
     }
 

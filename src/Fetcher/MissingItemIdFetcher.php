@@ -6,6 +6,7 @@ namespace FactorioItemBrowser\Api\Search\Fetcher;
 
 use BluePsyduck\MapperManager\Exception\MapperException;
 use BluePsyduck\MapperManager\MapperManagerInterface;
+use FactorioItemBrowser\Api\Database\Collection\NamesByTypes;
 use FactorioItemBrowser\Api\Database\Entity\Item;
 use FactorioItemBrowser\Api\Database\Repository\ItemRepository;
 use FactorioItemBrowser\Api\Search\Collection\AggregatingResultCollection;
@@ -60,30 +61,30 @@ class MissingItemIdFetcher implements FetcherInterface
     /**
      * Returns the types and names of item results still missing their ids.
      * @param AggregatingResultCollection $searchResults
-     * @return array|string[][]
+     * @return NamesByTypes
      */
-    protected function getTypesAndNamesWithMissingIds(AggregatingResultCollection $searchResults): array
+    protected function getTypesAndNamesWithMissingIds(AggregatingResultCollection $searchResults): NamesByTypes
     {
-        $result = [];
+        $namesByTypes = new NamesByTypes();
         foreach ($searchResults->getItems() as $item) {
-            if ($item->getId() === 0) {
-                $result[$item->getType()][] = $item->getName();
+            if ($item->getId() === null) {
+                $namesByTypes->addName($item->getType(), $item->getName());
             }
         }
-        return $result;
+        return $namesByTypes;
     }
 
     /**
      * Fetches the items matching the criteria.
-     * @param array|string[][] $namesByTypes
+     * @param NamesByTypes $namesByTypes
      * @param Query $query
      * @return array|Item[]
      */
-    protected function fetchItems(array $namesByTypes, Query $query): array
+    protected function fetchItems(NamesByTypes $namesByTypes, Query $query): array
     {
         return $this->itemRepository->findByTypesAndNames(
-            $namesByTypes,
-            $query->getModCombinationIds()
+            $query->getCombinationId(),
+            $namesByTypes
         );
     }
 
