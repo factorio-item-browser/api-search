@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace FactorioItemBrowser\Api\Search\Serializer;
 
+use Exception;
 use FactorioItemBrowser\Api\Search\Constant\SerializedResultType;
 use FactorioItemBrowser\Api\Search\Entity\Result\ItemResult;
 use FactorioItemBrowser\Api\Search\Entity\Result\RecipeResult;
@@ -89,7 +90,11 @@ class ItemResultSerializer implements SerializerInterface
         $itemId = (string) array_shift($ids);
 
         $result = new ItemResult();
-        $result->setId(Uuid::fromString($itemId));
+        try {
+            $result->setId(Uuid::fromString($itemId));
+        } catch (Exception $e) {
+            // Id is invalid, so ignore it.
+        }
 
         $this->unserializeRecipes($ids, $result);
         return $result;

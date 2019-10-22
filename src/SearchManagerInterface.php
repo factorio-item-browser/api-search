@@ -2,13 +2,6 @@
 
 declare(strict_types=1);
 
-/**
- * The interface of the main manager of the API search library.
- *
- * @author BluePsyduck <bluepsyduck@gmx.com>
- * @license http://opensource.org/licenses/GPL-3.0 GPL v3
- */
-
 namespace FactorioItemBrowser\Api\Search;
 
 use FactorioItemBrowser\Api\Search\Collection\PaginatedResultCollection;
@@ -16,7 +9,7 @@ use FactorioItemBrowser\Api\Search\Entity\Query;
 use Ramsey\Uuid\UuidInterface;
 
 /**
- * The main manager of the API search library.
+ * The interface of the main manager of the API search library.
  *
  * @author BluePsyduck <bluepsyduck@gmx.com>
  * @license http://opensource.org/licenses/GPL-3.0 GPL v3

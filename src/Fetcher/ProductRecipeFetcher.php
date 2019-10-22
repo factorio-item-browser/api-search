@@ -102,8 +102,13 @@ class ProductRecipeFetcher implements FetcherInterface
      */
     protected function matchRecipeToItems(RecipeData $recipe, array $items): void
     {
-        if ($recipe->getItemId() !== null && isset($items[$recipe->getItemId()->toString()])) {
-            $items[$recipe->getItemId()->toString()]->addRecipe($this->mapRecipe($recipe));
+        if ($recipe->getItemId() === null) {
+            return;
+        }
+
+        $recipeItemId = $recipe->getItemId()->toString();
+        if (isset($items[$recipeItemId])) {
+            $items[$recipeItemId]->addRecipe($this->mapRecipe($recipe));
         }
     }
 

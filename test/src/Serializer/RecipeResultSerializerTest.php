@@ -119,6 +119,7 @@ class RecipeResultSerializerTest extends TestCase
             ['40718ef3-3d81-4c6f-ac42-650d4c38d226', $recipe2],
             ['+79c6ee59-57b3-4fe1-a766-10c1454cdc8a', $recipe3],
             ['', $recipe4],
+            ['+', $recipe4],
         ];
     }
 

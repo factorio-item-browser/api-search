@@ -17,6 +17,7 @@ use FactorioItemBrowser\Api\Search\Entity\Result\ItemResult;
 use FactorioItemBrowser\Api\Search\Fetcher\ItemFetcher;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Ramsey\Uuid\UuidInterface;
 use ReflectionException;
 
 /**
@@ -127,7 +128,9 @@ class ItemFetcherTest extends TestCase
     public function testFetchItems(): void
     {
         $keywords = ['abc', 'def'];
-        $modCombinationIds = [42, 1337];
+
+        /* @var UuidInterface&MockObject $combinationId */
+        $combinationId = $this->createMock(UuidInterface::class);
 
         $items = [
             $this->createMock(Item::class),
@@ -137,16 +140,16 @@ class ItemFetcherTest extends TestCase
         /* @var Query&MockObject $query */
         $query = $this->createMock(Query::class);
         $query->expects($this->once())
+              ->method($this->identicalTo('getCombinationId'))
+              ->willReturn($combinationId);
+        $query->expects($this->once())
               ->method('getTermValuesByType')
               ->with($this->identicalTo(TermType::GENERIC))
               ->willReturn($keywords);
-        $query->expects($this->once())
-              ->method($this->identicalTo('getModCombinationIds'))
-              ->willReturn($modCombinationIds);
 
         $this->itemRepository->expects($this->once())
                              ->method('findByKeywords')
-                             ->with($this->identicalTo($keywords), $this->identicalTo($modCombinationIds))
+                             ->with($this->identicalTo($combinationId), $this->identicalTo($keywords))
                              ->willReturn($items);
 
         $fetcher = new ItemFetcher($this->itemRepository, $this->mapperManager);

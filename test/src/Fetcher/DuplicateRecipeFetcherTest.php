@@ -12,6 +12,7 @@ use FactorioItemBrowser\Api\Search\Entity\Result\RecipeResult;
 use FactorioItemBrowser\Api\Search\Fetcher\DuplicateRecipeFetcher;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Ramsey\Uuid\Uuid;
 use ReflectionException;
 
 /**
@@ -31,6 +32,11 @@ class DuplicateRecipeFetcherTest extends TestCase
      */
     public function testFetch(): void
     {
+        $id1 = Uuid::fromString('40718ef3-3d81-4c6f-ac42-650d4c38d226');
+        $id2 = Uuid::fromString('79c6ee59-57b3-4fe1-a766-10c1454cdc8a');
+        $id3 = Uuid::fromString('9bdec160-3b97-400e-b4ad-b7d9fdbdd341');
+        $id4 = Uuid::fromString('b4a58374-3671-43ee-b1b3-6bd74e62531f');
+
         $items1 = [
             $this->createMock(ItemResult::class),
             $this->createMock(ItemResult::class),
@@ -39,27 +45,27 @@ class DuplicateRecipeFetcherTest extends TestCase
             $this->createMock(ItemResult::class),
         ];
         $itemsByRecipeIds = [
-            42 => $items1,
-            1337 => $items2,
+            '40718ef3-3d81-4c6f-ac42-650d4c38d226' => $items1,
+            'b4a58374-3671-43ee-b1b3-6bd74e62531f' => $items2,
         ];
 
         /* @var RecipeResult&MockObject $recipe1 */
         $recipe1 = $this->createMock(RecipeResult::class);
-        $recipe1->expects($this->once())
+        $recipe1->expects($this->atLeastOnce())
                 ->method('getNormalRecipeId')
-                ->willReturn(42);
-        $recipe1->expects($this->once())
+                ->willReturn($id1);
+        $recipe1->expects($this->atLeastOnce())
                 ->method('getExpensiveRecipeId')
-                ->willReturn(21);
+                ->willReturn($id2);
 
         /* @var RecipeResult&MockObject $recipe2 */
         $recipe2 = $this->createMock(RecipeResult::class);
-        $recipe2->expects($this->once())
+        $recipe2->expects($this->atLeastOnce())
                 ->method('getNormalRecipeId')
-                ->willReturn(7331);
-        $recipe2->expects($this->once())
+                ->willReturn($id3);
+        $recipe2->expects($this->atLeastOnce())
                 ->method('getExpensiveRecipeId')
-                ->willReturn(1337);
+                ->willReturn($id4);
 
         /* @var Query&MockObject $query */
         $query = $this->createMock(Query::class);
@@ -97,32 +103,36 @@ class DuplicateRecipeFetcherTest extends TestCase
      */
     public function testGetItemsByRecipeIds(): void
     {
+        $id1 = Uuid::fromString('40718ef3-3d81-4c6f-ac42-650d4c38d226');
+        $id2 = Uuid::fromString('79c6ee59-57b3-4fe1-a766-10c1454cdc8a');
+        $id3 = Uuid::fromString('9bdec160-3b97-400e-b4ad-b7d9fdbdd341');
+
         /* @var RecipeResult&MockObject $recipe1 */
         $recipe1 = $this->createMock(RecipeResult::class);
         $recipe1->expects($this->atLeastOnce())
                 ->method('getNormalRecipeId')
-                ->willReturn(42);
+                ->willReturn($id1);
         $recipe1->expects($this->atLeastOnce())
                 ->method('getExpensiveRecipeId')
-                ->willReturn(1337);
+                ->willReturn($id2);
 
         /* @var RecipeResult&MockObject $recipe2 */
         $recipe2 = $this->createMock(RecipeResult::class);
         $recipe2->expects($this->atLeastOnce())
                 ->method('getNormalRecipeId')
-                ->willReturn(21);
+                ->willReturn($id3);
         $recipe2->expects($this->atLeastOnce())
                 ->method('getExpensiveRecipeId')
-                ->willReturn(0);
+                ->willReturn(null);
 
         /* @var RecipeResult&MockObject $recipe3 */
         $recipe3 = $this->createMock(RecipeResult::class);
         $recipe3->expects($this->atLeastOnce())
                 ->method('getNormalRecipeId')
-                ->willReturn(0);
+                ->willReturn(null);
         $recipe3->expects($this->atLeastOnce())
                 ->method('getExpensiveRecipeId')
-                ->willReturn(1337);
+                ->willReturn($id2);
 
         /* @var ItemResult&MockObject $item1 */
         $item1 = $this->createMock(ItemResult::class);
@@ -137,9 +147,9 @@ class DuplicateRecipeFetcherTest extends TestCase
               ->willReturn([$recipe3]);
 
         $expectedResult = [
-            42 => [$item1],
-            1337 => [$item1, $item2],
-            21 => [$item2],
+            '40718ef3-3d81-4c6f-ac42-650d4c38d226' => [$item1],
+            '79c6ee59-57b3-4fe1-a766-10c1454cdc8a' => [$item1, $item2],
+            '9bdec160-3b97-400e-b4ad-b7d9fdbdd341' => [$item2],
         ];
 
         /* @var AggregatingResultCollection&MockObject $searchResults */

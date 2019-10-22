@@ -168,14 +168,14 @@ class ItemResultSerializerTest extends TestCase
     /**
      * Tests the unserialize method.
      * @param string $serializedResult
-     * @param UuidInterface $expectedItemId
+     * @param UuidInterface|null $expectedItemId
      * @param array|string[] $expectedSerializedRecipes
      * @covers ::unserialize
      * @dataProvider provideUnserialize
      */
     public function testUnserialize(
         string $serializedResult,
-        UuidInterface $expectedItemId,
+        ?UuidInterface $expectedItemId,
         array $expectedSerializedRecipes
     ): void {
         $expectedResult = new ItemResult();

@@ -17,6 +17,7 @@ use FactorioItemBrowser\Api\Search\Fetcher\TranslationFetcher;
 use FactorioItemBrowser\Common\Constant\EntityType;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Ramsey\Uuid\UuidInterface;
 use ReflectionException;
 
 /**
@@ -134,8 +135,9 @@ class TranslationFetcherTest extends TestCase
     {
         $locale = 'abc';
         $keywords = ['def', 'ghi'];
-        $modCombinationIds = [42, 1337];
 
+        /* @var UuidInterface&MockObject $combinationId */
+        $combinationId = $this->createMock(UuidInterface::class);
         /* @var TranslationPriorityData&MockObject $translation1 */
         $translation1 = $this->createMock(TranslationPriorityData::class);
         /* @var TranslationPriorityData&MockObject $translation2 */
@@ -146,21 +148,21 @@ class TranslationFetcherTest extends TestCase
         /* @var Query&MockObject $query */
         $query = $this->createMock(Query::class);
         $query->expects($this->once())
+              ->method('getCombinationId')
+              ->willReturn($combinationId);
+        $query->expects($this->once())
               ->method('getLocale')
               ->willReturn($locale);
         $query->expects($this->once())
               ->method('getTermValuesByType')
               ->willReturn($keywords);
-        $query->expects($this->once())
-              ->method('getModCombinationIds')
-              ->willReturn($modCombinationIds);
-        
+
         $this->translationRepository->expects($this->once())
                                     ->method('findDataByKeywords')
                                     ->with(
+                                        $this->identicalTo($combinationId),
                                         $this->identicalTo($locale),
-                                        $this->identicalTo($keywords),
-                                        $this->identicalTo($modCombinationIds)
+                                        $this->identicalTo($keywords)
                                     )
                                     ->willReturn($translations);
 
