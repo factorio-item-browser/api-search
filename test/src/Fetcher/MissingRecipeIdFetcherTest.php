@@ -116,7 +116,7 @@ class MissingRecipeIdFetcherTest extends TestCase
 
         /* @var MissingRecipeIdFetcher&MockObject $fetcher */
         $fetcher = $this->getMockBuilder(MissingRecipeIdFetcher::class)
-                        ->setMethods(['getRecipeNamesWithMissingIds', 'fetchRecipes', 'mapRecipeData'])
+                        ->onlyMethods(['getRecipeNamesWithMissingIds', 'fetchRecipes', 'mapRecipeData'])
                         ->setConstructorArgs([$this->dataFilter, $this->mapperManager, $this->recipeRepository])
                         ->getMock();
         $fetcher->expects($this->once())

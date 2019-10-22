@@ -97,7 +97,7 @@ class ItemFetcherTest extends TestCase
 
         /* @var ItemFetcher&MockObject $fetcher */
         $fetcher = $this->getMockBuilder(ItemFetcher::class)
-                        ->setMethods(['fetchItems', 'mapItem'])
+                        ->onlyMethods(['fetchItems', 'mapItem'])
                         ->setConstructorArgs([$this->itemRepository, $this->mapperManager])
                         ->getMock();
         $fetcher->expects($this->once())

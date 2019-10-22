@@ -106,7 +106,7 @@ class TranslationFetcherTest extends TestCase
 
         /* @var TranslationFetcher&MockObject $fetcher */
         $fetcher = $this->getMockBuilder(TranslationFetcher::class)
-                        ->setMethods(['fetchTranslations', 'mapTranslationToItem', 'mapTranslationToRecipe'])
+                        ->onlyMethods(['fetchTranslations', 'mapTranslationToItem', 'mapTranslationToRecipe'])
                         ->disableOriginalConstructor()
                         ->getMock();
         $fetcher->expects($this->once())

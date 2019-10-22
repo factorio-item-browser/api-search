@@ -135,7 +135,7 @@ class TermCollectionTest extends TestCase
 
         /* @var TermCollection&MockObject $collection */
         $collection = $this->getMockBuilder(TermCollection::class)
-                           ->setMethods(['getAll','getValues'])
+                           ->onlyMethods(['getAll','getValues'])
                            ->getMock();
         $collection->expects($this->once())
                    ->method('getAll')
@@ -217,7 +217,7 @@ class TermCollectionTest extends TestCase
 
         /* @var TermCollection&MockObject $collection */
         $collection = $this->getMockBuilder(TermCollection::class)
-                           ->setMethods(['getByTypes'])
+                           ->onlyMethods(['getByTypes'])
                            ->getMock();
         $collection->expects($this->once())
                    ->method('getByTypes')
@@ -244,7 +244,7 @@ class TermCollectionTest extends TestCase
 
         /* @var TermCollection&MockObject $collection */
         $collection = $this->getMockBuilder(TermCollection::class)
-                           ->setMethods(['getByTypes','getValues'])
+                           ->onlyMethods(['getByTypes','getValues'])
                            ->getMock();
         $collection->expects($this->once())
                    ->method('getByTypes')
@@ -275,7 +275,7 @@ class TermCollectionTest extends TestCase
 
         /* @var TermCollection&MockObject $collection */
         $collection = $this->getMockBuilder(TermCollection::class)
-                           ->setMethods(['getByType','getValues'])
+                           ->onlyMethods(['getByType','getValues'])
                            ->getMock();
         $collection->expects($this->once())
                    ->method('getByType')

@@ -108,7 +108,7 @@ class ProductRecipeFetcherTest extends TestCase
 
         /* @var ProductRecipeFetcher&MockObject $fetcher */
         $fetcher = $this->getMockBuilder(ProductRecipeFetcher::class)
-                        ->setMethods(['getItems', 'fetchProductRecipes', 'matchRecipeToItems'])
+                        ->onlyMethods(['getItems', 'fetchProductRecipes', 'matchRecipeToItems'])
                         ->setConstructorArgs([$this->dataFilter, $this->mapperManager, $this->recipeRepository])
                         ->getMock();
         $fetcher->expects($this->once())
@@ -234,7 +234,7 @@ class ProductRecipeFetcherTest extends TestCase
 
         /* @var ProductRecipeFetcher&MockObject $fetcher */
         $fetcher = $this->getMockBuilder(ProductRecipeFetcher::class)
-                        ->setMethods(['mapRecipe'])
+                        ->onlyMethods(['mapRecipe'])
                         ->setConstructorArgs([$this->dataFilter, $this->mapperManager, $this->recipeRepository])
                         ->getMock();
         $fetcher->expects($this->once())
@@ -275,7 +275,7 @@ class ProductRecipeFetcherTest extends TestCase
 
         /* @var ProductRecipeFetcher&MockObject $fetcher */
         $fetcher = $this->getMockBuilder(ProductRecipeFetcher::class)
-                        ->setMethods(['mapRecipe'])
+                        ->onlyMethods(['mapRecipe'])
                         ->setConstructorArgs([$this->dataFilter, $this->mapperManager, $this->recipeRepository])
                         ->getMock();
         $fetcher->expects($this->never())

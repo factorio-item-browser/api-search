@@ -213,7 +213,7 @@ class AggregatingResultCollectionTest extends TestCase
 
         /* @var AggregatingResultCollection&MockObject $collection */
         $collection = $this->getMockBuilder(AggregatingResultCollection::class)
-                           ->setMethods(['compareResults'])
+                           ->onlyMethods(['compareResults'])
                            ->disableOriginalConstructor()
                            ->getMock();
         $collection->expects($this->once())
@@ -282,7 +282,7 @@ class AggregatingResultCollectionTest extends TestCase
 
         /* @var AggregatingResultCollection&MockObject $collection */
         $collection = $this->getMockBuilder(AggregatingResultCollection::class)
-                           ->setMethods(['getSortCriteria'])
+                           ->onlyMethods(['getSortCriteria'])
                            ->disableOriginalConstructor()
                            ->getMock();
         $collection->expects($this->exactly(2))

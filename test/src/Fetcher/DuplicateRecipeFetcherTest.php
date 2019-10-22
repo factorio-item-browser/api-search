@@ -72,7 +72,7 @@ class DuplicateRecipeFetcherTest extends TestCase
 
         /* @var DuplicateRecipeFetcher&MockObject $fetcher */
         $fetcher = $this->getMockBuilder(DuplicateRecipeFetcher::class)
-                        ->setMethods(['getItemsByRecipeIds', 'filterRecipe'])
+                        ->onlyMethods(['getItemsByRecipeIds', 'filterRecipe'])
                         ->getMock();
         $fetcher->expects($this->once())
                 ->method('getItemsByRecipeIds')

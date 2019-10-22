@@ -8,6 +8,7 @@ use FactorioItemBrowser\Api\Search\Constant\SerializedResultType;
 use FactorioItemBrowser\Api\Search\Entity\Result\RecipeResult;
 use FactorioItemBrowser\Api\Search\Serializer\RecipeResultSerializer;
 use PHPUnit\Framework\TestCase;
+use Ramsey\Uuid\Uuid;
 
 /**
  * The PHPUnit test of the RecipeResultResultSerializer class.
@@ -46,37 +47,30 @@ class RecipeResultSerializerTest extends TestCase
      */
     public function provideSerialize(): array
     {
+        $id1 = Uuid::fromString('40718ef3-3d81-4c6f-ac42-650d4c38d226');
+        $id2 = Uuid::fromString('79c6ee59-57b3-4fe1-a766-10c1454cdc8a');
+
         $recipe1 = new RecipeResult();
-        $recipe1->setNormalRecipeId(42)
-                ->setExpensiveRecipeId(1337);
+        $recipe1->setNormalRecipeId($id1)
+                ->setExpensiveRecipeId($id2);
 
         $recipe2 = new RecipeResult();
-        $recipe2->setNormalRecipeId(42)
-                ->setExpensiveRecipeId(0);
+        $recipe2->setNormalRecipeId($id1)
+                ->setExpensiveRecipeId(null);
 
         $recipe3 = new RecipeResult();
-        $recipe3->setNormalRecipeId(0)
-                ->setExpensiveRecipeId(1337);
+        $recipe3->setNormalRecipeId(null)
+                ->setExpensiveRecipeId($id2);
 
         $recipe4 = new RecipeResult();
-        $recipe4->setNormalRecipeId(50)
-                ->setExpensiveRecipeId(0);
-
-        $recipe5 = new RecipeResult();
-        $recipe5->setNormalRecipeId(0)
-                ->setExpensiveRecipeId(50);
-
-        $recipe6 = new RecipeResult();
-        $recipe6->setNormalRecipeId(0)
-                ->setExpensiveRecipeId(0);
+        $recipe4->setNormalRecipeId(null)
+                ->setExpensiveRecipeId(null);
 
         return [
-            [$recipe1, '42+1337'],
-            [$recipe2, '42'],
-            [$recipe3, '+1337'],
-            [$recipe4, '50'],
-            [$recipe5, '+50'],
-            [$recipe6, ''],
+            [$recipe1, '40718ef3-3d81-4c6f-ac42-650d4c38d226+79c6ee59-57b3-4fe1-a766-10c1454cdc8a'],
+            [$recipe2, '40718ef3-3d81-4c6f-ac42-650d4c38d226'],
+            [$recipe3, '+79c6ee59-57b3-4fe1-a766-10c1454cdc8a'],
+            [$recipe4, ''],
         ];
     }
 
@@ -101,37 +95,30 @@ class RecipeResultSerializerTest extends TestCase
      */
     public function provideUnserialize(): array
     {
+        $id1 = Uuid::fromString('40718ef3-3d81-4c6f-ac42-650d4c38d226');
+        $id2 = Uuid::fromString('79c6ee59-57b3-4fe1-a766-10c1454cdc8a');
+
         $recipe1 = new RecipeResult();
-        $recipe1->setNormalRecipeId(42)
-                ->setExpensiveRecipeId(1337);
+        $recipe1->setNormalRecipeId($id1)
+                ->setExpensiveRecipeId($id2);
 
         $recipe2 = new RecipeResult();
-        $recipe2->setNormalRecipeId(42)
-                ->setExpensiveRecipeId(0);
+        $recipe2->setNormalRecipeId($id1)
+                ->setExpensiveRecipeId(null);
 
         $recipe3 = new RecipeResult();
-        $recipe3->setNormalRecipeId(0)
-                ->setExpensiveRecipeId(1337);
+        $recipe3->setNormalRecipeId(null)
+                ->setExpensiveRecipeId($id2);
 
         $recipe4 = new RecipeResult();
-        $recipe4->setNormalRecipeId(50)
-                ->setExpensiveRecipeId(0);
-
-        $recipe5 = new RecipeResult();
-        $recipe5->setNormalRecipeId(0)
-                ->setExpensiveRecipeId(50);
-
-        $recipe6 = new RecipeResult();
-        $recipe6->setNormalRecipeId(0)
-                ->setExpensiveRecipeId(0);
+        $recipe4->setNormalRecipeId(null)
+                ->setExpensiveRecipeId(null);
 
         return [
-            ['42+1337', $recipe1],
-            ['42', $recipe2],
-            ['+1337', $recipe3],
-            ['50', $recipe4],
-            ['+50', $recipe5],
-            ['', $recipe6],
+            ['40718ef3-3d81-4c6f-ac42-650d4c38d226+79c6ee59-57b3-4fe1-a766-10c1454cdc8a', $recipe1],
+            ['40718ef3-3d81-4c6f-ac42-650d4c38d226', $recipe2],
+            ['+79c6ee59-57b3-4fe1-a766-10c1454cdc8a', $recipe3],
+            ['', $recipe4],
         ];
     }
 

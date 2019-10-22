@@ -97,7 +97,7 @@ class SerializerServiceTest extends TestCase
 
         /* @var SerializerService&MockObject $service */
         $service = $this->getMockBuilder(SerializerService::class)
-                        ->setMethods(['serializeResult'])
+                        ->onlyMethods(['serializeResult'])
                         ->disableOriginalConstructor()
                         ->getMock();
         $service->expects($this->exactly(3))
@@ -198,7 +198,7 @@ class SerializerServiceTest extends TestCase
 
         /* @var SerializerService&MockObject $service */
         $service = $this->getMockBuilder(SerializerService::class)
-                        ->setMethods(['createResultCollection', 'unserializeResult'])
+                        ->onlyMethods(['createResultCollection', 'unserializeResult'])
                         ->disableOriginalConstructor()
                         ->getMock();
         $service->expects($this->once())

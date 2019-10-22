@@ -97,7 +97,7 @@ class MissingItemIdFetcherTest extends TestCase
 
         /* @var MissingItemIdFetcher&MockObject $fetcher */
         $fetcher = $this->getMockBuilder(MissingItemIdFetcher::class)
-                        ->setMethods(['getTypesAndNamesWithMissingIds', 'fetchItems', 'mapItem'])
+                        ->onlyMethods(['getTypesAndNamesWithMissingIds', 'fetchItems', 'mapItem'])
                         ->setConstructorArgs([$this->itemRepository, $this->mapperManager])
                         ->getMock();
         $fetcher->expects($this->once())

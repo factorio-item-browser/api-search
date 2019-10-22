@@ -53,7 +53,7 @@ return [
 
             'int $apiSearchMaxSearchResults' => readConfig(ConfigKey::PROJECT, ConfigKey::API_SEARCH, ConfigKey::MAX_SEARCH_RESULTS),
 
-            'string $apiKeyMaxCacheAge' => readConfig(ConfigKey::PROJECT, ConfigKey::API_SEARCH, ConfigKey::MAX_CACHE_AGE),
+            'string $apiSearchMaxCacheAge' => readConfig(ConfigKey::PROJECT, ConfigKey::API_SEARCH, ConfigKey::MAX_CACHE_AGE),
         ],
     ],
 ];

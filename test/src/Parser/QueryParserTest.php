@@ -11,6 +11,8 @@ use FactorioItemBrowser\Api\Search\Entity\Term;
 use FactorioItemBrowser\Api\Search\Parser\QueryParser;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\UuidInterface;
 use ReflectionException;
 
 /**
@@ -30,10 +32,13 @@ class QueryParserTest extends TestCase
      */
     public function testParse(): void
     {
-        $queryString = 'abc';
-        $modCombinationIds = [42, 1337];
         $locale = 'def';
-        $hash = '12ab34cd';
+        $queryString = 'abc';
+
+        /* @var UuidInterface&MockObject $combinationId */
+        $combinationId = $this->createMock(UuidInterface::class);
+        /* @var UuidInterface&MockObject $hash */
+        $hash = $this->createMock(UuidInterface::class);
 
         /* @var Query&MockObject $query */
         $query = $this->createMock(Query::class);
@@ -43,14 +48,14 @@ class QueryParserTest extends TestCase
 
         /* @var QueryParser&MockObject $parser */
         $parser = $this->getMockBuilder(QueryParser::class)
-                       ->setMethods(['createQuery', 'parseQueryString', 'calculateHash'])
+                       ->onlyMethods(['createQuery', 'parseQueryString', 'calculateHash'])
                        ->getMock();
         $parser->expects($this->once())
                ->method('createQuery')
                ->with(
-                   $this->identicalTo($queryString),
-                   $this->identicalTo($modCombinationIds),
-                   $this->identicalTo($locale)
+                   $this->identicalTo($combinationId),
+                   $this->identicalTo($locale),
+                   $this->identicalTo($queryString)
                )
                ->willReturn($query);
         $parser->expects($this->once())
@@ -61,7 +66,7 @@ class QueryParserTest extends TestCase
                ->with($this->identicalTo($query))
                ->willReturn($hash);
 
-        $result = $parser->parse($queryString, $modCombinationIds, $locale);
+        $result = $parser->parse($combinationId, $locale, $queryString);
 
         $this->assertSame($query, $result);
     }
@@ -74,12 +79,18 @@ class QueryParserTest extends TestCase
     public function testCreateQuery(): void
     {
         $queryString = 'abc';
-        $modCombinationIds = [42, 1337];
         $locale = 'def';
-        $expectedResult = new Query($queryString, $modCombinationIds, $locale);
+
+        /* @var UuidInterface&MockObject $combinationId */
+        $combinationId = $this->createMock(UuidInterface::class);
+
+        $expectedResult = new Query();
+        $expectedResult->setCombinationId($combinationId)
+                       ->setLocale('def')
+                       ->setQueryString('abc');
 
         $parser = new QueryParser();
-        $result = $this->invokeMethod($parser, 'createQuery', $queryString, $modCombinationIds, $locale);
+        $result = $this->invokeMethod($parser, 'createQuery', $combinationId, $locale, $queryString);
 
         $this->assertEquals($expectedResult, $result);
     }
@@ -113,7 +124,7 @@ class QueryParserTest extends TestCase
 
         /* @var QueryParser&MockObject $parser */
         $parser = $this->getMockBuilder(QueryParser::class)
-                       ->setMethods(['createTerm'])
+                       ->onlyMethods(['createTerm'])
                        ->getMock();
 
         foreach ($expectedKeywords as $index => $expectedKeyword) {
@@ -157,23 +168,15 @@ class QueryParserTest extends TestCase
      */
     public function testCalculateHash(): void
     {
-        $queryData = ['abc' => 'def'];
-        $modCombinationIds = [42, 1337];
-        $locale = 'ghi';
-        $expectedResult = 'd72197e632fa2195';
+        $queryData = ['abc', 'def'];
+        $expectedResult = Uuid::fromString('9e86daa1-e1bd-94ed-176d-afd437e13d58');
 
         /* @var Query&MockObject $query */
         $query = $this->createMock(Query::class);
-        $query->expects($this->once())
-              ->method('getModCombinationIds')
-              ->willReturn($modCombinationIds);
-        $query->expects($this->once())
-              ->method('getLocale')
-              ->willReturn($locale);
 
         /* @var QueryParser&MockObject $parser */
         $parser = $this->getMockBuilder(QueryParser::class)
-                       ->setMethods(['extractQueryData'])
+                       ->onlyMethods(['extractQueryData'])
                        ->getMock();
         $parser->expects($this->once())
                ->method('extractQueryData')
@@ -182,7 +185,7 @@ class QueryParserTest extends TestCase
 
         $result = $this->invokeMethod($parser, 'calculateHash', $query);
 
-        $this->assertSame($expectedResult, $result);
+        $this->assertEquals($expectedResult, $result);
     }
 
     /**

@@ -115,7 +115,7 @@ class RecipeFetcherTest extends TestCase
 
         /* @var RecipeFetcher&MockObject $fetcher */
         $fetcher = $this->getMockBuilder(RecipeFetcher::class)
-                        ->setMethods(['fetchRecipes', 'mapRecipeData'])
+                        ->onlyMethods(['fetchRecipes', 'mapRecipeData'])
                         ->setConstructorArgs([$this->dataFilter, $this->mapperManager, $this->recipeRepository])
                         ->getMock();
         $fetcher->expects($this->once())

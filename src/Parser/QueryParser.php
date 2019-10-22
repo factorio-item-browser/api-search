@@ -83,7 +83,7 @@ class QueryParser
     protected function calculateHash(Query $query): UuidInterface
     {
         $hash = hash('md5', (string) json_encode($this->extractQueryData($query)));
-        return Uuid::fromBytes($hash);
+        return Uuid::fromString($hash);
     }
 
     /**

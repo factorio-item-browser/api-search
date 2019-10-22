@@ -43,17 +43,17 @@ class CachedSearchResultService implements SearchCacheClearInterface
      * Initializes the service.
      * @param CachedSearchResultRepository $cachedSearchResultRepository
      * @param SerializerService $serializerService
-     * @param string $apiKeyMaxCacheAge
+     * @param string $apiSearchMaxCacheAge
      * @throws Exception
      */
     public function __construct(
         CachedSearchResultRepository $cachedSearchResultRepository,
         SerializerService $serializerService,
-        string $apiKeyMaxCacheAge
+        string $apiSearchMaxCacheAge
     ) {
         $this->cachedSearchResultRepository = $cachedSearchResultRepository;
         $this->serializerService = $serializerService;
-        $this->maxCacheAge = new DateTimeImmutable($apiKeyMaxCacheAge);
+        $this->maxCacheAge = new DateTimeImmutable($apiSearchMaxCacheAge);
     }
 
     /**
