@@ -250,7 +250,7 @@ class ItemCollectionTest extends TestCase
 
     /**
      * Provides the data for the getKey test.
-     * @return array
+     * @return array<mixed>
      */
     public function provideGetKey(): array
     {

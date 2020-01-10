@@ -136,7 +136,7 @@ class AggregatingResultCollection
     /**
      * Returns the sort criteria for the specified result.
      * @param ResultInterface $result
-     * @return array
+     * @return array<mixed>
      */
     protected function getSortCriteria(ResultInterface $result): array
     {

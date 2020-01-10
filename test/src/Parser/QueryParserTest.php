@@ -97,7 +97,7 @@ class QueryParserTest extends TestCase
 
     /**
      * Provides the data for the parseQueryString test.
-     * @return array
+     * @return array<mixed>
      */
     public function provideParseQueryString(): array
     {

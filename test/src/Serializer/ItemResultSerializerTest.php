@@ -152,7 +152,7 @@ class ItemResultSerializerTest extends TestCase
 
     /**
      * Provides the data for the unserialize test.
-     * @return array
+     * @return array<mixed>
      */
     public function provideUnserialize(): array
     {

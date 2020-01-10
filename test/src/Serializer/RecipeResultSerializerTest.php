@@ -43,7 +43,7 @@ class RecipeResultSerializerTest extends TestCase
 
     /**
      * Provides the data for the serialize test.
-     * @return array
+     * @return array<mixed>
      */
     public function provideSerialize(): array
     {
@@ -91,7 +91,7 @@ class RecipeResultSerializerTest extends TestCase
 
     /**
      * Provides the data for the unserialize test.
-     * @return array
+     * @return array<mixed>
      */
     public function provideUnserialize(): array
     {

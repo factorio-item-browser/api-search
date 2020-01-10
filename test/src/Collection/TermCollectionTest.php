@@ -36,7 +36,7 @@ class TermCollectionTest extends TestCase
 
     /**
      * Provides the data for the add test.
-     * @return array
+     * @return array<mixed>
      */
     public function provideAdd(): array
     {
@@ -84,7 +84,7 @@ class TermCollectionTest extends TestCase
     
     /**
      * Provides the data for the getAll test.
-     * @return array
+     * @return array<mixed>
      */
     public function provideGetAll(): array
     {
@@ -152,7 +152,7 @@ class TermCollectionTest extends TestCase
 
     /**
      * Provides the data for the getByTypes test.
-     * @return array
+     * @return array<mixed>
      */
     public function provideGetByTypes(): array
     {

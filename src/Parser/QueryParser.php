@@ -89,7 +89,7 @@ class QueryParser
     /**
      * Extracts the data from the query.
      * @param Query $query
-     * @return array
+     * @return array|string[]
      */
     protected function extractQueryData(Query $query): array
     {

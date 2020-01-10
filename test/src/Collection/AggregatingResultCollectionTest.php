@@ -231,7 +231,7 @@ class AggregatingResultCollectionTest extends TestCase
 
     /**
      * Provides the data for the compareResults test.
-     * @return array
+     * @return array<mixed>
      */
     public function provideCompareResults(): array
     {
@@ -266,8 +266,8 @@ class AggregatingResultCollectionTest extends TestCase
 
     /**
      * Tests the compareResults method.
-     * @param array $leftCriteria
-     * @param array $rightCriteria
+     * @param array<mixed> $leftCriteria
+     * @param array<mixed> $rightCriteria
      * @param int $expectedResult
      * @throws ReflectionException
      * @covers ::compareResults
