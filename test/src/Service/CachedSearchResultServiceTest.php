@@ -189,6 +189,9 @@ class CachedSearchResultServiceTest extends TestCase
                                                $this->identicalTo($searchHash)
                                            )
                                            ->willReturn($entity);
+        $this->cachedSearchResultRepository->expects($this->once())
+                                           ->method('persist')
+                                           ->with($this->identicalTo($entity));
 
         $service = new CachedSearchResultService(
             $this->cachedSearchResultRepository,
@@ -249,6 +252,8 @@ class CachedSearchResultServiceTest extends TestCase
                                                $this->identicalTo($searchHash)
                                            )
                                            ->willReturn($entity);
+        $this->cachedSearchResultRepository->expects($this->never())
+                                           ->method('persist');
 
         $service = new CachedSearchResultService(
             $this->cachedSearchResultRepository,
@@ -289,6 +294,8 @@ class CachedSearchResultServiceTest extends TestCase
                                                $this->identicalTo($searchHash)
                                            )
                                            ->willReturn(null);
+        $this->cachedSearchResultRepository->expects($this->never())
+                                           ->method('persist');
 
         $service = new CachedSearchResultService(
             $this->cachedSearchResultRepository,

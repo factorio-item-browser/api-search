@@ -87,6 +87,7 @@ class CachedSearchResultService implements SearchCacheClearInterface
                 return null;
             }
 
+            $this->cachedSearchResultRepository->persist($entity);
             return $entity->getResultData();
         } catch (Exception $e) {
             // Silently ignore any cache errors.
