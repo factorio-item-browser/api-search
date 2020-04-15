@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.0.0 - 2020-04-15
+
+### Changed
+
+- Dependency `factorio-item-browser/api-database` to latest version 3.0, and refactored the library to use the new
+  database structure.
+- Migrated dependencies of Zend to Laminas.
+
 ## 1.1.0 - 2019-07-09
 
 ### Changed
