@@ -83,7 +83,7 @@ class CachedSearchResultService implements SearchCacheClearInterface
                 $query->getLocale(),
                 $query->getHash()
             );
-            if ($entity === null || $entity->getLastSearchTime()->getTimestamp() < $this->maxCacheAge->getTimestamp()) {
+            if ($entity === null) {
                 return null;
             }
 

@@ -160,23 +160,8 @@ class CachedSearchResultServiceTest extends TestCase
               ->setLocale($locale)
               ->setHash($searchHash);
 
-        /* @var DateTimeImmutable&MockObject $lastSearchTime */
-        $lastSearchTime = $this->createMock(DateTimeImmutable::class);
-        $lastSearchTime->expects($this->once())
-                       ->method('getTimestamp')
-                       ->willReturn(1337);
-
-        /* @var DateTimeImmutable&MockObject $maxCacheAge */
-        $maxCacheAge = $this->createMock(DateTimeImmutable::class);
-        $maxCacheAge->expects($this->once())
-                    ->method('getTimestamp')
-                    ->willReturn(42);
-
         /* @var CachedSearchResult&MockObject $entity */
         $entity = $this->createMock(CachedSearchResult::class);
-        $entity->expects($this->once())
-               ->method('getLastSearchTime')
-               ->willReturn($lastSearchTime);
         $entity->expects($this->once())
                ->method('getResultData')
                ->willReturn($resultData);
@@ -198,73 +183,10 @@ class CachedSearchResultServiceTest extends TestCase
             $this->serializerService,
             'today'
         );
-        $this->injectProperty($service, 'maxCacheAge', $maxCacheAge);
 
         $result = $this->invokeMethod($service, 'fetchSerializedResults', $query);
 
         $this->assertSame($resultData, $result);
-    }
-
-    /**
-     * Tests the fetchSerializedResults method.
-     * @throws Exception
-     * @covers ::fetchSerializedResults
-     */
-    public function testFetchSerializedResultsWithExpiredEntity(): void
-    {
-        $locale = 'abc';
-
-        /* @var UuidInterface&MockObject $combinationId */
-        $combinationId = $this->createMock(UuidInterface::class);
-        /* @var UuidInterface&MockObject $searchHash */
-        $searchHash = $this->createMock(UuidInterface::class);
-
-        $query = new Query();
-        $query->setCombinationId($combinationId)
-              ->setLocale($locale)
-              ->setHash($searchHash);
-
-        /* @var DateTimeImmutable&MockObject $lastSearchTime */
-        $lastSearchTime = $this->createMock(DateTimeImmutable::class);
-        $lastSearchTime->expects($this->once())
-                       ->method('getTimestamp')
-                       ->willReturn(21);
-
-        /* @var DateTimeImmutable&MockObject $maxCacheAge */
-        $maxCacheAge = $this->createMock(DateTimeImmutable::class);
-        $maxCacheAge->expects($this->once())
-                    ->method('getTimestamp')
-                    ->willReturn(42);
-
-        /* @var CachedSearchResult&MockObject $entity */
-        $entity = $this->createMock(CachedSearchResult::class);
-        $entity->expects($this->once())
-               ->method('getLastSearchTime')
-               ->willReturn($lastSearchTime);
-        $entity->expects($this->never())
-               ->method('getResultData');
-
-        $this->cachedSearchResultRepository->expects($this->once())
-                                           ->method('find')
-                                           ->with(
-                                               $this->identicalTo($combinationId),
-                                               $this->identicalTo($locale),
-                                               $this->identicalTo($searchHash)
-                                           )
-                                           ->willReturn($entity);
-        $this->cachedSearchResultRepository->expects($this->never())
-                                           ->method('persist');
-
-        $service = new CachedSearchResultService(
-            $this->cachedSearchResultRepository,
-            $this->serializerService,
-            'today'
-        );
-        $this->injectProperty($service, 'maxCacheAge', $maxCacheAge);
-
-        $result = $this->invokeMethod($service, 'fetchSerializedResults', $query);
-
-        $this->assertNull($result);
     }
 
     /**
