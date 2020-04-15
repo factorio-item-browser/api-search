@@ -43,17 +43,17 @@ class CachedSearchResultService implements SearchCacheClearInterface
      * Initializes the service.
      * @param CachedSearchResultRepository $cachedSearchResultRepository
      * @param SerializerService $serializerService
-     * @param string $apiKeyMaxCacheAge
+     * @param string $apiSearchMaxCacheAge
      * @throws Exception
      */
     public function __construct(
         CachedSearchResultRepository $cachedSearchResultRepository,
         SerializerService $serializerService,
-        string $apiKeyMaxCacheAge
+        string $apiSearchMaxCacheAge
     ) {
         $this->cachedSearchResultRepository = $cachedSearchResultRepository;
         $this->serializerService = $serializerService;
-        $this->maxCacheAge = new DateTimeImmutable($apiKeyMaxCacheAge);
+        $this->maxCacheAge = new DateTimeImmutable($apiSearchMaxCacheAge);
     }
 
     /**
@@ -63,32 +63,36 @@ class CachedSearchResultService implements SearchCacheClearInterface
      */
     public function getResults(Query $query): ?PaginatedResultCollection
     {
-        $result = null;
-        $serializedResult = $this->fetchSerializedResults($query->getHash());
-        if (is_string($serializedResult)) {
-            $result = $this->serializerService->unserialize($serializedResult);
+        $serializedResult = $this->fetchSerializedResults($query);
+        if ($serializedResult === null) {
+            return null;
         }
-        return $result;
+        return $this->serializerService->unserialize($serializedResult);
     }
 
     /**
      * Fetches the serialized search result for the hash.
-     * @param string $hash
+     * @param Query $query
      * @return string|null
      */
-    protected function fetchSerializedResults(string $hash): ?string
+    protected function fetchSerializedResults(Query $query): ?string
     {
-        $result = null;
         try {
-            $entities = $this->cachedSearchResultRepository->findByHashes([$hash], $this->maxCacheAge);
-            $entity = array_shift($entities);
-            if ($entity instanceof CachedSearchResult) {
-                $result = $entity->getResultData();
+            $entity = $this->cachedSearchResultRepository->find(
+                $query->getCombinationId(),
+                $query->getLocale(),
+                $query->getHash()
+            );
+            if ($entity === null) {
+                return null;
             }
+
+            $this->cachedSearchResultRepository->persist($entity);
+            return $entity->getResultData();
         } catch (Exception $e) {
             // Silently ignore any cache errors.
+            return null;
         }
-        return $result;
     }
 
     /**
@@ -99,8 +103,12 @@ class CachedSearchResultService implements SearchCacheClearInterface
     public function persistResults(Query $query, PaginatedResultCollection $searchResults): void
     {
         try {
-            $entity = new CachedSearchResult($query->getHash());
-            $entity->setResultData($this->serializerService->serialize($searchResults));
+            $entity = new CachedSearchResult();
+            $entity->setCombinationId($query->getCombinationId())
+                   ->setLocale($query->getLocale())
+                   ->setSearchQuery($query->getQueryString())
+                   ->setSearchHash($query->getHash())
+                   ->setResultData($this->serializerService->serialize($searchResults));
 
             $this->cachedSearchResultRepository->persist($entity);
         } catch (Exception $e) {
@@ -109,18 +117,18 @@ class CachedSearchResultService implements SearchCacheClearInterface
     }
 
     /**
-     * Cleans already invalidated data from the cache.
+     * Clears already expired data from the cache.
      */
-    public function cleanCache(): void
+    public function clearExpiredResults(): void
     {
-        $this->cachedSearchResultRepository->cleanup($this->maxCacheAge);
+        $this->cachedSearchResultRepository->clearExpiredResults($this->maxCacheAge);
     }
 
     /**
      * Completely clears the cache from all results.
      */
-    public function clearCache(): void
+    public function clearAll(): void
     {
-        $this->cachedSearchResultRepository->clear();
+        $this->cachedSearchResultRepository->clearAll();
     }
 }

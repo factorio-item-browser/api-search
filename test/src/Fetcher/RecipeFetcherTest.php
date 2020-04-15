@@ -9,7 +9,6 @@ use BluePsyduck\MapperManager\Exception\MapperException;
 use BluePsyduck\MapperManager\MapperManagerInterface;
 use FactorioItemBrowser\Api\Database\Constant\SearchResultPriority;
 use FactorioItemBrowser\Api\Database\Data\RecipeData;
-use FactorioItemBrowser\Api\Database\Filter\DataFilter;
 use FactorioItemBrowser\Api\Database\Repository\RecipeRepository;
 use FactorioItemBrowser\Api\Search\Collection\AggregatingResultCollection;
 use FactorioItemBrowser\Api\Search\Constant\TermType;
@@ -18,6 +17,7 @@ use FactorioItemBrowser\Api\Search\Entity\Result\RecipeResult;
 use FactorioItemBrowser\Api\Search\Fetcher\RecipeFetcher;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Ramsey\Uuid\UuidInterface;
 use ReflectionException;
 
 /**
@@ -30,12 +30,6 @@ use ReflectionException;
 class RecipeFetcherTest extends TestCase
 {
     use ReflectionTrait;
-    
-    /**
-     * The mocked data filter.
-     * @var DataFilter&MockObject
-     */
-    protected $dataFilter;
     
     /**
      * The mocked mapper manager.
@@ -56,7 +50,6 @@ class RecipeFetcherTest extends TestCase
     {
         parent::setUp();
 
-        $this->dataFilter = $this->createMock(DataFilter::class);
         $this->mapperManager = $this->createMock(MapperManagerInterface::class);
         $this->recipeRepository = $this->createMock(RecipeRepository::class);
     }
@@ -68,9 +61,8 @@ class RecipeFetcherTest extends TestCase
      */
     public function testConstruct(): void
     {
-        $fetcher = new RecipeFetcher($this->dataFilter, $this->mapperManager, $this->recipeRepository);
+        $fetcher = new RecipeFetcher($this->mapperManager, $this->recipeRepository);
         
-        $this->assertSame($this->dataFilter, $this->extractProperty($fetcher, 'dataFilter'));
         $this->assertSame($this->mapperManager, $this->extractProperty($fetcher, 'mapperManager'));
         $this->assertSame($this->recipeRepository, $this->extractProperty($fetcher, 'recipeRepository'));
     }
@@ -88,15 +80,12 @@ class RecipeFetcherTest extends TestCase
         $recipe1 = $this->createMock(RecipeData::class);
         /* @var RecipeData&MockObject $recipe2 */
         $recipe2 = $this->createMock(RecipeData::class);
-        /* @var RecipeData&MockObject $recipe3 */
-        $recipe3 = $this->createMock(RecipeData::class);
         /* @var RecipeResult&MockObject $recipeResult1 */
         $recipeResult1 = $this->createMock(RecipeResult::class);
         /* @var RecipeResult&MockObject $recipeResult2 */
         $recipeResult2 = $this->createMock(RecipeResult::class);
 
-        $recipes = [$recipe1, $recipe2, $recipe3];
-        $filteredRecipes = [$recipe1, $recipe2];
+        $recipes = [$recipe1, $recipe2];
 
         /* @var AggregatingResultCollection&MockObject $searchResults */
         $searchResults = $this->createMock(AggregatingResultCollection::class);
@@ -107,16 +96,10 @@ class RecipeFetcherTest extends TestCase
                           [$this->identicalTo($recipeResult2)]
                       );
 
-        $this->dataFilter->expects($this->once())
-                         ->method('filter')
-                         ->with($this->identicalTo($recipes))
-                         ->willReturn($filteredRecipes);
-
-
         /* @var RecipeFetcher&MockObject $fetcher */
         $fetcher = $this->getMockBuilder(RecipeFetcher::class)
-                        ->setMethods(['fetchRecipes', 'mapRecipeData'])
-                        ->setConstructorArgs([$this->dataFilter, $this->mapperManager, $this->recipeRepository])
+                        ->onlyMethods(['fetchRecipes', 'mapRecipeData'])
+                        ->setConstructorArgs([$this->mapperManager, $this->recipeRepository])
                         ->getMock();
         $fetcher->expects($this->once())
                 ->method('fetchRecipes')
@@ -144,7 +127,9 @@ class RecipeFetcherTest extends TestCase
     public function testFetchRecipes(): void
     {
         $keywords = ['abc', 'def'];
-        $modCombinationIds = [42, 1337];
+
+        /* @var UuidInterface&MockObject $combinationId */
+        $combinationId = $this->createMock(UuidInterface::class);
 
         $recipes = [
             $this->createMock(RecipeData::class),
@@ -154,19 +139,19 @@ class RecipeFetcherTest extends TestCase
         /* @var Query&MockObject $query */
         $query = $this->createMock(Query::class);
         $query->expects($this->once())
+              ->method($this->identicalTo('getCombinationId'))
+              ->willReturn($combinationId);
+        $query->expects($this->once())
               ->method('getTermValuesByType')
               ->with($this->identicalTo(TermType::GENERIC))
               ->willReturn($keywords);
-        $query->expects($this->once())
-              ->method($this->identicalTo('getModCombinationIds'))
-              ->willReturn($modCombinationIds);
 
         $this->recipeRepository->expects($this->once())
                                ->method('findDataByKeywords')
-                               ->with($this->identicalTo($keywords), $this->identicalTo($modCombinationIds))
+                               ->with($this->identicalTo($combinationId), $this->identicalTo($keywords))
                                ->willReturn($recipes);
 
-        $fetcher = new RecipeFetcher($this->dataFilter, $this->mapperManager, $this->recipeRepository);
+        $fetcher = new RecipeFetcher($this->mapperManager, $this->recipeRepository);
         $result = $this->invokeMethod($fetcher, 'fetchRecipes', $query);
 
         $this->assertSame($recipes, $result);
@@ -186,7 +171,7 @@ class RecipeFetcherTest extends TestCase
                             ->method('map')
                             ->with($this->identicalTo($recipe), $this->isInstanceOf(RecipeResult::class));
 
-        $fetcher = new RecipeFetcher($this->dataFilter, $this->mapperManager, $this->recipeRepository);
+        $fetcher = new RecipeFetcher($this->mapperManager, $this->recipeRepository);
         $result = $this->invokeMethod($fetcher, 'mapRecipeData', $recipe);
 
         $this->assertSame(SearchResultPriority::EXACT_MATCH, $result->getPriority());

@@ -9,6 +9,7 @@ use FactorioItemBrowser\Api\Search\Entity\Result\ItemResult;
 use FactorioItemBrowser\Api\Search\Mapper\ItemToItemResultMapper;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Ramsey\Uuid\UuidInterface;
 
 /**
  * The PHPUnit test of the ItemToItemResultMapper class.
@@ -45,11 +46,14 @@ class ItemToItemResultMapperTest extends TestCase
      */
     public function testMap(): void
     {
+        /* @var UuidInterface&MockObject $id */
+        $id = $this->createMock(UuidInterface::class);
+
         /* @var Item&MockObject $source */
         $source = $this->createMock(Item::class);
         $source->expects($this->once())
                ->method('getId')
-               ->willReturn(42);
+               ->willReturn($id);
         $source->expects($this->once())
                ->method('getType')
                ->willReturn('abc');
@@ -61,7 +65,7 @@ class ItemToItemResultMapperTest extends TestCase
         $destination = $this->createMock(ItemResult::class);
         $destination->expects($this->once())
                     ->method('setId')
-                    ->with($this->identicalTo(42))
+                    ->with($this->identicalTo($id))
                     ->willReturnSelf();
         $destination->expects($this->once())
                     ->method('setType')

@@ -6,6 +6,7 @@ namespace FactorioItemBrowser\Api\Search\Entity\Result;
 
 use FactorioItemBrowser\Api\Database\Constant\SearchResultPriority;
 use FactorioItemBrowser\Api\Search\Collection\RecipeCollection;
+use Ramsey\Uuid\UuidInterface;
 
 /**
  * The class representing an item result of the search.
@@ -29,9 +30,9 @@ class ItemResult implements ResultInterface
 
     /**
      * The id of the item.
-     * @var int
+     * @var UuidInterface|null
      */
-    protected $id = 0;
+    protected $id;
 
     /**
      * The recipes of the item.
@@ -95,10 +96,10 @@ class ItemResult implements ResultInterface
 
     /**
      * Sets the id of the item.
-     * @param int $id
+     * @param UuidInterface|null $id
      * @return $this
      */
-    public function setId(int $id): self
+    public function setId(?UuidInterface $id): self
     {
         $this->id = $id;
         return $this;
@@ -106,9 +107,9 @@ class ItemResult implements ResultInterface
 
     /**
      * Returns the id of the item.
-     * @return int
+     * @return UuidInterface|null
      */
-    public function getId(): int
+    public function getId(): ?UuidInterface
     {
         return $this->id;
     }
@@ -159,7 +160,7 @@ class ItemResult implements ResultInterface
      */
     public function merge(ItemResult $item): void
     {
-        if ($item->getId() > 0) {
+        if ($item->getId() !== null) {
             $this->id = $item->getId();
         }
         foreach ($item->getRecipes() as $recipe) {

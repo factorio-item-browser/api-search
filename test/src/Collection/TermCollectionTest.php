@@ -36,7 +36,7 @@ class TermCollectionTest extends TestCase
 
     /**
      * Provides the data for the add test.
-     * @return array
+     * @return array<mixed>
      */
     public function provideAdd(): array
     {
@@ -84,7 +84,7 @@ class TermCollectionTest extends TestCase
     
     /**
      * Provides the data for the getAll test.
-     * @return array
+     * @return array<mixed>
      */
     public function provideGetAll(): array
     {
@@ -135,7 +135,7 @@ class TermCollectionTest extends TestCase
 
         /* @var TermCollection&MockObject $collection */
         $collection = $this->getMockBuilder(TermCollection::class)
-                           ->setMethods(['getAll','getValues'])
+                           ->onlyMethods(['getAll','getValues'])
                            ->getMock();
         $collection->expects($this->once())
                    ->method('getAll')
@@ -152,7 +152,7 @@ class TermCollectionTest extends TestCase
 
     /**
      * Provides the data for the getByTypes test.
-     * @return array
+     * @return array<mixed>
      */
     public function provideGetByTypes(): array
     {
@@ -217,7 +217,7 @@ class TermCollectionTest extends TestCase
 
         /* @var TermCollection&MockObject $collection */
         $collection = $this->getMockBuilder(TermCollection::class)
-                           ->setMethods(['getByTypes'])
+                           ->onlyMethods(['getByTypes'])
                            ->getMock();
         $collection->expects($this->once())
                    ->method('getByTypes')
@@ -244,7 +244,7 @@ class TermCollectionTest extends TestCase
 
         /* @var TermCollection&MockObject $collection */
         $collection = $this->getMockBuilder(TermCollection::class)
-                           ->setMethods(['getByTypes','getValues'])
+                           ->onlyMethods(['getByTypes','getValues'])
                            ->getMock();
         $collection->expects($this->once())
                    ->method('getByTypes')
@@ -275,7 +275,7 @@ class TermCollectionTest extends TestCase
 
         /* @var TermCollection&MockObject $collection */
         $collection = $this->getMockBuilder(TermCollection::class)
-                           ->setMethods(['getByType','getValues'])
+                           ->onlyMethods(['getByType','getValues'])
                            ->getMock();
         $collection->expects($this->once())
                    ->method('getByType')

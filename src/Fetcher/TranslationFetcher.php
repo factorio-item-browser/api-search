@@ -72,9 +72,9 @@ class TranslationFetcher implements FetcherInterface
     protected function fetchTranslations(Query $query): array
     {
         return $this->translationRepository->findDataByKeywords(
+            $query->getCombinationId(),
             $query->getLocale(),
-            $query->getTermValuesByType(TermType::GENERIC),
-            $query->getModCombinationIds()
+            $query->getTermValuesByType(TermType::GENERIC)
         );
     }
 

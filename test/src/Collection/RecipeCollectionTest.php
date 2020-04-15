@@ -60,7 +60,7 @@ class RecipeCollectionTest extends TestCase
 
         /* @var RecipeCollection&MockObject $collection */
         $collection = $this->getMockBuilder(RecipeCollection::class)
-                           ->setMethods(['getKey'])
+                           ->onlyMethods(['getKey'])
                            ->getMock();
         $collection->expects($this->once())
                    ->method('getKey')
@@ -100,7 +100,7 @@ class RecipeCollectionTest extends TestCase
 
         /* @var RecipeCollection&MockObject $collection */
         $collection = $this->getMockBuilder(RecipeCollection::class)
-                           ->setMethods(['getKey'])
+                           ->onlyMethods(['getKey'])
                            ->getMock();
         $collection->expects($this->once())
                    ->method('getKey')
@@ -140,7 +140,7 @@ class RecipeCollectionTest extends TestCase
 
         /* @var RecipeCollection&MockObject $collection */
         $collection = $this->getMockBuilder(RecipeCollection::class)
-                           ->setMethods(['getKey'])
+                           ->onlyMethods(['getKey'])
                            ->getMock();
         $collection->expects($this->once())
                    ->method('getKey')
@@ -176,7 +176,7 @@ class RecipeCollectionTest extends TestCase
 
         /* @var RecipeCollection&MockObject $collection */
         $collection = $this->getMockBuilder(RecipeCollection::class)
-                           ->setMethods(['getKey'])
+                           ->onlyMethods(['getKey'])
                            ->getMock();
         $collection->expects($this->once())
                    ->method('getKey')
@@ -209,7 +209,7 @@ class RecipeCollectionTest extends TestCase
 
         /* @var RecipeCollection&MockObject $collection */
         $collection = $this->getMockBuilder(RecipeCollection::class)
-                           ->setMethods(['getKey'])
+                           ->onlyMethods(['getKey'])
                            ->getMock();
         $collection->expects($this->once())
                    ->method('getKey')

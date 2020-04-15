@@ -10,6 +10,7 @@ use FactorioItemBrowser\Api\Search\Mapper\RecipeDataToRecipeResultMapper;
 use FactorioItemBrowser\Common\Constant\RecipeMode;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Ramsey\Uuid\UuidInterface;
 
 /**
  * The PHPUnit test of the RecipeDataToRecipeResultMapper class.
@@ -46,6 +47,9 @@ class RecipeDataToRecipeResultMapperTest extends TestCase
      */
     public function testMapWithNormalRecipe(): void
     {
+        /* @var UuidInterface&MockObject $id */
+        $id = $this->createMock(UuidInterface::class);
+
         /* @var RecipeData&MockObject $source */
         $source = $this->createMock(RecipeData::class);
         $source->expects($this->once())
@@ -56,7 +60,7 @@ class RecipeDataToRecipeResultMapperTest extends TestCase
                ->willReturn(RecipeMode::NORMAL);
         $source->expects($this->once())
                ->method('getId')
-               ->willReturn(1337);
+               ->willReturn($id);
 
         /* @var RecipeResult&MockObject $destination */
         $destination = $this->createMock(RecipeResult::class);
@@ -65,7 +69,7 @@ class RecipeDataToRecipeResultMapperTest extends TestCase
                     ->with($this->identicalTo('abc'));
         $destination->expects($this->once())
                     ->method('setNormalRecipeId')
-                    ->with($this->identicalTo(1337));
+                    ->with($this->identicalTo($id));
 
         $mapper = new RecipeDataToRecipeResultMapper();
         $mapper->map($source, $destination);
@@ -77,6 +81,9 @@ class RecipeDataToRecipeResultMapperTest extends TestCase
      */
     public function testMapWithExpensiveRecipe(): void
     {
+        /* @var UuidInterface&MockObject $id */
+        $id = $this->createMock(UuidInterface::class);
+
         /* @var RecipeData&MockObject $source */
         $source = $this->createMock(RecipeData::class);
         $source->expects($this->once())
@@ -87,7 +94,7 @@ class RecipeDataToRecipeResultMapperTest extends TestCase
                ->willReturn(RecipeMode::EXPENSIVE);
         $source->expects($this->once())
                ->method('getId')
-               ->willReturn(1337);
+               ->willReturn($id);
 
         /* @var RecipeResult&MockObject $destination */
         $destination = $this->createMock(RecipeResult::class);
@@ -96,7 +103,7 @@ class RecipeDataToRecipeResultMapperTest extends TestCase
                     ->with($this->identicalTo('abc'));
         $destination->expects($this->once())
                     ->method('setExpensiveRecipeId')
-                    ->with($this->identicalTo(1337));
+                    ->with($this->identicalTo($id));
 
         $mapper = new RecipeDataToRecipeResultMapper();
         $mapper->map($source, $destination);

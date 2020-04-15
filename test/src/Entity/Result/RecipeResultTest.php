@@ -7,7 +7,9 @@ namespace FactorioItemBrowserTest\Api\Search\Entity\Result;
 use FactorioItemBrowser\Api\Database\Constant\SearchResultPriority;
 use FactorioItemBrowser\Api\Search\Entity\Result\RecipeResult;
 use FactorioItemBrowser\Common\Constant\EntityType;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Ramsey\Uuid\UuidInterface;
 
 /**
  * The PHPUnit test of the RecipeResult class.
@@ -28,8 +30,8 @@ class RecipeResultTest extends TestCase
 
         $this->assertSame(EntityType::RECIPE, $result->getType());
         $this->assertSame('', $result->getName());
-        $this->assertSame(0, $result->getNormalRecipeId());
-        $this->assertSame(0, $result->getExpensiveRecipeId());
+        $this->assertNull($result->getNormalRecipeId());
+        $this->assertNull($result->getExpensiveRecipeId());
         $this->assertSame(SearchResultPriority::ANY_MATCH, $result->getPriority());
     }
 
@@ -54,7 +56,8 @@ class RecipeResultTest extends TestCase
      */
     public function testSetAndGetNormalRecipeId(): void
     {
-        $normalRecipeId = 42;
+        /* @var UuidInterface&MockObject $normalRecipeId */
+        $normalRecipeId = $this->createMock(UuidInterface::class);
         $result = new RecipeResult();
 
         $this->assertSame($result, $result->setNormalRecipeId($normalRecipeId));
@@ -68,7 +71,8 @@ class RecipeResultTest extends TestCase
      */
     public function testSetAndGetExpensiveRecipeId(): void
     {
-        $expensiveRecipeId = 42;
+        /* @var UuidInterface&MockObject $expensiveRecipeId */
+        $expensiveRecipeId = $this->createMock(UuidInterface::class);
         $result = new RecipeResult();
 
         $this->assertSame($result, $result->setExpensiveRecipeId($expensiveRecipeId));
@@ -95,19 +99,28 @@ class RecipeResultTest extends TestCase
      */
     public function testMergeWithData(): void
     {
+        /* @var UuidInterface&MockObject $id1 */
+        $id1 = $this->createMock(UuidInterface::class);
+        /* @var UuidInterface&MockObject $id2 */
+        $id2 = $this->createMock(UuidInterface::class);
+        /* @var UuidInterface&MockObject $id3 */
+        $id3 = $this->createMock(UuidInterface::class);
+        /* @var UuidInterface&MockObject $id4 */
+        $id4 = $this->createMock(UuidInterface::class);
+
         $recipeToMerge = new RecipeResult();
-        $recipeToMerge->setNormalRecipeId(42)
-                      ->setExpensiveRecipeId(1337)
+        $recipeToMerge->setNormalRecipeId($id1)
+                      ->setExpensiveRecipeId($id2)
                       ->setPriority(21);
 
         $expectedRecipe = new RecipeResult();
-        $expectedRecipe->setNormalRecipeId(42)
-                       ->setExpensiveRecipeId(1337)
+        $expectedRecipe->setNormalRecipeId($id1)
+                       ->setExpensiveRecipeId($id2)
                        ->setPriority(21);
 
         $recipe = new RecipeResult();
-        $recipe->setNormalRecipeId(24)
-               ->setExpensiveRecipeId(7331)
+        $recipe->setNormalRecipeId($id3)
+               ->setExpensiveRecipeId($id4)
                ->setPriority(100);
 
         $recipe->merge($recipeToMerge);
@@ -121,19 +134,24 @@ class RecipeResultTest extends TestCase
      */
     public function testMergeWithoutData(): void
     {
+        /* @var UuidInterface&MockObject $id1 */
+        $id1 = $this->createMock(UuidInterface::class);
+        /* @var UuidInterface&MockObject $id2 */
+        $id2 = $this->createMock(UuidInterface::class);
+
         $recipeToMerge = new RecipeResult();
-        $recipeToMerge->setNormalRecipeId(0)
-                      ->setExpensiveRecipeId(0)
+        $recipeToMerge->setNormalRecipeId(null)
+                      ->setExpensiveRecipeId(null)
                       ->setPriority(100);
 
         $expectedRecipe = new RecipeResult();
-        $expectedRecipe->setNormalRecipeId(42)
-                       ->setExpensiveRecipeId(1337)
+        $expectedRecipe->setNormalRecipeId($id1)
+                       ->setExpensiveRecipeId($id2)
                        ->setPriority(12);
 
         $recipe = new RecipeResult();
-        $recipe->setNormalRecipeId(42)
-               ->setExpensiveRecipeId(1337)
+        $recipe->setNormalRecipeId($id1)
+               ->setExpensiveRecipeId($id2)
                ->setPriority(12);
 
         $recipe->merge($recipeToMerge);

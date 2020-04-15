@@ -26,8 +26,20 @@ class DuplicateRecipeFetcher implements FetcherInterface
     {
         $itemsByRecipeIds = $this->getItemsByRecipeIds($searchResults);
         foreach ($searchResults->getRecipes() as $recipe) {
-            $this->filterRecipe($recipe, $itemsByRecipeIds[$recipe->getNormalRecipeId()] ?? [], $searchResults);
-            $this->filterRecipe($recipe, $itemsByRecipeIds[$recipe->getExpensiveRecipeId()] ?? [], $searchResults);
+            if ($recipe->getNormalRecipeId() !== null) {
+                $this->filterRecipe(
+                    $recipe,
+                    $itemsByRecipeIds[$recipe->getNormalRecipeId()->toString()] ?? [],
+                    $searchResults
+                );
+            }
+            if ($recipe->getExpensiveRecipeId() !== null) {
+                $this->filterRecipe(
+                    $recipe,
+                    $itemsByRecipeIds[$recipe->getExpensiveRecipeId()->toString()] ?? [],
+                    $searchResults
+                );
+            }
         }
     }
 
@@ -41,11 +53,11 @@ class DuplicateRecipeFetcher implements FetcherInterface
         $result = [];
         foreach ($searchResults->getItems() as $item) {
             foreach ($item->getRecipes() as $recipe) {
-                if ($recipe->getNormalRecipeId() > 0) {
-                    $result[$recipe->getNormalRecipeId()][] = $item;
+                if ($recipe->getNormalRecipeId() !== null) {
+                    $result[$recipe->getNormalRecipeId()->toString()][] = $item;
                 }
-                if ($recipe->getExpensiveRecipeId() > 0) {
-                    $result[$recipe->getExpensiveRecipeId()][] = $item;
+                if ($recipe->getExpensiveRecipeId() !== null) {
+                    $result[$recipe->getExpensiveRecipeId()->toString()][] = $item;
                 }
             }
         }

@@ -10,6 +10,7 @@ use FactorioItemBrowser\Api\Search\Entity\Query;
 use FactorioItemBrowser\Api\Search\Service\FetcherService;
 use FactorioItemBrowser\Api\Search\Parser\QueryParser;
 use FactorioItemBrowser\Api\Search\Service\CachedSearchResultService;
+use Ramsey\Uuid\UuidInterface;
 
 /**
  * The main manager of the API search library.
@@ -64,14 +65,14 @@ class SearchManager implements SearchManagerInterface
 
     /**
      * Parses the query string to an actual query entity.
-     * @param string $queryString
-     * @param array|int[] $modCombinationIds
+     * @param UuidInterface $combinationId
      * @param string $locale
+     * @param string $queryString
      * @return Query
      */
-    public function parseQuery(string $queryString, array $modCombinationIds, string $locale): Query
+    public function parseQuery(UuidInterface $combinationId, string $locale, string $queryString): Query
     {
-        return $this->queryParser->parse($queryString, $modCombinationIds, $locale);
+        return $this->queryParser->parse($combinationId, $locale, $queryString);
     }
 
     /**

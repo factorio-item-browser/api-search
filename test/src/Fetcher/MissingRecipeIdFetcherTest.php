@@ -8,7 +8,6 @@ use BluePsyduck\TestHelper\ReflectionTrait;
 use BluePsyduck\MapperManager\Exception\MapperException;
 use BluePsyduck\MapperManager\MapperManagerInterface;
 use FactorioItemBrowser\Api\Database\Data\RecipeData;
-use FactorioItemBrowser\Api\Database\Filter\DataFilter;
 use FactorioItemBrowser\Api\Database\Repository\RecipeRepository;
 use FactorioItemBrowser\Api\Search\Collection\AggregatingResultCollection;
 use FactorioItemBrowser\Api\Search\Entity\Query;
@@ -16,6 +15,7 @@ use FactorioItemBrowser\Api\Search\Entity\Result\RecipeResult;
 use FactorioItemBrowser\Api\Search\Fetcher\MissingRecipeIdFetcher;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Ramsey\Uuid\UuidInterface;
 use ReflectionException;
 
 /**
@@ -28,12 +28,6 @@ use ReflectionException;
 class MissingRecipeIdFetcherTest extends TestCase
 {
     use ReflectionTrait;
-
-    /**
-     * The mocked data filter.
-     * @var DataFilter&MockObject
-     */
-    protected $dataFilter;
 
     /**
      * The mocked mapper manager.
@@ -54,7 +48,6 @@ class MissingRecipeIdFetcherTest extends TestCase
     {
         parent::setUp();
 
-        $this->dataFilter = $this->createMock(DataFilter::class);
         $this->mapperManager = $this->createMock(MapperManagerInterface::class);
         $this->recipeRepository = $this->createMock(RecipeRepository::class);
     }
@@ -66,9 +59,8 @@ class MissingRecipeIdFetcherTest extends TestCase
      */
     public function testConstruct(): void
     {
-        $fetcher = new MissingRecipeIdFetcher($this->dataFilter, $this->mapperManager, $this->recipeRepository);
+        $fetcher = new MissingRecipeIdFetcher($this->mapperManager, $this->recipeRepository);
 
-        $this->assertSame($this->dataFilter, $this->extractProperty($fetcher, 'dataFilter'));
         $this->assertSame($this->mapperManager, $this->extractProperty($fetcher, 'mapperManager'));
         $this->assertSame($this->recipeRepository, $this->extractProperty($fetcher, 'recipeRepository'));
     }
@@ -89,15 +81,12 @@ class MissingRecipeIdFetcherTest extends TestCase
         $recipe1 = $this->createMock(RecipeData::class);
         /* @var RecipeData&MockObject $recipe2 */
         $recipe2 = $this->createMock(RecipeData::class);
-        /* @var RecipeData&MockObject $recipe3 */
-        $recipe3 = $this->createMock(RecipeData::class);
         /* @var RecipeResult&MockObject $recipeResult1 */
         $recipeResult1 = $this->createMock(RecipeResult::class);
         /* @var RecipeResult&MockObject $recipeResult2 */
         $recipeResult2 = $this->createMock(RecipeResult::class);
 
-        $recipes = [$recipe1, $recipe2, $recipe3];
-        $filteredRecipes = [$recipe1, $recipe2];
+        $recipes = [$recipe1, $recipe2];
 
         /* @var AggregatingResultCollection&MockObject $searchResults */
         $searchResults = $this->createMock(AggregatingResultCollection::class);
@@ -108,16 +97,10 @@ class MissingRecipeIdFetcherTest extends TestCase
                           [$this->identicalTo($recipeResult2)]
                       );
 
-        $this->dataFilter->expects($this->once())
-                         ->method('filter')
-                         ->with($this->identicalTo($recipes))
-                         ->willReturn($filteredRecipes);
-
-
         /* @var MissingRecipeIdFetcher&MockObject $fetcher */
         $fetcher = $this->getMockBuilder(MissingRecipeIdFetcher::class)
-                        ->setMethods(['getRecipeNamesWithMissingIds', 'fetchRecipes', 'mapRecipeData'])
-                        ->setConstructorArgs([$this->dataFilter, $this->mapperManager, $this->recipeRepository])
+                        ->onlyMethods(['getRecipeNamesWithMissingIds', 'fetchRecipes', 'mapRecipeData'])
+                        ->setConstructorArgs([$this->mapperManager, $this->recipeRepository])
                         ->getMock();
         $fetcher->expects($this->once())
                 ->method('getRecipeNamesWithMissingIds')
@@ -148,14 +131,19 @@ class MissingRecipeIdFetcherTest extends TestCase
      */
     public function testGetRecipeNamesWithMissingIds(): void
     {
+        /* @var UuidInterface&MockObject $id1 */
+        $id1 = $this->createMock(UuidInterface::class);
+        /* @var UuidInterface&MockObject $id2 */
+        $id2 = $this->createMock(UuidInterface::class);
+
         /* @var RecipeResult&MockObject $recipe1 */
         $recipe1 = $this->createMock(RecipeResult::class);
         $recipe1->expects($this->once())
                 ->method('getNormalRecipeId')
-                ->willReturn(0);
+                ->willReturn(null);
         $recipe1->expects($this->once())
                 ->method('getExpensiveRecipeId')
-                ->willReturn(0);
+                ->willReturn(null);
         $recipe1->expects($this->once())
                 ->method('getName')
                 ->willReturn('abc');
@@ -164,19 +152,19 @@ class MissingRecipeIdFetcherTest extends TestCase
         $recipe2 = $this->createMock(RecipeResult::class);
         $recipe2->expects($this->once())
                 ->method('getNormalRecipeId')
-                ->willReturn(0);
+                ->willReturn(null);
         $recipe2->expects($this->once())
                 ->method('getExpensiveRecipeId')
-                ->willReturn(42);
+                ->willReturn($id1);
 
         /* @var RecipeResult&MockObject $recipe3 */
         $recipe3 = $this->createMock(RecipeResult::class);
         $recipe3->expects($this->once())
                 ->method('getNormalRecipeId')
-                ->willReturn(0);
+                ->willReturn(null);
         $recipe2->expects($this->once())
                 ->method('getExpensiveRecipeId')
-                ->willReturn(0);
+                ->willReturn(null);
         $recipe3->expects($this->once())
                 ->method('getName')
                 ->willReturn('def');
@@ -185,7 +173,7 @@ class MissingRecipeIdFetcherTest extends TestCase
         $recipe4 = $this->createMock(RecipeResult::class);
         $recipe4->expects($this->once())
                 ->method('getNormalRecipeId')
-                ->willReturn(1337);
+                ->willReturn($id2);
 
         $recipes = [$recipe1, $recipe2, $recipe3, $recipe4];
         $expectedResult = ['abc', 'def'];
@@ -196,7 +184,7 @@ class MissingRecipeIdFetcherTest extends TestCase
                       ->method('getRecipes')
                       ->willReturn($recipes);
 
-        $fetcher = new MissingRecipeIdFetcher($this->dataFilter, $this->mapperManager, $this->recipeRepository);
+        $fetcher = new MissingRecipeIdFetcher($this->mapperManager, $this->recipeRepository);
         $result = $this->invokeMethod($fetcher, 'getRecipeNamesWithMissingIds', $searchResults);
 
         $this->assertEquals($expectedResult, $result);
@@ -210,7 +198,9 @@ class MissingRecipeIdFetcherTest extends TestCase
     public function testFetchRecipes(): void
     {
         $names = ['abc', 'def'];
-        $modCombinationIds = [42, 1337];
+
+        /* @var UuidInterface&MockObject $combinationId */
+        $combinationId = $this->createMock(UuidInterface::class);
 
         $recipes = [
             $this->createMock(RecipeData::class),
@@ -220,15 +210,15 @@ class MissingRecipeIdFetcherTest extends TestCase
         /* @var Query&MockObject $query */
         $query = $this->createMock(Query::class);
         $query->expects($this->once())
-              ->method($this->identicalTo('getModCombinationIds'))
-              ->willReturn($modCombinationIds);
+              ->method($this->identicalTo('getCombinationId'))
+              ->willReturn($combinationId);
 
         $this->recipeRepository->expects($this->once())
                                ->method('findDataByNames')
-                               ->with($this->identicalTo($names), $this->identicalTo($modCombinationIds))
+                               ->with($this->identicalTo($combinationId), $this->identicalTo($names))
                                ->willReturn($recipes);
 
-        $fetcher = new MissingRecipeIdFetcher($this->dataFilter, $this->mapperManager, $this->recipeRepository);
+        $fetcher = new MissingRecipeIdFetcher($this->mapperManager, $this->recipeRepository);
         $result = $this->invokeMethod($fetcher, 'fetchRecipes', $names, $query);
 
         $this->assertSame($recipes, $result);
@@ -248,7 +238,7 @@ class MissingRecipeIdFetcherTest extends TestCase
                             ->method('map')
                             ->with($this->identicalTo($recipe), $this->isInstanceOf(RecipeResult::class));
 
-        $fetcher = new MissingRecipeIdFetcher($this->dataFilter, $this->mapperManager, $this->recipeRepository);
+        $fetcher = new MissingRecipeIdFetcher($this->mapperManager, $this->recipeRepository);
         $this->invokeMethod($fetcher, 'mapRecipeData', $recipe);
     }
 }

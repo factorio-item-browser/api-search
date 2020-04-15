@@ -7,7 +7,6 @@ namespace FactorioItemBrowser\Api\Search\Fetcher;
 use BluePsyduck\MapperManager\Exception\MapperException;
 use BluePsyduck\MapperManager\MapperManagerInterface;
 use FactorioItemBrowser\Api\Database\Data\RecipeData;
-use FactorioItemBrowser\Api\Database\Filter\DataFilter;
 use FactorioItemBrowser\Api\Database\Repository\RecipeRepository;
 use FactorioItemBrowser\Api\Search\Collection\AggregatingResultCollection;
 use FactorioItemBrowser\Api\Search\Entity\Query;
@@ -23,12 +22,6 @@ use FactorioItemBrowser\Api\Search\Entity\Result\RecipeResult;
 class ProductRecipeFetcher implements FetcherInterface
 {
     /**
-     * The data filter.
-     * @var DataFilter
-     */
-    protected $dataFilter;
-
-    /**
      * The mapper manager.
      * @var MapperManagerInterface
      */
@@ -42,16 +35,13 @@ class ProductRecipeFetcher implements FetcherInterface
 
     /**
      * Initializes the data fetcher.
-     * @param DataFilter $dataFilter
      * @param MapperManagerInterface $mapperManager
      * @param RecipeRepository $recipeRepository
      */
     public function __construct(
-        DataFilter $dataFilter,
         MapperManagerInterface $mapperManager,
         RecipeRepository $recipeRepository
     ) {
-        $this->dataFilter = $dataFilter;
         $this->mapperManager = $mapperManager;
         $this->recipeRepository = $recipeRepository;
     }
@@ -65,12 +55,8 @@ class ProductRecipeFetcher implements FetcherInterface
     public function fetch(Query $query, AggregatingResultCollection $searchResults): void
     {
         $items = $this->getItems($searchResults);
-        $recipes = $this->fetchProductRecipes(array_keys($items), $query);
-
-        foreach ($this->dataFilter->filter($recipes) as $recipe) {
-            if ($recipe instanceof RecipeData) {
-                $this->matchRecipeToItems($recipe, $items);
-            }
+        foreach ($this->fetchProductRecipes($items, $query) as $recipe) {
+            $this->matchRecipeToItems($recipe, $items);
         }
     }
 
@@ -83,8 +69,8 @@ class ProductRecipeFetcher implements FetcherInterface
     {
         $result = [];
         foreach ($searchResults->getItems() as $item) {
-            if ($item->getId() > 0) {
-                $result[$item->getId()] = $item;
+            if ($item->getId() !== null) {
+                $result[$item->getId()->toString()] = $item;
             }
         }
         return $result;
@@ -92,13 +78,20 @@ class ProductRecipeFetcher implements FetcherInterface
 
     /**
      * Returns the recipes having any of the items as product.
-     * @param array|int[] $itemIds
+     * @param array|ItemResult[] $items
      * @param Query $query
      * @return array|RecipeData[]
      */
-    protected function fetchProductRecipes(array $itemIds, Query $query): array
+    protected function fetchProductRecipes(array $items, Query $query): array
     {
-        return $this->recipeRepository->findDataByProductItemIds($itemIds, $query->getModCombinationIds());
+        $itemIds = [];
+        foreach ($items as $item) {
+            if ($item->getId() !== null) {
+                $itemIds[] = $item->getId();
+            }
+        }
+
+        return $this->recipeRepository->findDataByProductItemIds($query->getCombinationId(), $itemIds);
     }
 
     /**
@@ -109,8 +102,13 @@ class ProductRecipeFetcher implements FetcherInterface
      */
     protected function matchRecipeToItems(RecipeData $recipe, array $items): void
     {
-        if (isset($items[$recipe->getItemId()])) {
-            $items[$recipe->getItemId()]->addRecipe($this->mapRecipe($recipe));
+        if ($recipe->getItemId() === null) {
+            return;
+        }
+
+        $recipeItemId = $recipe->getItemId()->toString();
+        if (isset($items[$recipeItemId])) {
+            $items[$recipeItemId]->addRecipe($this->mapRecipe($recipe));
         }
     }
 

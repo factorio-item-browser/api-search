@@ -12,6 +12,8 @@ use FactorioItemBrowser\Api\Search\Serializer\ItemResultSerializer;
 use FactorioItemBrowser\Api\Search\Serializer\RecipeResultSerializer;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\UuidInterface;
 use ReflectionException;
 
 /**
@@ -81,17 +83,17 @@ class ItemResultSerializerTest extends TestCase
      */
     public function testSerialize(): void
     {
-        $itemId = 42;
+        $itemId = Uuid::fromString('40718ef3-3d81-4c6f-ac42-650d4c38d226');
         $recipes = [
             $this->createMock(RecipeResult::class),
             $this->createMock(RecipeResult::class),
         ];
         $serializedRecipes = ['abc', 'def'];
-        $expectedResult = '42,abc,def';
+        $expectedResult = '40718ef3-3d81-4c6f-ac42-650d4c38d226,abc,def';
 
         /* @var ItemResult&MockObject $item */
         $item = $this->createMock(ItemResult::class);
-        $item->expects($this->once())
+        $item->expects($this->atLeastOnce())
              ->method('getId')
              ->willReturn($itemId);
         $item->expects($this->once())
@@ -100,7 +102,7 @@ class ItemResultSerializerTest extends TestCase
 
         /* @var ItemResultSerializer&MockObject $serializer */
         $serializer = $this->getMockBuilder(ItemResultSerializer::class)
-                           ->setMethods(['serializeRecipes'])
+                           ->onlyMethods(['serializeRecipes'])
                            ->disableOriginalConstructor()
                            ->getMock();
         $serializer->expects($this->once())
@@ -150,28 +152,30 @@ class ItemResultSerializerTest extends TestCase
 
     /**
      * Provides the data for the unserialize test.
-     * @return array
+     * @return array<mixed>
      */
     public function provideUnserialize(): array
     {
+        $id = '40718ef3-3d81-4c6f-ac42-650d4c38d226';
+
         return [
-            ['42,abc,def', 42, ['abc', 'def']],
-            ['42', 42, []],
-            ['', 0, []],
+            ["{$id},abc,def", Uuid::fromString($id), ['abc', 'def']],
+            [$id, Uuid::fromString($id), []],
+            ['', null, []],
         ];
     }
 
     /**
      * Tests the unserialize method.
      * @param string $serializedResult
-     * @param int $expectedItemId
+     * @param UuidInterface|null $expectedItemId
      * @param array|string[] $expectedSerializedRecipes
      * @covers ::unserialize
      * @dataProvider provideUnserialize
      */
     public function testUnserialize(
         string $serializedResult,
-        int $expectedItemId,
+        ?UuidInterface $expectedItemId,
         array $expectedSerializedRecipes
     ): void {
         $expectedResult = new ItemResult();
@@ -179,7 +183,7 @@ class ItemResultSerializerTest extends TestCase
 
         /* @var ItemResultSerializer&MockObject $serializer */
         $serializer = $this->getMockBuilder(ItemResultSerializer::class)
-                           ->setMethods(['unserializeRecipes'])
+                           ->onlyMethods(['unserializeRecipes'])
                            ->disableOriginalConstructor()
                            ->getMock();
         $serializer->expects($this->once())

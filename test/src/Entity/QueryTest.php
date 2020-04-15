@@ -10,6 +10,7 @@ use FactorioItemBrowser\Api\Search\Entity\Query;
 use FactorioItemBrowser\Api\Search\Entity\Term;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Ramsey\Uuid\UuidInterface;
 use ReflectionException;
 
 /**
@@ -30,44 +31,24 @@ class QueryTest extends TestCase
      */
     public function testConstruct(): void
     {
-        $queryString = 'abc';
-        $modCombinationIds = [42, 1337];
-        $locale = 'def';
+        $query = new Query();
         
-        $query = new Query($queryString, $modCombinationIds, $locale);
-        
-        $this->assertSame($queryString, $this->extractProperty($query, 'queryString'));
-        $this->assertSame($modCombinationIds, $this->extractProperty($query, 'modCombinationIds'));
-        $this->assertSame($locale, $this->extractProperty($query, 'locale'));
         $this->assertInstanceOf(TermCollection::class, $this->extractProperty($query, 'terms'));
     }
 
     /**
-     * Tests the setting and getting the query string.
-     * @covers ::getQueryString
-     * @covers ::setQueryString
+     * Tests the setting and getting the combination id.
+     * @covers ::getCombinationId
+     * @covers ::setCombinationId
      */
-    public function testSetAndGetQueryString(): void
+    public function testSetAndGetCombinationId(): void
     {
-        $queryString = 'abc';
-        $query = new Query('foo', [42], 'bar');
+        /* @var UuidInterface&MockObject $combinationId */
+        $combinationId = $this->createMock(UuidInterface::class);
+        $query = new Query();
 
-        $this->assertSame($query, $query->setQueryString($queryString));
-        $this->assertSame($queryString, $query->getQueryString());
-    }
-
-    /**
-     * Tests the setting and getting the mod combination ids.
-     * @covers ::getModCombinationIds
-     * @covers ::setModCombinationIds
-     */
-    public function testSetAndGetModCombinationIds(): void
-    {
-        $modCombinationIds = [42, 1337];
-        $query = new Query('foo', [], 'bar');
-
-        $this->assertSame($query, $query->setModCombinationIds($modCombinationIds));
-        $this->assertSame($modCombinationIds, $query->getModCombinationIds());
+        $this->assertSame($query, $query->setCombinationId($combinationId));
+        $this->assertSame($combinationId, $query->getCombinationId());
     }
 
     /**
@@ -78,10 +59,24 @@ class QueryTest extends TestCase
     public function testSetAndGetLocale(): void
     {
         $locale = 'abc';
-        $query = new Query('foo', [], 'bar');
+        $query = new Query();
 
         $this->assertSame($query, $query->setLocale($locale));
         $this->assertSame($locale, $query->getLocale());
+    }
+
+    /**
+     * Tests the setting and getting the query string.
+     * @covers ::getQueryString
+     * @covers ::setQueryString
+     */
+    public function testSetAndGetQueryString(): void
+    {
+        $queryString = 'abc';
+        $query = new Query();
+
+        $this->assertSame($query, $query->setQueryString($queryString));
+        $this->assertSame($queryString, $query->getQueryString());
     }
 
     /**
@@ -100,7 +95,7 @@ class QueryTest extends TestCase
                        ->method('add')
                        ->with($this->identicalTo($term));
 
-        $query = new Query('foo', [42], 'bar');
+        $query = new Query();
         $this->injectProperty($query, 'terms', $termCollection);
         $result = $query->addTerm($term);
 
@@ -126,7 +121,7 @@ class QueryTest extends TestCase
                        ->willReturn($terms);
 
 
-        $query = new Query('foo', [42], 'bar');
+        $query = new Query();
         $this->injectProperty($query, 'terms', $termCollection);
         $result = $query->getTerms();
 
@@ -149,7 +144,7 @@ class QueryTest extends TestCase
                        ->willReturn($values);
 
 
-        $query = new Query('foo', [42], 'bar');
+        $query = new Query();
         $this->injectProperty($query, 'terms', $termCollection);
         $result = $query->getTermValues();
 
@@ -177,7 +172,7 @@ class QueryTest extends TestCase
                        ->willReturn($terms);
 
 
-        $query = new Query('foo', [42], 'bar');
+        $query = new Query();
         $this->injectProperty($query, 'terms', $termCollection);
         $result = $query->getTermsByType($type);
 
@@ -205,7 +200,7 @@ class QueryTest extends TestCase
                        ->willReturn($terms);
 
 
-        $query = new Query('foo', [42], 'bar');
+        $query = new Query();
         $this->injectProperty($query, 'terms', $termCollection);
         $result = $query->getTermsByTypes($types);
 
@@ -229,7 +224,7 @@ class QueryTest extends TestCase
                        ->with($this->identicalTo($type))
                        ->willReturn($values);
 
-        $query = new Query('foo', [42], 'bar');
+        $query = new Query();
         $this->injectProperty($query, 'terms', $termCollection);
         $result = $query->getTermValuesByType($type);
 
@@ -253,7 +248,7 @@ class QueryTest extends TestCase
                        ->with($this->identicalTo($types))
                        ->willReturn($values);
 
-        $query = new Query('foo', [42], 'bar');
+        $query = new Query();
         $this->injectProperty($query, 'terms', $termCollection);
         $result = $query->getTermValuesByTypes($types);
 
@@ -267,8 +262,9 @@ class QueryTest extends TestCase
      */
     public function testSetAndGetHash(): void
     {
-        $hash = 'abc';
-        $query = new Query('foo', [42], 'bar');
+        /* @var UuidInterface&MockObject $hash */
+        $hash = $this->createMock(UuidInterface::class);
+        $query = new Query();
 
         $this->assertSame($query, $query->setHash($hash));
         $this->assertSame($hash, $query->getHash());

@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace FactorioItemBrowser\Api\Search\Serializer;
 
+use Exception;
 use FactorioItemBrowser\Api\Search\Constant\SerializedResultType;
 use FactorioItemBrowser\Api\Search\Entity\Result\RecipeResult;
 use FactorioItemBrowser\Api\Search\Entity\Result\ResultInterface;
+use Ramsey\Uuid\Uuid;
 
 /**
  * The serializer for the recipe results.
@@ -42,11 +44,11 @@ class RecipeResultSerializer implements SerializerInterface
     public function serialize($recipe): string
     {
         $result = '';
-        if ($recipe->getNormalRecipeId() > 0) {
-            $result .= (string) $recipe->getNormalRecipeId();
+        if ($recipe->getNormalRecipeId() !== null) {
+            $result .= $recipe->getNormalRecipeId()->toString();
         }
-        if ($recipe->getExpensiveRecipeId() > 0) {
-            $result .= '+' . (string) $recipe->getExpensiveRecipeId();
+        if ($recipe->getExpensiveRecipeId() !== null) {
+            $result .= '+' . $recipe->getExpensiveRecipeId()->toString();
         }
         return $result;
     }
@@ -61,8 +63,20 @@ class RecipeResultSerializer implements SerializerInterface
         $recipeIds = explode('+', $serializedResult);
 
         $result = new RecipeResult();
-        $result->setNormalRecipeId((int) ($recipeIds[0] ?? 0))
-               ->setExpensiveRecipeId((int) ($recipeIds[1] ?? 0));
+        if (isset($recipeIds[0])) {
+            try {
+                $result->setNormalRecipeId(Uuid::fromString($recipeIds[0]));
+            } catch (Exception $e) {
+                // Id is invalid, so ignore it.
+            }
+        }
+        if (isset($recipeIds[1])) {
+            try {
+                $result->setExpensiveRecipeId(Uuid::fromString($recipeIds[1]));
+            } catch (Exception $e) {
+                // Id is invalid, so ignore it.
+            }
+        }
         return $result;
     }
 }

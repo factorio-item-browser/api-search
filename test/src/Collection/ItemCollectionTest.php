@@ -60,7 +60,7 @@ class ItemCollectionTest extends TestCase
 
         /* @var ItemCollection&MockObject $collection */
         $collection = $this->getMockBuilder(ItemCollection::class)
-                           ->setMethods(['getKey'])
+                           ->onlyMethods(['getKey'])
                            ->getMock();
         $collection->expects($this->once())
                    ->method('getKey')
@@ -100,7 +100,7 @@ class ItemCollectionTest extends TestCase
 
         /* @var ItemCollection&MockObject $collection */
         $collection = $this->getMockBuilder(ItemCollection::class)
-                           ->setMethods(['getKey'])
+                           ->onlyMethods(['getKey'])
                            ->getMock();
         $collection->expects($this->once())
                    ->method('getKey')
@@ -140,7 +140,7 @@ class ItemCollectionTest extends TestCase
 
         /* @var ItemCollection&MockObject $collection */
         $collection = $this->getMockBuilder(ItemCollection::class)
-                           ->setMethods(['getKey'])
+                           ->onlyMethods(['getKey'])
                            ->getMock();
         $collection->expects($this->once())
                    ->method('getKey')
@@ -176,7 +176,7 @@ class ItemCollectionTest extends TestCase
 
         /* @var ItemCollection&MockObject $collection */
         $collection = $this->getMockBuilder(ItemCollection::class)
-                           ->setMethods(['getKey'])
+                           ->onlyMethods(['getKey'])
                            ->getMock();
         $collection->expects($this->once())
                    ->method('getKey')
@@ -209,7 +209,7 @@ class ItemCollectionTest extends TestCase
 
         /* @var ItemCollection&MockObject $collection */
         $collection = $this->getMockBuilder(ItemCollection::class)
-                           ->setMethods(['getKey'])
+                           ->onlyMethods(['getKey'])
                            ->getMock();
         $collection->expects($this->once())
                    ->method('getKey')
@@ -250,7 +250,7 @@ class ItemCollectionTest extends TestCase
 
     /**
      * Provides the data for the getKey test.
-     * @return array
+     * @return array<mixed>
      */
     public function provideGetKey(): array
     {

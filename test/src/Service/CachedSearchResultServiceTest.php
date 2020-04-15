@@ -15,6 +15,7 @@ use FactorioItemBrowser\Api\Search\Service\SerializerService;
 use FactorioItemBrowser\Api\Search\Service\CachedSearchResultService;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Ramsey\Uuid\UuidInterface;
 
 /**
  * The PHPUnit test of the CachedSearchResultService class.
@@ -77,17 +78,12 @@ class CachedSearchResultServiceTest extends TestCase
      */
     public function testGetResultsWithHit(): void
     {
-        $hash = 'ab12cd34';
         $serializedResult = 'abc';
 
         /* @var PaginatedResultCollection&MockObject $searchResult */
         $searchResult = $this->createMock(PaginatedResultCollection::class);
-
         /* @var Query&MockObject $query */
         $query = $this->createMock(Query::class);
-        $query->expects($this->once())
-              ->method('getHash')
-              ->willReturn($hash);
 
         $this->serializerService->expects($this->once())
                                 ->method('unserialize')
@@ -96,7 +92,7 @@ class CachedSearchResultServiceTest extends TestCase
 
         /* @var CachedSearchResultService&MockObject $service */
         $service = $this->getMockBuilder(CachedSearchResultService::class)
-                        ->setMethods(['fetchSerializedResults'])
+                        ->onlyMethods(['fetchSerializedResults'])
                         ->setConstructorArgs([
                             $this->cachedSearchResultRepository,
                             $this->serializerService,
@@ -105,7 +101,7 @@ class CachedSearchResultServiceTest extends TestCase
                         ->getMock();
         $service->expects($this->once())
                 ->method('fetchSerializedResults')
-                ->with($this->identicalTo($hash))
+                ->with($this->identicalTo($query))
                 ->willReturn($serializedResult);
 
         $result = $service->getResults($query);
@@ -119,21 +115,15 @@ class CachedSearchResultServiceTest extends TestCase
      */
     public function testGetResultsWithoutHit(): void
     {
-        $hash = 'ab12cd34';
-        $searchResult = null;
-
         /* @var Query&MockObject $query */
         $query = $this->createMock(Query::class);
-        $query->expects($this->once())
-              ->method('getHash')
-              ->willReturn($hash);
 
         $this->serializerService->expects($this->never())
                                 ->method('unserialize');
 
         /* @var CachedSearchResultService&MockObject $service */
         $service = $this->getMockBuilder(CachedSearchResultService::class)
-                        ->setMethods(['fetchSerializedResults'])
+                        ->onlyMethods(['fetchSerializedResults'])
                         ->setConstructorArgs([
                             $this->cachedSearchResultRepository,
                             $this->serializerService,
@@ -142,8 +132,8 @@ class CachedSearchResultServiceTest extends TestCase
                         ->getMock();
         $service->expects($this->once())
                 ->method('fetchSerializedResults')
-                ->with($this->identicalTo($hash))
-                ->willReturn($searchResult);
+                ->with($this->identicalTo($query))
+                ->willReturn(null);
 
         $result = $service->getResults($query);
 
@@ -157,97 +147,123 @@ class CachedSearchResultServiceTest extends TestCase
      */
     public function testFetchSerializedResults(): void
     {
-        $hash = 'ab12cd34';
-        $resultData = 'abc';
+        $locale = 'abc';
+        $resultData = 'def';
 
-        /* @var DateTimeImmutable&MockObject $maxCacheAge */
-        $maxCacheAge = $this->createMock(DateTimeImmutable::class);
+        /* @var UuidInterface&MockObject $combinationId */
+        $combinationId = $this->createMock(UuidInterface::class);
+        /* @var UuidInterface&MockObject $searchHash */
+        $searchHash = $this->createMock(UuidInterface::class);
 
-        /* @var CachedSearchResult&MockObject $entity1 */
-        $entity1 = $this->createMock(CachedSearchResult::class);
-        $entity1->expects($this->once())
-                ->method('getResultData')
-                ->willReturn($resultData);
+        $query = new Query();
+        $query->setCombinationId($combinationId)
+              ->setLocale($locale)
+              ->setHash($searchHash);
 
-        /* @var CachedSearchResult&MockObject $entity2 */
-        $entity2 = $this->createMock(CachedSearchResult::class);
-        $entity2->expects($this->never())
-                ->method('getResultData');
-
-        $entities = [$entity1, $entity2];
+        /* @var CachedSearchResult&MockObject $entity */
+        $entity = $this->createMock(CachedSearchResult::class);
+        $entity->expects($this->once())
+               ->method('getResultData')
+               ->willReturn($resultData);
 
         $this->cachedSearchResultRepository->expects($this->once())
-                                           ->method('findByHashes')
-                                           ->with($this->identicalTo([$hash]), $this->identicalTo($maxCacheAge))
-                                           ->willReturn($entities);
+                                           ->method('find')
+                                           ->with(
+                                               $this->identicalTo($combinationId),
+                                               $this->identicalTo($locale),
+                                               $this->identicalTo($searchHash)
+                                           )
+                                           ->willReturn($entity);
+        $this->cachedSearchResultRepository->expects($this->once())
+                                           ->method('persist')
+                                           ->with($this->identicalTo($entity));
 
         $service = new CachedSearchResultService(
             $this->cachedSearchResultRepository,
             $this->serializerService,
             'today'
         );
-        $this->injectProperty($service, 'maxCacheAge', $maxCacheAge);
 
-        $result = $this->invokeMethod($service, 'fetchSerializedResults', $hash);
+        $result = $this->invokeMethod($service, 'fetchSerializedResults', $query);
 
         $this->assertSame($resultData, $result);
     }
 
     /**
-     * Tests the fetchSerializedResults method without an actual result.
+     * Tests the fetchSerializedResults method.
      * @throws Exception
      * @covers ::fetchSerializedResults
      */
-    public function testFetchSerializedResultsWithoutResult(): void
+    public function testFetchSerializedResultsWithoutEntity(): void
     {
-        $hash = 'ab12cd34';
-        $entities = [];
+        $locale = 'abc';
 
-        /* @var DateTimeImmutable&MockObject $maxCacheAge */
-        $maxCacheAge = $this->createMock(DateTimeImmutable::class);
+        /* @var UuidInterface&MockObject $combinationId */
+        $combinationId = $this->createMock(UuidInterface::class);
+        /* @var UuidInterface&MockObject $searchHash */
+        $searchHash = $this->createMock(UuidInterface::class);
+
+        $query = new Query();
+        $query->setCombinationId($combinationId)
+              ->setLocale($locale)
+              ->setHash($searchHash);
 
         $this->cachedSearchResultRepository->expects($this->once())
-                                           ->method('findByHashes')
-                                           ->with($this->identicalTo([$hash]), $this->identicalTo($maxCacheAge))
-                                           ->willReturn($entities);
+                                           ->method('find')
+                                           ->with(
+                                               $this->identicalTo($combinationId),
+                                               $this->identicalTo($locale),
+                                               $this->identicalTo($searchHash)
+                                           )
+                                           ->willReturn(null);
+        $this->cachedSearchResultRepository->expects($this->never())
+                                           ->method('persist');
 
         $service = new CachedSearchResultService(
             $this->cachedSearchResultRepository,
             $this->serializerService,
             'today'
         );
-        $this->injectProperty($service, 'maxCacheAge', $maxCacheAge);
 
-        $result = $this->invokeMethod($service, 'fetchSerializedResults', $hash);
+        $result = $this->invokeMethod($service, 'fetchSerializedResults', $query);
 
         $this->assertNull($result);
     }
 
     /**
-     * Tests the fetchSerializedResults method with throwing an exception.
+     * Tests the fetchSerializedResults method.
      * @throws Exception
      * @covers ::fetchSerializedResults
      */
     public function testFetchSerializedResultsWithException(): void
     {
-        $hash = 'ab12cd34';
+        $locale = 'abc';
 
-        /* @var DateTimeImmutable&MockObject $maxCacheAge */
-        $maxCacheAge = $this->createMock(DateTimeImmutable::class);
+        /* @var UuidInterface&MockObject $combinationId */
+        $combinationId = $this->createMock(UuidInterface::class);
+        /* @var UuidInterface&MockObject $searchHash */
+        $searchHash = $this->createMock(UuidInterface::class);
+
+        $query = new Query();
+        $query->setCombinationId($combinationId)
+              ->setLocale($locale)
+              ->setHash($searchHash);
 
         $this->cachedSearchResultRepository->expects($this->once())
-                                           ->method('findByHashes')
-                                           ->with($this->identicalTo([$hash]), $this->identicalTo($maxCacheAge))
-                                           ->willThrowException(new Exception());
+                                           ->method('find')
+                                           ->with(
+                                               $this->identicalTo($combinationId),
+                                               $this->identicalTo($locale),
+                                               $this->identicalTo($searchHash)
+                                           )
+                                           ->willThrowException($this->createMock(Exception::class));
 
         $service = new CachedSearchResultService(
             $this->cachedSearchResultRepository,
             $this->serializerService,
             'today'
         );
-        $this->injectProperty($service, 'maxCacheAge', $maxCacheAge);
-
-        $result = $this->invokeMethod($service, 'fetchSerializedResults', $hash);
+        $result = $this->invokeMethod($service, 'fetchSerializedResults', $query);
 
         $this->assertNull($result);
     }
@@ -259,17 +275,22 @@ class CachedSearchResultServiceTest extends TestCase
      */
     public function testPersistResults(): void
     {
-        $hash = 'ab12cd34';
-        $resultData = 'abc';
+        $locale = 'abc';
+        $searchQuery = 'def';
+        $resultData = 'ghi';
 
-        /* @var Query&MockObject $query */
-        $query = $this->createMock(Query::class);
-        $query->expects($this->once())
-              ->method('getHash')
-              ->willReturn($hash);
-
+        /* @var UuidInterface&MockObject $combinationId */
+        $combinationId = $this->createMock(UuidInterface::class);
+        /* @var UuidInterface&MockObject $searchHash */
+        $searchHash = $this->createMock(UuidInterface::class);
         /* @var PaginatedResultCollection&MockObject $searchResults */
         $searchResults = $this->createMock(PaginatedResultCollection::class);
+
+        $query = new Query();
+        $query->setCombinationId($combinationId)
+              ->setLocale($locale)
+              ->setQueryString($searchQuery)
+              ->setHash($searchHash);
 
         $this->serializerService->expects($this->once())
                                 ->method('serialize')
@@ -279,8 +300,17 @@ class CachedSearchResultServiceTest extends TestCase
         $this->cachedSearchResultRepository
             ->expects($this->once())
             ->method('persist')
-            ->with($this->callback(function (CachedSearchResult $entity) use ($hash, $resultData): bool {
-                $this->assertSame($hash, $entity->getHash());
+            ->with($this->callback(function (CachedSearchResult $entity) use (
+                $combinationId,
+                $locale,
+                $searchQuery,
+                $searchHash,
+                $resultData
+            ): bool {
+                $this->assertSame($combinationId, $entity->getCombinationId());
+                $this->assertSame($locale, $entity->getLocale());
+                $this->assertSame($searchQuery, $entity->getSearchQuery());
+                $this->assertSame($searchHash, $entity->getSearchHash());
                 $this->assertSame($resultData, $entity->getResultData());
                 return true;
             }));
@@ -300,13 +330,19 @@ class CachedSearchResultServiceTest extends TestCase
      */
     public function testPersistResultsWithException(): void
     {
-        $hash = 'ab12cd34';
+        $locale = 'abc';
+        $searchQuery = 'def';
 
-        /* @var Query&MockObject $query */
-        $query = $this->createMock(Query::class);
-        $query->expects($this->once())
-              ->method('getHash')
-              ->willReturn($hash);
+        /* @var UuidInterface&MockObject $combinationId */
+        $combinationId = $this->createMock(UuidInterface::class);
+        /* @var UuidInterface&MockObject $searchHash */
+        $searchHash = $this->createMock(UuidInterface::class);
+
+        $query = new Query();
+        $query->setCombinationId($combinationId)
+              ->setLocale($locale)
+              ->setQueryString($searchQuery)
+              ->setHash($searchHash);
 
         /* @var PaginatedResultCollection&MockObject $searchResults */
         $searchResults = $this->createMock(PaginatedResultCollection::class);
@@ -325,17 +361,17 @@ class CachedSearchResultServiceTest extends TestCase
     }
 
     /**
-     * Tests the cleanCache method.
+     * Tests the clearExpiredResults method.
      * @throws Exception
-     * @covers ::cleanCache
+     * @covers ::clearExpiredResults
      */
-    public function testCleanCache(): void
+    public function testClearExpiredResults(): void
     {
         /* @var DateTimeImmutable&MockObject $maxCacheAge */
         $maxCacheAge = $this->createMock(DateTimeImmutable::class);
 
         $this->cachedSearchResultRepository->expects($this->once())
-                                           ->method('cleanup')
+                                           ->method('clearExpiredResults')
                                            ->with($this->identicalTo($maxCacheAge));
 
         $service = new CachedSearchResultService(
@@ -345,24 +381,24 @@ class CachedSearchResultServiceTest extends TestCase
         );
         $this->injectProperty($service, 'maxCacheAge', $maxCacheAge);
 
-        $service->cleanCache();
+        $service->clearExpiredResults();
     }
 
     /**
-     * Tests the clearCache method.
+     * Tests the clearAll method.
      * @throws Exception
-     * @covers ::clearCache
+     * @covers ::clearAll
      */
-    public function testClearCache(): void
+    public function testClearAll(): void
     {
         $this->cachedSearchResultRepository->expects($this->once())
-                                           ->method('clear');
+                                           ->method('clearAll');
 
         $service = new CachedSearchResultService(
             $this->cachedSearchResultRepository,
             $this->serializerService,
             'today'
         );
-        $service->clearCache();
+        $service->clearAll();
     }
 }

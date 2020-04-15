@@ -15,6 +15,7 @@ use FactorioItemBrowser\Api\Search\SearchManager;
 use FactorioItemBrowser\Api\Search\Service\CachedSearchResultService;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Ramsey\Uuid\UuidInterface;
 use ReflectionException;
 
 /**
@@ -89,8 +90,10 @@ class SearchManagerTest extends TestCase
     public function testParseQuery(): void
     {
         $queryString = 'abc';
-        $modCombinationIds = [42, 1337];
         $locale = 'def';
+
+        /* @var UuidInterface&MockObject $combinationId */
+        $combinationId = $this->createMock(UuidInterface::class);
 
         /* @var Query&MockObject $query */
         $query = $this->createMock(Query::class);
@@ -98,14 +101,14 @@ class SearchManagerTest extends TestCase
         $this->queryParser->expects($this->once())
                           ->method('parse')
                           ->with(
-                              $this->identicalTo($queryString),
-                              $this->identicalTo($modCombinationIds),
-                              $this->identicalTo($locale)
+                              $this->identicalTo($combinationId),
+                              $this->identicalTo($locale),
+                              $this->identicalTo($queryString)
                           )
                           ->willReturn($query);
 
         $manager = new SearchManager($this->cachedSearchResultService, $this->fetcherService, $this->queryParser, 42);
-        $result = $manager->parseQuery($queryString, $modCombinationIds, $locale);
+        $result = $manager->parseQuery($combinationId, $locale, $queryString);
 
         $this->assertSame($query, $result);
     }
@@ -128,7 +131,7 @@ class SearchManagerTest extends TestCase
 
         /* @var SearchManager&MockObject $manager */
         $manager = $this->getMockBuilder(SearchManager::class)
-                        ->setMethods(['executeQuery'])
+                        ->onlyMethods(['executeQuery'])
                         ->setConstructorArgs([
                             $this->cachedSearchResultService,
                             $this->fetcherService,
@@ -168,7 +171,7 @@ class SearchManagerTest extends TestCase
 
         /* @var SearchManager&MockObject $manager */
         $manager = $this->getMockBuilder(SearchManager::class)
-                        ->setMethods(['executeQuery'])
+                        ->onlyMethods(['executeQuery'])
                         ->setConstructorArgs([
                             $this->cachedSearchResultService,
                             $this->fetcherService,
@@ -207,7 +210,7 @@ class SearchManagerTest extends TestCase
 
         /* @var SearchManager&MockObject $manager */
         $manager = $this->getMockBuilder(SearchManager::class)
-                        ->setMethods(['createPaginatedCollection'])
+                        ->onlyMethods(['createPaginatedCollection'])
                         ->setConstructorArgs([
                             $this->cachedSearchResultService,
                             $this->fetcherService,

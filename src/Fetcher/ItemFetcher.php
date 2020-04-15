@@ -66,8 +66,8 @@ class ItemFetcher implements FetcherInterface
     protected function fetchItems(Query $query): array
     {
         return $this->itemRepository->findByKeywords(
-            $query->getTermValuesByType(TermType::GENERIC),
-            $query->getModCombinationIds()
+            $query->getCombinationId(),
+            $query->getTermValuesByType(TermType::GENERIC)
         );
     }
 

@@ -7,6 +7,8 @@ namespace FactorioItemBrowser\Api\Search\Parser;
 use FactorioItemBrowser\Api\Search\Constant\TermType;
 use FactorioItemBrowser\Api\Search\Entity\Query;
 use FactorioItemBrowser\Api\Search\Entity\Term;
+use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\UuidInterface;
 
 /**
  * The class parsing the query string into an actual query instance.
@@ -18,29 +20,33 @@ class QueryParser
 {
     /**
      * Parses the query string into an actual query.
-     * @param string $queryString
-     * @param array|int[] $modCombinationIds
+     * @param UuidInterface $combinationId
      * @param string $locale
+     * @param string $queryString
      * @return Query
      */
-    public function parse(string $queryString, array $modCombinationIds, string $locale): Query
+    public function parse(UuidInterface $combinationId, string $locale, string $queryString): Query
     {
-        $result = $this->createQuery($queryString, $modCombinationIds, $locale);
-        $this->parseQueryString($queryString, $result);
-        $result->setHash($this->calculateHash($result));
-        return $result;
+        $query = $this->createQuery($combinationId, $locale, $queryString);
+        $this->parseQueryString($queryString, $query);
+        $query->setHash($this->calculateHash($query));
+        return $query;
     }
 
     /**
      * Creates a new query instance.
-     * @param string $queryString
-     * @param array|int[] $modCombinationIds
+     * @param UuidInterface $combinationId
      * @param string $locale
+     * @param string $queryString
      * @return Query
      */
-    protected function createQuery(string $queryString, array $modCombinationIds, string $locale): Query
+    protected function createQuery(UuidInterface $combinationId, string $locale, string $queryString): Query
     {
-        return new Query($queryString, $modCombinationIds, $locale);
+        $query = new Query();
+        $query->setCombinationId($combinationId)
+              ->setLocale($locale)
+              ->setQueryString($queryString);
+        return $query;
     }
 
     /**
@@ -72,21 +78,18 @@ class QueryParser
     /**
      * Calculates the hash of the specified query.
      * @param Query $query
-     * @return string
+     * @return UuidInterface
      */
-    protected function calculateHash(Query $query): string
+    protected function calculateHash(Query $query): UuidInterface
     {
-        return substr(hash('md5', (string) json_encode([
-            $this->extractQueryData($query),
-            $query->getModCombinationIds(),
-            $query->getLocale(),
-        ])), 0, 16);
+        $hash = hash('md5', (string) json_encode($this->extractQueryData($query)));
+        return Uuid::fromString($hash);
     }
 
     /**
      * Extracts the data from the query.
      * @param Query $query
-     * @return array
+     * @return array|string[]
      */
     protected function extractQueryData(Query $query): array
     {
