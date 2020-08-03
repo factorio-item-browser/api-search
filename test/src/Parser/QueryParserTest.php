@@ -11,7 +11,6 @@ use FactorioItemBrowser\Api\Search\Entity\Term;
 use FactorioItemBrowser\Api\Search\Parser\QueryParser;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 use ReflectionException;
 
@@ -169,7 +168,7 @@ class QueryParserTest extends TestCase
     public function testCalculateHash(): void
     {
         $queryData = ['abc', 'def'];
-        $expectedResult = Uuid::fromString('9e86daa1-e1bd-94ed-176d-afd437e13d58');
+        $expectedHash = '9e86daa1-e1bd-94ed-176d-afd437e13d58';
 
         /* @var Query&MockObject $query */
         $query = $this->createMock(Query::class);
@@ -183,9 +182,10 @@ class QueryParserTest extends TestCase
                ->with($this->identicalTo($query))
                ->willReturn($queryData);
 
+        /* @var UuidInterface $result */
         $result = $this->invokeMethod($parser, 'calculateHash', $query);
 
-        $this->assertEquals($expectedResult, $result);
+        $this->assertEquals($expectedHash, $result->toString());
     }
 
     /**
