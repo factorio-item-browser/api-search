@@ -181,12 +181,12 @@ class SerializerServiceTest extends TestCase
         $serializedResult1 = 'abc';
         $serializedResult2 = 'def';
         $serializedResult3 = 'ghi';
-        
+
         /* @var ResultInterface&MockObject $searchResult1 */
         $searchResult1 = $this->createMock(ResultInterface::class);
         /* @var ResultInterface&MockObject $searchResult2 */
         $searchResult2 = $this->createMock(ResultInterface::class);
-        
+
         /* @var PaginatedResultCollection&MockObject $resultCollection */
         $resultCollection = $this->createMock(PaginatedResultCollection::class);
         $resultCollection->expects($this->exactly(2))

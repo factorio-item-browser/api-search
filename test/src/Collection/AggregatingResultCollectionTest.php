@@ -112,7 +112,7 @@ class AggregatingResultCollectionTest extends TestCase
 
         $this->assertSame($items, $result);
     }
-    
+
     /**
      * Tests the addRecipe method.
      * @throws ReflectionException
@@ -186,7 +186,7 @@ class AggregatingResultCollectionTest extends TestCase
 
         $this->assertSame($recipes, $result);
     }
-    
+
     /**
      * Tests the getMergedResults method.
      * @throws ReflectionException
@@ -227,7 +227,7 @@ class AggregatingResultCollectionTest extends TestCase
 
         $this->assertEquals([$recipe, $item], $result);
     }
-    
+
 
     /**
      * Provides the data for the compareResults test.

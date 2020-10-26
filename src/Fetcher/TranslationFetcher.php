@@ -90,7 +90,7 @@ class TranslationFetcher implements FetcherInterface
         $this->mapperManager->map($translation, $result);
         return $result;
     }
-    
+
     /**
      * Maps the translation to a recipe result.
      * @param TranslationPriorityData $translation

@@ -30,13 +30,13 @@ use ReflectionException;
 class RecipeFetcherTest extends TestCase
 {
     use ReflectionTrait;
-    
+
     /**
      * The mocked mapper manager.
      * @var MapperManagerInterface&MockObject
      */
     protected $mapperManager;
-    
+
     /**
      * The mocked recipe repository.
      * @var RecipeRepository&MockObject
@@ -62,7 +62,7 @@ class RecipeFetcherTest extends TestCase
     public function testConstruct(): void
     {
         $fetcher = new RecipeFetcher($this->mapperManager, $this->recipeRepository);
-        
+
         $this->assertSame($this->mapperManager, $this->extractProperty($fetcher, 'mapperManager'));
         $this->assertSame($this->recipeRepository, $this->extractProperty($fetcher, 'recipeRepository'));
     }
@@ -156,7 +156,7 @@ class RecipeFetcherTest extends TestCase
 
         $this->assertSame($recipes, $result);
     }
-    
+
     /**
      * Tests the mapRecipeData method.
      * @throws ReflectionException

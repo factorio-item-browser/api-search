@@ -87,7 +87,7 @@ class ItemResultSerializer implements SerializerInterface
     public function unserialize(string $serializedResult): ResultInterface
     {
         $ids = explode(',', $serializedResult);
-        $itemId = (string) array_shift($ids);
+        $itemId = array_shift($ids);
 
         $result = new ItemResult();
         try {

@@ -171,7 +171,7 @@ class TranslationFetcherTest extends TestCase
 
         $this->assertSame($translations, $result);
     }
-    
+
     /**
      * Tests the mapTranslationToItem method.
      * @throws ReflectionException
@@ -181,7 +181,7 @@ class TranslationFetcherTest extends TestCase
     {
         /* @var TranslationPriorityData&MockObject $translation */
         $translation = $this->createMock(TranslationPriorityData::class);
-        
+
         $this->mapperManager->expects($this->once())
                             ->method('map')
                             ->with($this->identicalTo($translation), $this->isInstanceOf(ItemResult::class));
@@ -189,7 +189,7 @@ class TranslationFetcherTest extends TestCase
         $fetcher = new TranslationFetcher($this->mapperManager, $this->translationRepository);
         $this->invokeMethod($fetcher, 'mapTranslationToItem', $translation);
     }
-    
+
     /**
      * Tests the mapTranslationToRecipe method.
      * @throws ReflectionException
@@ -199,7 +199,7 @@ class TranslationFetcherTest extends TestCase
     {
         /* @var TranslationPriorityData&MockObject $translation */
         $translation = $this->createMock(TranslationPriorityData::class);
-        
+
         $this->mapperManager->expects($this->once())
                             ->method('map')
                             ->with($this->identicalTo($translation), $this->isInstanceOf(RecipeResult::class));

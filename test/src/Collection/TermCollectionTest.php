@@ -81,7 +81,7 @@ class TermCollectionTest extends TestCase
         $this->assertSame($collection, $result);
         $this->assertSame($expectedTermsByType, $this->extractProperty($collection, 'termsByType'));
     }
-    
+
     /**
      * Provides the data for the getAll test.
      * @return array<mixed>
@@ -259,7 +259,7 @@ class TermCollectionTest extends TestCase
 
         $this->assertSame($values, $result);
     }
-    
+
     /**
      * Tests the getValuesByType method.
      * @covers ::getValuesByType

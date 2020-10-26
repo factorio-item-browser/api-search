@@ -27,7 +27,7 @@ class RecipeFetcher implements FetcherInterface
      * @var MapperManagerInterface
      */
     protected $mapperManager;
-    
+
     /**
      * The recipe repository.
      * @var RecipeRepository

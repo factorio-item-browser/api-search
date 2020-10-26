@@ -32,7 +32,7 @@ class QueryTest extends TestCase
     public function testConstruct(): void
     {
         $query = new Query();
-        
+
         $this->assertInstanceOf(TermCollection::class, $this->extractProperty($query, 'terms'));
     }
 
@@ -230,7 +230,7 @@ class QueryTest extends TestCase
 
         $this->assertSame($values, $result);
     }
-    
+
     /**
      * Tests the getTermValuesByTypes method.
      * @throws ReflectionException
@@ -254,7 +254,7 @@ class QueryTest extends TestCase
 
         $this->assertSame($values, $result);
     }
-    
+
     /**
      * Tests the setting and getting the hash.
      * @covers ::getHash
