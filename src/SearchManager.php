@@ -7,7 +7,7 @@ namespace FactorioItemBrowser\Api\Search;
 use FactorioItemBrowser\Api\Search\Collection\AggregatingResultCollection;
 use FactorioItemBrowser\Api\Search\Collection\PaginatedResultCollection;
 use FactorioItemBrowser\Api\Search\Entity\Query;
-use FactorioItemBrowser\Api\Search\Service\FetcherService;
+use FactorioItemBrowser\Api\Search\Fetcher\FetcherInterface;
 use FactorioItemBrowser\Api\Search\Parser\QueryParser;
 use FactorioItemBrowser\Api\Search\Service\CachedSearchResultService;
 use Ramsey\Uuid\UuidInterface;
@@ -20,46 +20,27 @@ use Ramsey\Uuid\UuidInterface;
  */
 class SearchManager implements SearchManagerInterface
 {
-    /**
-     * The cached search result service.
-     * @var CachedSearchResultService
-     */
-    protected $cachedSearchResultService;
+    private CachedSearchResultService $cachedSearchResultService;
+    private QueryParser $queryParser;
+    /** @var array<FetcherInterface> */
+    private array $fetchers;
+    private int $maxSearchResults;
 
     /**
-     * The fetcher service.
-     * @var FetcherService
-     */
-    protected $fetcherService;
-
-    /**
-     * The query parser.
-     * @var QueryParser
-     */
-    protected $queryParser;
-
-    /**
-     * The maximal number of search results to return.
-     * @var int
-     */
-    protected $maxSearchResults;
-
-    /**
-     * Initializes the manager.
      * @param CachedSearchResultService $cachedSearchResultService
-     * @param FetcherService $fetcherService
      * @param QueryParser $queryParser
+     * @param array<FetcherInterface> $apiSearchFetchers
      * @param int $apiSearchMaxSearchResults
      */
     public function __construct(
         CachedSearchResultService $cachedSearchResultService,
-        FetcherService $fetcherService,
         QueryParser $queryParser,
+        array $apiSearchFetchers,
         int $apiSearchMaxSearchResults
     ) {
         $this->cachedSearchResultService = $cachedSearchResultService;
-        $this->fetcherService = $fetcherService;
         $this->queryParser = $queryParser;
+        $this->fetchers = $apiSearchFetchers;
         $this->maxSearchResults = $apiSearchMaxSearchResults;
     }
 
@@ -82,37 +63,30 @@ class SearchManager implements SearchManagerInterface
      */
     public function search(Query $query): PaginatedResultCollection
     {
-        $result = $this->cachedSearchResultService->getResults($query);
-        if ($result ===  null) {
-            $result = $this->executeQuery($query);
-            $this->cachedSearchResultService->persistResults($query, $result);
+        $paginatedResults = $this->cachedSearchResultService->getResults($query);
+        if ($paginatedResults ===  null) {
+            $paginatedResults = $this->executeQuery($query);
+            $this->cachedSearchResultService->persistResults($query, $paginatedResults);
         }
-        return $result;
+        return $paginatedResults;
     }
 
     /**
-     * Actually executes the query to search for results.
+     * Executes the query to search for results.
      * @param Query $query
      * @return PaginatedResultCollection
      */
-    protected function executeQuery(Query $query): PaginatedResultCollection
+    private function executeQuery(Query $query): PaginatedResultCollection
     {
         $searchResults = new AggregatingResultCollection();
-        $this->fetcherService->fetch($query, $searchResults);
-        return $this->createPaginatedCollection($searchResults);
-    }
-
-    /**
-     * Converts the search results to a paginated collection.
-     * @param AggregatingResultCollection $searchResults
-     * @return PaginatedResultCollection
-     */
-    protected function createPaginatedCollection(AggregatingResultCollection $searchResults): PaginatedResultCollection
-    {
-        $result = new PaginatedResultCollection();
-        foreach (array_slice($searchResults->getMergedResults(), 0, $this->maxSearchResults) as $searchResult) {
-            $result->add($searchResult);
+        foreach ($this->fetchers as $fetcher) {
+            $fetcher->fetch($query, $searchResults);
         }
-        return $result;
+
+        $paginatedResults = new PaginatedResultCollection();
+        foreach (array_slice($searchResults->getMergedResults(), 0, $this->maxSearchResults) as $searchResult) {
+            $paginatedResults->add($searchResult);
+        }
+        return $paginatedResults;
     }
 }
