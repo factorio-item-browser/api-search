@@ -14,25 +14,23 @@ namespace FactorioItemBrowser\Api\Search;
 use FactorioItemBrowser\Api\Search\Constant\ConfigKey;
 
 return [
-    ConfigKey::PROJECT => [
-        ConfigKey::API_SEARCH => [
-            ConfigKey::MAX_SEARCH_RESULTS => 1000,
-            ConfigKey::MAX_CACHE_AGE => '-1 hour',
-            ConfigKey::FETCHERS => [
-                Fetcher\ItemFetcher::class,
-                Fetcher\RecipeFetcher::class,
-                Fetcher\TranslationFetcher::class,
+    ConfigKey::MAIN => [
+        ConfigKey::MAX_SEARCH_RESULTS => 1000,
+        ConfigKey::MAX_CACHE_AGE => '-1 hour',
+        ConfigKey::FETCHERS => [
+            Fetcher\ItemFetcher::class,
+            Fetcher\RecipeFetcher::class,
+            Fetcher\TranslationFetcher::class,
 
-                Fetcher\MissingItemIdFetcher::class,
-                Fetcher\MissingRecipeIdFetcher::class,
+            Fetcher\MissingItemIdFetcher::class,
+            Fetcher\MissingRecipeIdFetcher::class,
 
-                Fetcher\ProductRecipeFetcher::class,
-                Fetcher\DuplicateRecipeFetcher::class,
-            ],
-            ConfigKey::SERIALIZERS => [
-                Serializer\ItemResultSerializer::class,
-                Serializer\RecipeResultSerializer::class,
-            ],
+            Fetcher\ProductRecipeFetcher::class,
+            Fetcher\DuplicateRecipeFetcher::class,
+        ],
+        ConfigKey::SERIALIZERS => [
+            Serializer\ItemResultSerializer::class,
+            Serializer\RecipeResultSerializer::class,
         ],
     ],
 ];

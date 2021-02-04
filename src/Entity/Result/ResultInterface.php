@@ -29,4 +29,10 @@ interface ResultInterface
      * @return int
      */
     public function getPriority(): int;
+
+    /**
+     * Merges another result into the current instance.
+     * @param ResultInterface $result
+     */
+    public function merge(ResultInterface $result): void;
 }

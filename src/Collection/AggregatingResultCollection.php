@@ -16,43 +16,23 @@ use FactorioItemBrowser\Api\Search\Entity\Result\ResultInterface;
  */
 class AggregatingResultCollection
 {
-    /**
-     * The aggregated items.
-     * @var ItemCollection
-     */
-    protected $items;
+    /** @var ResultCollection<ItemResult> */
+    private ResultCollection $items;
+    /** @var ResultCollection<RecipeResult>  */
+    private ResultCollection $recipes;
 
-    /**
-     * The aggregated recipes.
-     * @var RecipeCollection
-     */
-    protected $recipes;
-
-    /**
-     * Initializes the collection.
-     */
     public function __construct()
     {
-        $this->items = new ItemCollection();
-        $this->recipes = new RecipeCollection();
+        $this->items = new ResultCollection();
+        $this->recipes = new ResultCollection();
     }
 
-    /**
-     * Adds an item to the collection.
-     * @param ItemResult $item
-     * @return $this
-     */
     public function addItem(ItemResult $item): self
     {
         $this->items->add($item);
         return $this;
     }
 
-    /**
-     * Removes the specified item from the collection.
-     * @param ItemResult $item
-     * @return $this
-     */
     public function removeItem(ItemResult $item): self
     {
         $this->items->remove($item);
@@ -60,30 +40,19 @@ class AggregatingResultCollection
     }
 
     /**
-     * Returns the items from the collection.
-     * @return array|ItemResult[]
+     * @return array<ItemResult>
      */
     public function getItems(): array
     {
         return $this->items->getAll();
     }
 
-    /**
-     * Adds an recipe to the collection.
-     * @param RecipeResult $recipe
-     * @return $this
-     */
     public function addRecipe(RecipeResult $recipe): self
     {
         $this->recipes->add($recipe);
         return $this;
     }
 
-    /**
-     * Removes the specified recipe from the collection.
-     * @param RecipeResult $recipe
-     * @return $this
-     */
     public function removeRecipe(RecipeResult $recipe): self
     {
         $this->recipes->remove($recipe);
@@ -91,8 +60,7 @@ class AggregatingResultCollection
     }
 
     /**
-     * Returns the recipes from the collection.
-     * @return array|RecipeResult[]
+     * @return array<RecipeResult>
      */
     public function getRecipes(): array
     {
@@ -100,8 +68,7 @@ class AggregatingResultCollection
     }
 
     /**
-     * Returns the merged and sorted results of the collection.
-     * @return array|ResultInterface[]
+     * @return array<ResultInterface>
      */
     public function getMergedResults(): array
     {
@@ -111,17 +78,10 @@ class AggregatingResultCollection
         );
 
         usort($allResults, [$this, 'compareResults']);
-
         return $allResults;
     }
 
-    /**
-     * Compares the two specified results.
-     * @param ResultInterface $left
-     * @param ResultInterface $right
-     * @return int
-     */
-    protected function compareResults(ResultInterface $left, ResultInterface $right): int
+    private function compareResults(ResultInterface $left, ResultInterface $right): int
     {
         $leftCriteria = $this->getSortCriteria($left);
         $rightCriteria = $this->getSortCriteria($right);
@@ -134,11 +94,10 @@ class AggregatingResultCollection
     }
 
     /**
-     * Returns the sort criteria for the specified result.
      * @param ResultInterface $result
      * @return array<mixed>
      */
-    protected function getSortCriteria(ResultInterface $result): array
+    private function getSortCriteria(ResultInterface $result): array
     {
         return [
             $result->getPriority(),

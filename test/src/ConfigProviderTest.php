@@ -14,23 +14,18 @@ use PHPUnit\Framework\TestCase;
  *
  * @author BluePsyduck <bluepsyduck@gmx.com>
  * @license http://opensource.org/licenses/GPL-3.0 GPL v3
- * @coversDefaultClass \FactorioItemBrowser\Api\Search\ConfigProvider
+ * @covers \FactorioItemBrowser\Api\Search\ConfigProvider
  */
 class ConfigProviderTest extends TestCase
 {
-    /**
-     * Tests the invoking.
-     * @covers ::__invoke
-     */
     public function testInvoke(): void
     {
         $configProvider = new ConfigProvider();
         $result = $configProvider();
 
-        $this->assertArrayHasKey(ConfigKey::PROJECT, $result);
-        $this->assertArrayHasKey(ConfigKey::API_SEARCH, $result[ConfigKey::PROJECT]);
-        $this->assertArrayHasKey(ConfigKey::FETCHERS, $result[ConfigKey::PROJECT][ConfigKey::API_SEARCH]);
-        $this->assertArrayHasKey(ConfigKey::SERIALIZERS, $result[ConfigKey::PROJECT][ConfigKey::API_SEARCH]);
+        $this->assertArrayHasKey(ConfigKey::MAIN, $result);
+        $this->assertArrayHasKey(ConfigKey::FETCHERS, $result[ConfigKey::MAIN]);
+        $this->assertArrayHasKey(ConfigKey::SERIALIZERS, $result[ConfigKey::MAIN]);
 
         $this->assertArrayHasKey('dependencies', $result);
         $this->assertArrayHasKey('factories', $result['dependencies']);
