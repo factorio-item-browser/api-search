@@ -13,33 +13,26 @@ use FactorioItemBrowser\Api\Search\Entity\Result\ItemResult;
  *
  * @author BluePsyduck <bluepsyduck@gmx.com>
  * @license http://opensource.org/licenses/GPL-3.0 GPL v3
+ *
+ * @implements StaticMapperInterface<Item, ItemResult>
  */
 class ItemToItemResultMapper implements StaticMapperInterface
 {
-    /**
-     * Returns the source class supported by this mapper.
-     * @return string
-     */
     public function getSupportedSourceClass(): string
     {
         return Item::class;
     }
 
-    /**
-     * Returns the destination class supported by this mapper.
-     * @return string
-     */
     public function getSupportedDestinationClass(): string
     {
         return ItemResult::class;
     }
 
     /**
-     * Maps the source object to the destination one.
      * @param Item $source
      * @param ItemResult $destination
      */
-    public function map($source, $destination): void
+    public function map(object $source, object $destination): void
     {
         $destination->setId($source->getId())
                     ->setType($source->getType())

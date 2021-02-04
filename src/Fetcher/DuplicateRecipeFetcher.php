@@ -8,6 +8,7 @@ use FactorioItemBrowser\Api\Search\Collection\AggregatingResultCollection;
 use FactorioItemBrowser\Api\Search\Entity\Query;
 use FactorioItemBrowser\Api\Search\Entity\Result\ItemResult;
 use FactorioItemBrowser\Api\Search\Entity\Result\RecipeResult;
+use Ramsey\Uuid\UuidInterface;
 
 /**
  * The class actually filtering any recipes which are duplicated in the results.
@@ -17,67 +18,50 @@ use FactorioItemBrowser\Api\Search\Entity\Result\RecipeResult;
  */
 class DuplicateRecipeFetcher implements FetcherInterface
 {
-    /**
-     * Fetches the data matching the specified query.
-     * @param Query $query
-     * @param AggregatingResultCollection $searchResults
-     */
     public function fetch(Query $query, AggregatingResultCollection $searchResults): void
     {
         $itemsByRecipeIds = $this->getItemsByRecipeIds($searchResults);
         foreach ($searchResults->getRecipes() as $recipe) {
-            if ($recipe->getNormalRecipeId() !== null) {
-                $this->filterRecipe(
-                    $recipe,
-                    $itemsByRecipeIds[$recipe->getNormalRecipeId()->toString()] ?? [],
-                    $searchResults
-                );
-            }
-            if ($recipe->getExpensiveRecipeId() !== null) {
-                $this->filterRecipe(
-                    $recipe,
-                    $itemsByRecipeIds[$recipe->getExpensiveRecipeId()->toString()] ?? [],
-                    $searchResults
-                );
+            foreach ([$recipe->getNormalRecipeId(), $recipe->getExpensiveRecipeId()] as $recipeId) {
+                if ($recipeId instanceof UuidInterface) {
+                    $this->filterRecipe($searchResults, $recipe, $itemsByRecipeIds[$recipeId->toString()] ?? []);
+                }
             }
         }
     }
 
     /**
-     * Returns the items by their recipe ids.
      * @param AggregatingResultCollection $searchResults
-     * @return array|ItemResult[][]
+     * @return array<string, array<ItemResult>>
      */
-    protected function getItemsByRecipeIds(AggregatingResultCollection $searchResults): array
+    private function getItemsByRecipeIds(AggregatingResultCollection $searchResults): array
     {
-        $result = [];
+        $items = [];
         foreach ($searchResults->getItems() as $item) {
             foreach ($item->getRecipes() as $recipe) {
-                if ($recipe->getNormalRecipeId() !== null) {
-                    $result[$recipe->getNormalRecipeId()->toString()][] = $item;
-                }
-                if ($recipe->getExpensiveRecipeId() !== null) {
-                    $result[$recipe->getExpensiveRecipeId()->toString()][] = $item;
+                foreach ([$recipe->getNormalRecipeId(), $recipe->getExpensiveRecipeId()] as $recipeId) {
+                    if ($recipeId instanceof UuidInterface) {
+                        $items[$recipeId->toString()][] = $item;
+                    }
                 }
             }
         }
-        return $result;
+        return $items;
     }
 
     /**
-     * Filters the recipe if there is a valid item.
-     * @param RecipeResult $recipe
-     * @param array|ItemResult[] $items
      * @param AggregatingResultCollection $searchResults
+     * @param RecipeResult $recipe
+     * @param array<ItemResult> $itemsWithRecipe
      */
-    protected function filterRecipe(
+    private function filterRecipe(
+        AggregatingResultCollection $searchResults,
         RecipeResult $recipe,
-        array $items,
-        AggregatingResultCollection $searchResults
+        array $itemsWithRecipe
     ): void {
-        if (count($items) > 0) {
+        if (count($itemsWithRecipe) > 0) {
             $searchResults->removeRecipe($recipe);
-            foreach ($items as $item) {
+            foreach ($itemsWithRecipe as $item) {
                 $item->setPriority(min($item->getPriority(), $recipe->getPriority()));
             }
         }

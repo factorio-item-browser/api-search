@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace FactorioItemBrowserTest\Api\Search\Fetcher;
 
-use BluePsyduck\TestHelper\ReflectionTrait;
-use BluePsyduck\MapperManager\Exception\MapperException;
 use BluePsyduck\MapperManager\MapperManagerInterface;
 use FactorioItemBrowser\Api\Database\Constant\SearchResultPriority;
 use FactorioItemBrowser\Api\Database\Entity\Item;
@@ -14,167 +12,93 @@ use FactorioItemBrowser\Api\Search\Collection\AggregatingResultCollection;
 use FactorioItemBrowser\Api\Search\Constant\TermType;
 use FactorioItemBrowser\Api\Search\Entity\Query;
 use FactorioItemBrowser\Api\Search\Entity\Result\ItemResult;
+use FactorioItemBrowser\Api\Search\Entity\Term;
 use FactorioItemBrowser\Api\Search\Fetcher\ItemFetcher;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\UuidInterface;
-use ReflectionException;
 
 /**
  * The PHPUnit test of the ItemFetcher class.
  *
  * @author BluePsyduck <bluepsyduck@gmx.com>
  * @license http://opensource.org/licenses/GPL-3.0 GPL v3
- * @coversDefaultClass \FactorioItemBrowser\Api\Search\Fetcher\ItemFetcher
+ * @covers \FactorioItemBrowser\Api\Search\Fetcher\ItemFetcher
  */
 class ItemFetcherTest extends TestCase
 {
-    use ReflectionTrait;
+    /** @var ItemRepository&MockObject */
+    private ItemRepository $itemRepository;
+    /** @var MapperManagerInterface&MockObject */
+    private MapperManagerInterface $mapperManager;
 
-    /**
-     * The mocked item repository.
-     * @var ItemRepository&MockObject
-     */
-    protected $itemRepository;
-
-    /**
-     * The mocked mapper manager.
-     * @var MapperManagerInterface&MockObject
-     */
-    protected $mapperManager;
-
-    /**
-     * Sets up the test case.
-     */
     protected function setUp(): void
     {
-        parent::setUp();
-
         $this->itemRepository = $this->createMock(ItemRepository::class);
         $this->mapperManager = $this->createMock(MapperManagerInterface::class);
     }
 
     /**
-     * Tests the constructing.
-     * @throws ReflectionException
-     * @covers ::__construct
+     * @param array<string> $mockedMethods
+     * @return ItemFetcher&MockObject
      */
-    public function testConstruct(): void
+    private function createInstance(array $mockedMethods = []): ItemFetcher
     {
-        $fetcher = new ItemFetcher($this->itemRepository, $this->mapperManager);
-
-        $this->assertSame($this->itemRepository, $this->extractProperty($fetcher, 'itemRepository'));
-        $this->assertSame($this->mapperManager, $this->extractProperty($fetcher, 'mapperManager'));
+        return $this->getMockBuilder(ItemFetcher::class)
+                    ->disableProxyingToOriginalMethods()
+                    ->onlyMethods($mockedMethods)
+                    ->setConstructorArgs([
+                        $this->itemRepository,
+                        $this->mapperManager,
+                    ])
+                    ->getMock();
     }
 
-    /**
-     * Tests the fetch method.
-     * @throws MapperException
-     * @covers ::fetch
-     */
     public function testFetch(): void
     {
-        /* @var Query&MockObject $query */
-        $query = $this->createMock(Query::class);
-        /* @var Item&MockObject $item1 */
+        $combinationId = $this->createMock(UuidInterface::class);
         $item1 = $this->createMock(Item::class);
-        /* @var Item&MockObject $item2 */
         $item2 = $this->createMock(Item::class);
-        /* @var ItemResult&MockObject $itemResult1 */
+
+        $query = new Query();
+        $query->setCombinationId($combinationId);
+        $query->getTerms()->add(new Term(TermType::GENERIC, 'abc'));
+
         $itemResult1 = $this->createMock(ItemResult::class);
-        /* @var ItemResult&MockObject $itemResult2 */
+        $itemResult1->expects($this->once())
+                    ->method('setPriority')
+                    ->with($this->identicalTo(SearchResultPriority::EXACT_MATCH));
+
         $itemResult2 = $this->createMock(ItemResult::class);
+        $itemResult2->expects($this->once())
+                    ->method('setPriority')
+                    ->with($this->identicalTo(SearchResultPriority::EXACT_MATCH));
 
-        $items = [$item1, $item2];
-
-        /* @var AggregatingResultCollection&MockObject $searchResults */
         $searchResults = $this->createMock(AggregatingResultCollection::class);
         $searchResults->expects($this->exactly(2))
                       ->method('addItem')
                       ->withConsecutive(
                           [$this->identicalTo($itemResult1)],
-                          [$this->identicalTo($itemResult2)]
+                          [$this->identicalTo($itemResult2)],
                       );
-
-        /* @var ItemFetcher&MockObject $fetcher */
-        $fetcher = $this->getMockBuilder(ItemFetcher::class)
-                        ->onlyMethods(['fetchItems', 'mapItem'])
-                        ->setConstructorArgs([$this->itemRepository, $this->mapperManager])
-                        ->getMock();
-        $fetcher->expects($this->once())
-                ->method('fetchItems')
-                ->with($this->identicalTo($query))
-                ->willReturn($items);
-
-        $fetcher->expects($this->exactly(2))
-                ->method('mapItem')
-                ->withConsecutive(
-                    [$this->identicalTo($item1)],
-                    [$this->identicalTo($item2)]
-                )
-                ->willReturnOnConsecutiveCalls(
-                    $itemResult1,
-                    $itemResult2
-                );
-
-        $fetcher->fetch($query, $searchResults);
-    }
-
-    /**
-     * Tests the fetchItems method.
-     * @throws ReflectionException
-     * @covers ::fetchItems
-     */
-    public function testFetchItems(): void
-    {
-        $keywords = ['abc', 'def'];
-
-        /* @var UuidInterface&MockObject $combinationId */
-        $combinationId = $this->createMock(UuidInterface::class);
-
-        $items = [
-            $this->createMock(Item::class),
-            $this->createMock(Item::class),
-        ];
-
-        /* @var Query&MockObject $query */
-        $query = $this->createMock(Query::class);
-        $query->expects($this->once())
-              ->method($this->identicalTo('getCombinationId'))
-              ->willReturn($combinationId);
-        $query->expects($this->once())
-              ->method('getTermValuesByType')
-              ->with($this->identicalTo(TermType::GENERIC))
-              ->willReturn($keywords);
 
         $this->itemRepository->expects($this->once())
                              ->method('findByKeywords')
-                             ->with($this->identicalTo($combinationId), $this->identicalTo($keywords))
-                             ->willReturn($items);
+                             ->with($this->identicalTo($combinationId), $this->equalTo(['abc']))
+                             ->willReturn([$item1, $item2]);
 
-        $fetcher = new ItemFetcher($this->itemRepository, $this->mapperManager);
-        $result = $this->invokeMethod($fetcher, 'fetchItems', $query);
-
-        $this->assertSame($items, $result);
-    }
-
-    /**
-     * Tests the mapItem method.
-     * @throws ReflectionException
-     * @covers ::mapItem
-     */
-    public function testMapItem(): void
-    {
-        /* @var Item&MockObject $item */
-        $item = $this->createMock(Item::class);
-
-        $this->mapperManager->expects($this->once())
+        $this->mapperManager->expects($this->exactly(2))
                             ->method('map')
-                            ->with($this->identicalTo($item), $this->isInstanceOf(ItemResult::class));
+                            ->withConsecutive(
+                                [$this->identicalTo($item1), $this->isInstanceOf(ItemResult::class)],
+                                [$this->identicalTo($item2), $this->isInstanceOf(ItemResult::class)],
+                            )
+                            ->willReturnOnConsecutiveCalls(
+                                $itemResult1,
+                                $itemResult2
+                            );
 
-        $fetcher = new ItemFetcher($this->itemRepository, $this->mapperManager);
-        $result = $this->invokeMethod($fetcher, 'mapItem', $item);
-
-        $this->assertSame(SearchResultPriority::EXACT_MATCH, $result->getPriority());
+        $instance = $this->createInstance();
+        $instance->fetch($query, $searchResults);
     }
 }

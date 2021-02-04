@@ -7,7 +7,6 @@ namespace FactorioItemBrowserTest\Api\Search\Mapper;
 use FactorioItemBrowser\Api\Database\Entity\Item;
 use FactorioItemBrowser\Api\Search\Entity\Result\ItemResult;
 use FactorioItemBrowser\Api\Search\Mapper\ItemToItemResultMapper;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\UuidInterface;
 
@@ -16,67 +15,37 @@ use Ramsey\Uuid\UuidInterface;
  *
  * @author BluePsyduck <bluepsyduck@gmx.com>
  * @license http://opensource.org/licenses/GPL-3.0 GPL v3
- * @coversDefaultClass \FactorioItemBrowser\Api\Search\Mapper\ItemToItemResultMapper
+ * @covers \FactorioItemBrowser\Api\Search\Mapper\ItemToItemResultMapper
  */
 class ItemToItemResultMapperTest extends TestCase
 {
-    /**
-     * Tests the getSupportedSourceClass method.
-     * @covers ::getSupportedSourceClass
-     */
-    public function testGetSupportedSourceClass(): void
+    public function testMeta(): void
     {
-        $mapper = new ItemToItemResultMapper();
-        $this->assertSame(Item::class, $mapper->getSupportedSourceClass());
+        $instance = new ItemToItemResultMapper();
+
+        $this->assertSame(Item::class, $instance->getSupportedSourceClass());
+        $this->assertSame(ItemResult::class, $instance->getSupportedDestinationClass());
     }
 
-    /**
-     * Tests the getSupportedDestinationClass method.
-     * @covers ::getSupportedDestinationClass
-     */
-    public function testGetSupportedDestinationClass(): void
-    {
-        $mapper = new ItemToItemResultMapper();
-        $this->assertSame(ItemResult::class, $mapper->getSupportedDestinationClass());
-    }
-
-    /**
-     * Tests the map method.
-     * @covers ::map
-     */
     public function testMap(): void
     {
-        /* @var UuidInterface&MockObject $id */
         $id = $this->createMock(UuidInterface::class);
 
-        /* @var Item&MockObject $source */
-        $source = $this->createMock(Item::class);
-        $source->expects($this->once())
-               ->method('getId')
-               ->willReturn($id);
-        $source->expects($this->once())
-               ->method('getType')
-               ->willReturn('abc');
-        $source->expects($this->once())
-               ->method('getName')
-               ->willReturn('def');
+        $source = new Item();
+        $source->setId($id)
+               ->setType('abc')
+               ->setName('def');
 
-        /* @var ItemResult&MockObject $destination */
-        $destination = $this->createMock(ItemResult::class);
-        $destination->expects($this->once())
-                    ->method('setId')
-                    ->with($this->identicalTo($id))
-                    ->willReturnSelf();
-        $destination->expects($this->once())
-                    ->method('setType')
-                    ->with($this->identicalTo('abc'))
-                    ->willReturnSelf();
-        $destination->expects($this->once())
-                    ->method('setName')
-                    ->with($this->identicalTo('def'))
-                    ->willReturnSelf();
+        $expectedDestination = new ItemResult();
+        $expectedDestination->setId($id)
+                            ->setType('abc')
+                            ->setName('def');
 
-        $mapper = new ItemToItemResultMapper();
-        $mapper->map($source, $destination);
+        $destination = new ItemResult();
+
+        $instance = new ItemToItemResultMapper();
+        $instance->map($source, $destination);
+
+        $this->assertEquals($expectedDestination, $destination);
     }
 }
