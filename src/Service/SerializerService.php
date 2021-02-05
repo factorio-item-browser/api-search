@@ -6,7 +6,11 @@ namespace FactorioItemBrowser\Api\Search\Service;
 
 use FactorioItemBrowser\Api\Search\Collection\PaginatedResultCollection;
 use FactorioItemBrowser\Api\Search\Entity\Result\ResultInterface;
+use FactorioItemBrowser\Api\Search\Exception\ReaderException;
+use FactorioItemBrowser\Api\Search\Exception\WriterException;
+use FactorioItemBrowser\Api\Search\Serializer\DataReader;
 use FactorioItemBrowser\Api\Search\Serializer\SerializerInterface;
+use FactorioItemBrowser\Api\Search\Serializer\DataWriter;
 
 /**
  * The service handling the serializers.
@@ -16,21 +20,13 @@ use FactorioItemBrowser\Api\Search\Serializer\SerializerInterface;
  */
 class SerializerService
 {
-    /**
-     * The serializers by their handled result class.
-     * @var array|SerializerInterface[]
-     */
-    protected $serializersByClassName = [];
+    /** @var array<string, SerializerInterface<ResultInterface>> */
+    private array $serializersByClassName = [];
+    /** @var array<int, SerializerInterface<ResultInterface>> */
+    private array $serializersByType = [];
 
     /**
-     * The serializers by their serialized type.
-     * @var array|SerializerInterface[]
-     */
-    protected $serializersByType = [];
-
-    /**
-     * Initializes the service.
-     * @param array|SerializerInterface[] $apiSearchSerializers
+     * @param array<SerializerInterface<ResultInterface>> $apiSearchSerializers
      */
     public function __construct(array $apiSearchSerializers)
     {
@@ -41,74 +37,43 @@ class SerializerService
     }
 
     /**
-     * Serializes the collection of search results.
      * @param PaginatedResultCollection $searchResults
      * @return string
+     * @throws WriterException
      */
     public function serialize(PaginatedResultCollection $searchResults): string
     {
-        $results = [];
+        $writer = new DataWriter();
         foreach ($searchResults->getResults(0, $searchResults->count()) as $searchResult) {
-            $results[] = $this->serializeResult($searchResult);
+            $className = get_class($searchResult);
+            $serializer = $this->serializersByClassName[$className] ?? null;
+            if ($serializer === null) {
+                throw new WriterException(sprintf('Unable to serialize class %s.', $className));
+            }
+            $writer->writeByte($serializer->getSerializedType());
+            $serializer->serialize($writer, $searchResult);
         }
-
-        return implode('|', array_filter($results));
+        return $writer->toString();
     }
 
     /**
-     * Serializes the result.
-     * @param ResultInterface $searchResult
-     * @return string
-     */
-    protected function serializeResult(ResultInterface $searchResult): string
-    {
-        $result = '';
-        $className = get_class($searchResult);
-        if (isset($this->serializersByClassName[$className])) {
-            $serializer = $this->serializersByClassName[$className];
-            $result = $serializer->getSerializedType() . $serializer->serialize($searchResult);
-        }
-        return $result;
-    }
-
-    /**
-     * Unserializes the serialized result to a collection.
      * @param string $serializedResults
      * @return PaginatedResultCollection
+     * @throws ReaderException
      */
     public function unserialize(string $serializedResults): PaginatedResultCollection
     {
-        $result = $this->createResultCollection();
-        foreach (explode('|', $serializedResults) as $serializedResult) {
-            $searchResult = $this->unserializeResult($serializedResult);
-            if ($searchResult instanceof ResultInterface) {
-                $result->add($searchResult);
+        $reader = new DataReader($serializedResults);
+        $paginatedResults = new PaginatedResultCollection();
+        while ($reader->hasUnreadData()) {
+            $type = $reader->readByte();
+            $serializer = $this->serializersByType[$type] ?? null;
+            if ($serializer === null) {
+                throw new ReaderException(sprintf('Unknown serializer type 0x%02x', $type));
             }
+            $searchResult = $serializer->unserialize($reader);
+            $paginatedResults->add($searchResult);
         }
-        return $result;
-    }
-
-    /**
-     * Creates a new result collection.
-     * @return PaginatedResultCollection
-     */
-    protected function createResultCollection(): PaginatedResultCollection
-    {
-        return new PaginatedResultCollection();
-    }
-
-    /**
-     * Unserializes the serialized result to an entity, if possible.
-     * @param string $serializedResult
-     * @return ResultInterface|null
-     */
-    protected function unserializeResult(string $serializedResult): ?ResultInterface
-    {
-        $result = null;
-        $type = substr($serializedResult, 0, 1);
-        if (isset($this->serializersByType[$type])) {
-            $result = $this->serializersByType[$type]->unserialize(substr($serializedResult, 1));
-        }
-        return $result;
+        return $paginatedResults;
     }
 }

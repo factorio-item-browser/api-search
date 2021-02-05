@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace FactorioItemBrowserTest\Api\Search\Parser;
 
-use BluePsyduck\TestHelper\ReflectionTrait;
 use FactorioItemBrowser\Api\Search\Parser\QueryParser;
 use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\UuidInterface;
@@ -18,8 +17,6 @@ use Ramsey\Uuid\UuidInterface;
  */
 class QueryParserTest extends TestCase
 {
-    use ReflectionTrait;
-
     public function testParse(): void
     {
         $locale = 'foo';

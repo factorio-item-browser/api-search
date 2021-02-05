@@ -6,7 +6,12 @@ namespace FactorioItemBrowserTest\Api\Search\Serializer;
 
 use FactorioItemBrowser\Api\Search\Constant\SerializedResultType;
 use FactorioItemBrowser\Api\Search\Entity\Result\RecipeResult;
+use FactorioItemBrowser\Api\Search\Exception\ReaderException;
+use FactorioItemBrowser\Api\Search\Exception\WriterException;
+use FactorioItemBrowser\Api\Search\Serializer\DataReader;
+use FactorioItemBrowser\Api\Search\Serializer\DataWriter;
 use FactorioItemBrowser\Api\Search\Serializer\RecipeResultSerializer;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Uuid;
 
@@ -15,40 +20,37 @@ use Ramsey\Uuid\Uuid;
  *
  * @author BluePsyduck <bluepsyduck@gmx.com>
  * @license http://opensource.org/licenses/GPL-3.0 GPL v3
- * @coversDefaultClass \FactorioItemBrowser\Api\Search\Serializer\RecipeResultSerializer
+ * @covers \FactorioItemBrowser\Api\Search\Serializer\RecipeResultSerializer
  */
 class RecipeResultSerializerTest extends TestCase
 {
     /**
-     * Tests the getHandledResultClass method.
-     * @covers ::getHandledResultClass
+     * @param array<string> $mockedMethods
+     * @return RecipeResultSerializer&MockObject
      */
-    public function testGetHandledResultClass(): void
+    private function createInstance(array $mockedMethods = []): RecipeResultSerializer
     {
-        $serializer = new RecipeResultSerializer();
+        return $this->getMockBuilder(RecipeResultSerializer::class)
+                    ->disableProxyingToOriginalMethods()
+                    ->onlyMethods($mockedMethods)
+                    ->getMock();
+    }
 
-        $this->assertSame(RecipeResult::class, $serializer->getHandledResultClass());
+    public function testMeta(): void
+    {
+        $instance = $this->createInstance();
+
+        $this->assertSame(RecipeResult::class, $instance->getHandledResultClass());
+        $this->assertSame(SerializedResultType::RECIPE, $instance->getSerializedType());
     }
 
     /**
-     * Tests the getSerializedType method.
-     * @covers ::getSerializedType
-     */
-    public function testGetSerializedType(): void
-    {
-        $serializer = new RecipeResultSerializer();
-
-        $this->assertSame(SerializedResultType::RECIPE, $serializer->getSerializedType());
-    }
-
-    /**
-     * Provides the data for the serialize test.
      * @return array<mixed>
      */
     public function provideSerialize(): array
     {
-        $id1 = Uuid::fromString('40718ef3-3d81-4c6f-ac42-650d4c38d226');
-        $id2 = Uuid::fromString('79c6ee59-57b3-4fe1-a766-10c1454cdc8a');
+        $id1 = Uuid::fromString('186bfc88-40bb-4649-a588-1c10c8c092cd');
+        $id2 = Uuid::fromString('275e1192-816f-45e5-8de9-f508f71328b6');
 
         $recipe1 = new RecipeResult();
         $recipe1->setNormalRecipeId($id1)
@@ -67,36 +69,40 @@ class RecipeResultSerializerTest extends TestCase
                 ->setExpensiveRecipeId(null);
 
         return [
-            [$recipe1, '40718ef3-3d81-4c6f-ac42-650d4c38d226+79c6ee59-57b3-4fe1-a766-10c1454cdc8a'],
-            [$recipe2, '40718ef3-3d81-4c6f-ac42-650d4c38d226'],
-            [$recipe3, '+79c6ee59-57b3-4fe1-a766-10c1454cdc8a'],
-            [$recipe4, ''],
+            [$recipe1, false, (string) hex2bin('01186bfc8840bb4649a5881c10c8c092cd275e1192816f45e58de9f508f71328b6')],
+            [$recipe2, false, (string) hex2bin('02186bfc8840bb4649a5881c10c8c092cd')],
+            [$recipe3, false, (string) hex2bin('03275e1192816f45e58de9f508f71328b6')],
+            [$recipe4, true, ''],
         ];
     }
 
     /**
-     * Tests the serialize method.
      * @param RecipeResult $recipe
-     * @param string $expectedResult
-     * @covers ::serialize
+     * @param bool $expectException
+     * @param string $expectedData
      * @dataProvider provideSerialize
      */
-    public function testSerialize(RecipeResult $recipe, string $expectedResult): void
+    public function testSerialize(RecipeResult $recipe, bool $expectException, string $expectedData): void
     {
-        $serializer = new RecipeResultSerializer();
-        $result = $serializer->serialize($recipe);
+        if ($expectException) {
+            $this->expectException(WriterException::class);
+        }
 
-        $this->assertSame($expectedResult, $result);
+        $writer = new DataWriter();
+
+        $instance = $this->createInstance();
+        $instance->serialize($writer, $recipe);
+
+        $this->assertSame($expectedData, $writer->toString());
     }
 
     /**
-     * Provides the data for the unserialize test.
      * @return array<mixed>
      */
     public function provideUnserialize(): array
     {
-        $id1 = Uuid::fromString('40718ef3-3d81-4c6f-ac42-650d4c38d226');
-        $id2 = Uuid::fromString('79c6ee59-57b3-4fe1-a766-10c1454cdc8a');
+        $id1 = Uuid::fromString('186bfc88-40bb-4649-a588-1c10c8c092cd');
+        $id2 = Uuid::fromString('275e1192-816f-45e5-8de9-f508f71328b6');
 
         $recipe1 = new RecipeResult();
         $recipe1->setNormalRecipeId($id1)
@@ -110,31 +116,33 @@ class RecipeResultSerializerTest extends TestCase
         $recipe3->setNormalRecipeId(null)
                 ->setExpensiveRecipeId($id2);
 
-        $recipe4 = new RecipeResult();
-        $recipe4->setNormalRecipeId(null)
-                ->setExpensiveRecipeId(null);
-
         return [
-            ['40718ef3-3d81-4c6f-ac42-650d4c38d226+79c6ee59-57b3-4fe1-a766-10c1454cdc8a', $recipe1],
-            ['40718ef3-3d81-4c6f-ac42-650d4c38d226', $recipe2],
-            ['+79c6ee59-57b3-4fe1-a766-10c1454cdc8a', $recipe3],
-            ['', $recipe4],
-            ['+', $recipe4],
+            [(string) hex2bin('01186bfc8840bb4649a5881c10c8c092cd275e1192816f45e58de9f508f71328b6'), false, $recipe1],
+            [(string) hex2bin('02186bfc8840bb4649a5881c10c8c092cd'), false, $recipe2],
+            [(string) hex2bin('03275e1192816f45e58de9f508f71328b6'), false, $recipe3],
+            [(string) hex2bin('043db86a82ca6f4878844dfd6f37ad40c9'), true, null],
+            ['', true, null],
         ];
     }
 
     /**
-     * Tests the unserialize method.
-     * @param string $serializedResult
-     * @param RecipeResult $expectedResult
-     * @covers ::unserialize
      * @dataProvider provideUnserialize
+     * @param string $data
+     * @param bool $expectException
+     * @param RecipeResult|null $expectedResult
      */
-    public function testUnserialize(string $serializedResult, RecipeResult $expectedResult): void
+    public function testUnserialize(string $data, bool $expectException, ?RecipeResult $expectedResult): void
     {
-        $serializer = new RecipeResultSerializer();
-        $result = $serializer->unserialize($serializedResult);
+        if ($expectException) {
+            $this->expectException(ReaderException::class);
+        }
+
+        $reader = new DataReader($data);
+
+        $instance = $this->createInstance();
+        $result = $instance->unserialize($reader);
 
         $this->assertEquals($expectedResult, $result);
+        $this->assertFalse($reader->hasUnreadData());
     }
 }

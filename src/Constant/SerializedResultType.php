@@ -15,10 +15,10 @@ interface SerializedResultType
     /**
      * The serialized result is an item.
      */
-    public const ITEM = 'i';
+    public const ITEM = 0x01;
 
     /**
      * The serialized result is a recipe.
      */
-    public const RECIPE = 'r';
+    public const RECIPE = 0x02;
 }
