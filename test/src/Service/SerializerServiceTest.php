@@ -4,278 +4,210 @@ declare(strict_types=1);
 
 namespace FactorioItemBrowserTest\Api\Search\Service;
 
-use BluePsyduck\TestHelper\ReflectionTrait;
 use FactorioItemBrowser\Api\Search\Collection\PaginatedResultCollection;
+use FactorioItemBrowser\Api\Search\Constant\SerializedResultType;
+use FactorioItemBrowser\Api\Search\Entity\Result\ItemResult;
+use FactorioItemBrowser\Api\Search\Entity\Result\RecipeResult;
 use FactorioItemBrowser\Api\Search\Entity\Result\ResultInterface;
+use FactorioItemBrowser\Api\Search\Exception\ReaderException;
+use FactorioItemBrowser\Api\Search\Exception\WriterException;
+use FactorioItemBrowser\Api\Search\Serializer\DataReader;
+use FactorioItemBrowser\Api\Search\Serializer\DataWriter;
 use FactorioItemBrowser\Api\Search\Serializer\SerializerInterface;
 use FactorioItemBrowser\Api\Search\Service\SerializerService;
+use PHPUnit\Framework\Constraint\Callback;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use ReflectionException;
+use Ramsey\Uuid\Uuid;
 
 /**
  * The PHPUnit test of the SerializerService class.
  *
  * @author BluePsyduck <bluepsyduck@gmx.com>
  * @license http://opensource.org/licenses/GPL-3.0 GPL v3
- * @coversDefaultClass \FactorioItemBrowser\Api\Search\Service\SerializerService
+ * @covers \FactorioItemBrowser\Api\Search\Service\SerializerService
  */
 class SerializerServiceTest extends TestCase
 {
-    use ReflectionTrait;
+    /** @var array<SerializerInterface<ResultInterface>> */
+    private array $serializers = [];
 
     /**
-     * Tests the constructing.
-     * @throws ReflectionException
-     * @covers ::__construct
+     * @param array<string> $mockedMethods
+     * @return SerializerService&MockObject
      */
-    public function testConstruct(): void
+    private function createInstance(array $mockedMethods = []): SerializerService
     {
-        /* @var SerializerInterface&MockObject $serializer1 */
-        $serializer1 = $this->createMock(SerializerInterface::class);
-        $serializer1->expects($this->once())
-                    ->method('getHandledResultClass')
-                    ->willReturn('abc');
-        $serializer1->expects($this->once())
-                    ->method('getSerializedType')
-                    ->willReturn('z');
-
-        /* @var SerializerInterface&MockObject $serializer2 */
-        $serializer2 = $this->createMock(SerializerInterface::class);
-        $serializer2->expects($this->once())
-                    ->method('getHandledResultClass')
-                    ->willReturn('def');
-        $serializer2->expects($this->once())
-                    ->method('getSerializedType')
-                    ->willReturn('y');
-
-        $serializers = [$serializer1, $serializer2];
-        $expectedSerializersByClassName = [
-            'abc' => $serializer1,
-            'def' => $serializer2,
-        ];
-        $expectedSerializersByType = [
-            'z' => $serializer1,
-            'y' => $serializer2,
-        ];
-
-        $service = new SerializerService($serializers);
-
-        $this->assertSame($expectedSerializersByClassName, $this->extractProperty($service, 'serializersByClassName'));
-        $this->assertSame($expectedSerializersByType, $this->extractProperty($service, 'serializersByType'));
+        return $this->getMockBuilder(SerializerService::class)
+                    ->disableProxyingToOriginalMethods()
+                    ->onlyMethods($mockedMethods)
+                    ->setConstructorArgs([
+                        $this->serializers,
+                    ])
+                    ->getMock();
     }
 
     /**
-     * Tests the serialize method.
-     * @covers ::serialize
+     * @throws WriterException
      */
     public function testSerialize(): void
     {
-        /* @var ResultInterface&MockObject $searchResult1 */
-        $searchResult1 = $this->createMock(ResultInterface::class);
-        /* @var ResultInterface&MockObject $searchResult2 */
-        $searchResult2 = $this->createMock(ResultInterface::class);
-        /* @var ResultInterface&MockObject $searchResult3 */
-        $searchResult3 = $this->createMock(ResultInterface::class);
+        $searchResult1 = new ItemResult();
+        $searchResult1->setId(Uuid::fromString('14c535ca-a47b-4f71-be3f-5835ef8cedeb'));
+        $searchResult2 = new RecipeResult();
+        $searchResult2->setNormalRecipeId(Uuid::fromString('26d62a7e-48e5-467a-b5d4-3b28ac279d84'));
+        $searchResult3 = new ItemResult();
+        $searchResult3->setId(Uuid::fromString('3b7b48a0-4e64-4117-8a23-b6675d0d5926'));
 
-        $serializedResult1 = 'abc';
-        $serializedResult2 = '';
-        $serializedResult3 = 'def';
+        $expectedResult = (string) hex2bin(implode('', [
+            '0114c535caa47b4f71be3f5835ef8cedeb',
+            '0226d62a7e48e5467ab5d43b28ac279d84',
+            '013b7b48a04e6441178a23b6675d0d5926',
+        ]));
 
-        $searchResults = [$searchResult1, $searchResult2, $searchResult3];
-        $expectedResult = 'abc|def';
+        $serializer1 = $this->createMock(SerializerInterface::class);
+        $serializer1->expects($this->any())
+                    ->method('getHandledResultClass')
+                    ->willReturn(ItemResult::class);
+        $serializer1->expects($this->any())
+                    ->method('getSerializedType')
+                    ->willReturn(SerializedResultType::ITEM);
+        $serializer1->expects($this->exactly(2))
+                    ->method('serialize')
+                    ->withConsecutive(
+                        [
+                            new Callback(function (DataWriter $writer) use ($searchResult1): bool {
+                                $this->assertNotNull($searchResult1->getId());
+                                $writer->writeId($searchResult1->getId());
+                                return true;
+                            }),
+                            $this->identicalTo($searchResult1),
+                        ],
+                        [
+                            new Callback(function (DataWriter $writer) use ($searchResult3): bool {
+                                $this->assertNotNull($searchResult3->getId());
+                                $writer->writeId($searchResult3->getId());
+                                return true;
+                            }),
+                            $this->identicalTo($searchResult3),
+                        ],
+                    );
 
-        /* @var PaginatedResultCollection&MockObject $paginatedResultCollection */
-        $paginatedResultCollection = $this->createMock(PaginatedResultCollection::class);
-        $paginatedResultCollection->expects($this->once())
-                                  ->method('count')
-                                  ->willReturn(2);
-        $paginatedResultCollection->expects($this->once())
-                                  ->method('getResults')
-                                  ->with($this->identicalTo(0), $this->identicalTo(2))
-                                  ->willReturn($searchResults);
+        $serializer2 = $this->createMock(SerializerInterface::class);
+        $serializer2->expects($this->any())
+                    ->method('getHandledResultClass')
+                    ->willReturn(RecipeResult::class);
+        $serializer2->expects($this->any())
+                    ->method('getSerializedType')
+                    ->willReturn(SerializedResultType::RECIPE);
+        $serializer2->expects($this->once())
+                    ->method('serialize')
+                    ->with(
+                        new Callback(function (DataWriter $writer) use ($searchResult2): bool {
+                            $this->assertNotNull($searchResult2->getNormalRecipeId());
+                            $writer->writeId($searchResult2->getNormalRecipeId());
+                            return true;
+                        }),
+                        $this->identicalTo($searchResult2),
+                    );
 
-        /* @var SerializerService&MockObject $service */
-        $service = $this->getMockBuilder(SerializerService::class)
-                        ->onlyMethods(['serializeResult'])
-                        ->disableOriginalConstructor()
-                        ->getMock();
-        $service->expects($this->exactly(3))
-                ->method('serializeResult')
-                ->withConsecutive(
-                    [$this->identicalTo($searchResult1)],
-                    [$this->identicalTo($searchResult2)],
-                    [$this->identicalTo($searchResult3)]
-                )
-                ->willReturnOnConsecutiveCalls(
-                    $serializedResult1,
-                    $serializedResult2,
-                    $serializedResult3
-                );
+        $this->serializers = [$serializer1, $serializer2];
 
-        $result = $service->serialize($paginatedResultCollection);
+        $searchResults = new PaginatedResultCollection();
+        $searchResults->add($searchResult1)
+                      ->add($searchResult2)
+                      ->add($searchResult3);
+
+        $instance = $this->createInstance();
+        $result = $instance->serialize($searchResults);
 
         $this->assertSame($expectedResult, $result);
     }
 
-    /**
-     * Tests the serializeResult method with a matching serializer.
-     * @throws ReflectionException
-     * @covers ::serializeResult
-     */
-    public function testSerializeResultWithMatchingSerializer(): void
+    public function testSerializeWithException(): void
     {
-        $mockedClassName = 'ResultInterfaceMock';
-        $serializedType = 'a';
-        $searializedResult = 'bc';
-        $expectedResult = 'abc';
+        $searchResult1 = new ItemResult();
+        $searchResult1->setId(Uuid::fromString('14c535ca-a47b-4f71-be3f-5835ef8cedeb'));
 
-        /* @var ResultInterface&MockObject $searchResult */
-        $searchResult = $this->getMockBuilder(ResultInterface::class)
-                             ->setMockClassName($mockedClassName)
-                             ->getMockForAbstractClass();
+        $searchResults = new PaginatedResultCollection();
+        $searchResults->add($searchResult1);
 
-        /* @var SerializerInterface&MockObject $serializer */
-        $serializer = $this->createMock(SerializerInterface::class);
-        $serializer->expects($this->once())
-                   ->method('getSerializedType')
-                   ->willReturn($serializedType);
-        $serializer->expects($this->once())
-                   ->method('serialize')
-                   ->with($searchResult)
-                   ->willReturn($searializedResult);
+        $this->expectException(WriterException::class);
 
-        $service = new SerializerService([]);
-        $this->injectProperty($service, 'serializersByClassName', [$mockedClassName => $serializer]);
-
-        $result = $this->invokeMethod($service, 'serializeResult', $searchResult);
-
-        $this->assertSame($expectedResult, $result);
+        $instance = $this->createInstance();
+        $instance->serialize($searchResults);
     }
 
     /**
-     * Tests the serializeResult method without a matching serializer.
-     * @throws ReflectionException
-     * @covers ::serializeResult
-     */
-    public function testSerializeResultWithoutSerializer(): void
-    {
-        $expectedResult = '';
-
-        /* @var ResultInterface&MockObject $searchResult */
-        $searchResult = $this->createMock(ResultInterface::class);
-
-        $service = new SerializerService([]);
-        $result = $this->invokeMethod($service, 'serializeResult', $searchResult);
-
-        $this->assertSame($expectedResult, $result);
-    }
-
-    /**
-     * Tests the unserialize method.
-     * @covers ::unserialize
+     * @throws ReaderException
      */
     public function testUnserialize(): void
     {
-        $serializedResults = 'abc|def|ghi';
-        $serializedResult1 = 'abc';
-        $serializedResult2 = 'def';
-        $serializedResult3 = 'ghi';
+        $serializedResults = (string) hex2bin(implode('', [
+            '0114c535caa47b4f71be3f5835ef8cedeb',
+            '0226d62a7e48e5467ab5d43b28ac279d84',
+            '013b7b48a04e6441178a23b6675d0d5926',
+        ]));
 
-        /* @var ResultInterface&MockObject $searchResult1 */
-        $searchResult1 = $this->createMock(ResultInterface::class);
-        /* @var ResultInterface&MockObject $searchResult2 */
-        $searchResult2 = $this->createMock(ResultInterface::class);
+        $expectedSearchResult1 = new ItemResult();
+        $expectedSearchResult1->setId(Uuid::fromString('14c535ca-a47b-4f71-be3f-5835ef8cedeb'));
+        $expectedSearchResult2 = new RecipeResult();
+        $expectedSearchResult2->setNormalRecipeId(Uuid::fromString('26d62a7e-48e5-467a-b5d4-3b28ac279d84'));
+        $expectedSearchResult3 = new ItemResult();
+        $expectedSearchResult3->setId(Uuid::fromString('3b7b48a0-4e64-4117-8a23-b6675d0d5926'));
 
-        /* @var PaginatedResultCollection&MockObject $resultCollection */
-        $resultCollection = $this->createMock(PaginatedResultCollection::class);
-        $resultCollection->expects($this->exactly(2))
-                         ->method('add')
-                         ->withConsecutive(
-                             [$this->identicalTo($searchResult1)],
-                             [$this->identicalTo($searchResult2)]
-                         );
+        $serializer1 = $this->createMock(SerializerInterface::class);
+        $serializer1->expects($this->any())
+                    ->method('getHandledResultClass')
+                    ->willReturn(ItemResult::class);
+        $serializer1->expects($this->any())
+                    ->method('getSerializedType')
+                    ->willReturn(SerializedResultType::ITEM);
+        $serializer1->expects($this->exactly(2))
+                    ->method('unserialize')
+                    ->willReturnCallback(function (DataReader $reader): ResultInterface {
+                        $result = new ItemResult();
+                        $result->setId($reader->readId());
+                        return $result;
+                    });
 
-        /* @var SerializerService&MockObject $service */
-        $service = $this->getMockBuilder(SerializerService::class)
-                        ->onlyMethods(['createResultCollection', 'unserializeResult'])
-                        ->disableOriginalConstructor()
-                        ->getMock();
-        $service->expects($this->once())
-                ->method('createResultCollection')
-                ->willReturn($resultCollection);
-        $service->expects($this->exactly(3))
-                ->method('unserializeResult')
-                ->withConsecutive(
-                    [$this->identicalTo($serializedResult1)],
-                    [$this->identicalTo($serializedResult2)],
-                    [$this->identicalTo($serializedResult3)]
-                )
-                ->willReturnOnConsecutiveCalls(
-                    $searchResult1,
-                    null,
-                    $searchResult2
-                );
+        $serializer2 = $this->createMock(SerializerInterface::class);
+        $serializer2->expects($this->any())
+                    ->method('getHandledResultClass')
+                    ->willReturn(RecipeResult::class);
+        $serializer2->expects($this->any())
+                    ->method('getSerializedType')
+                    ->willReturn(SerializedResultType::RECIPE);
+        $serializer2->expects($this->once())
+                    ->method('unserialize')
+                    ->willReturnCallback(function (DataReader $reader): ResultInterface {
+                        $result = new RecipeResult();
+                        $result->setNormalRecipeId($reader->readId());
+                        return $result;
+                    });
 
-        $result = $service->unserialize($serializedResults);
+        $this->serializers = [$serializer1, $serializer2];
 
-        $this->assertSame($resultCollection, $result);
+        $instance = $this->createInstance();
+        $result = $instance->unserialize($serializedResults);
+
+        $this->assertSame(3, $result->count());
+        $this->assertEquals($expectedSearchResult1, $result->getResults(0, 1)[0]);
+        $this->assertEquals($expectedSearchResult2, $result->getResults(1, 1)[0]);
+        $this->assertEquals($expectedSearchResult3, $result->getResults(2, 1)[0]);
     }
 
-    /**
-     * Tests the createResultCollection method.
-     * @throws ReflectionException
-     * @covers ::createResultCollection
-     */
-    public function testCreateResultCollection(): void
+    public function testUnserializeWithException(): void
     {
-        $expectedResult = new PaginatedResultCollection();
+        $serializedResults = (string) hex2bin(implode('', [
+            '0114c535caa47b4f71be3f5835ef8cedeb',
+            '0226d62a7e48e5467ab5d43b28ac279d84',
+            '013b7b48a04e6441178a23b6675d0d5926',
+        ]));
 
-        $service = new SerializerService([]);
-        $result = $this->invokeMethod($service, 'createResultCollection');
+        $this->expectException(ReaderException::class);
 
-        $this->assertEquals($expectedResult, $result);
-    }
-
-    /**
-     * Tests the unserializeResult method with a matching serializer.
-     * @throws ReflectionException
-     * @covers ::unserializeResult
-     */
-    public function testUnserializeResultWithSerializer(): void
-    {
-        $serializedResult = 'abc';
-        $expectedSerializedResult = 'bc';
-
-        /* @var ResultInterface&MockObject $searchResult */
-        $searchResult = $this->createMock(ResultInterface::class);
-
-        /* @var SerializerInterface&MockObject $serializer */
-        $serializer = $this->createMock(SerializerInterface::class);
-        $serializer->expects($this->once())
-                   ->method('unserialize')
-                   ->with($this->identicalTo($expectedSerializedResult))
-                   ->willReturn($searchResult);
-
-        $service = new SerializerService([]);
-        $this->injectProperty($service, 'serializersByType', ['a' => $serializer]);
-
-        $result = $this->invokeMethod($service, 'unserializeResult', $serializedResult);
-        $this->assertSame($searchResult, $result);
-    }
-
-    /**
-     * Tests the unserializeResult method without a matching serializer.
-     * @throws ReflectionException
-     * @covers ::unserializeResult
-     */
-    public function testUnserializeResultWithoutSerializer(): void
-    {
-        $serializedResult = 'abc';
-
-        $service = new SerializerService([]);
-
-        $result = $this->invokeMethod($service, 'unserializeResult', $serializedResult);
-        $this->assertNull($result);
+        $instance = $this->createInstance();
+        $instance->unserialize($serializedResults);
     }
 }

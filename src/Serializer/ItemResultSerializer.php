@@ -4,114 +4,75 @@ declare(strict_types=1);
 
 namespace FactorioItemBrowser\Api\Search\Serializer;
 
-use Exception;
 use FactorioItemBrowser\Api\Search\Constant\SerializedResultType;
 use FactorioItemBrowser\Api\Search\Entity\Result\ItemResult;
-use FactorioItemBrowser\Api\Search\Entity\Result\RecipeResult;
 use FactorioItemBrowser\Api\Search\Entity\Result\ResultInterface;
-use Ramsey\Uuid\Uuid;
+use FactorioItemBrowser\Api\Search\Exception\ReaderException;
+use FactorioItemBrowser\Api\Search\Exception\WriterException;
 
 /**
  * The serializer for the item results.
  *
  * @author BluePsyduck <bluepsyduck@gmx.com>
  * @license http://opensource.org/licenses/GPL-3.0 GPL v3
+ *
+ * @implements SerializerInterface<ItemResult>
  */
 class ItemResultSerializer implements SerializerInterface
 {
-    /**
-     * The recipe result serializer.
-     * @var RecipeResultSerializer
-     */
-    protected $recipeResultSerializer;
+    private RecipeResultSerializer $recipeResultSerializer;
 
-    /**
-     * Initializes the serializer.
-     * @param RecipeResultSerializer $recipeResultSerializer
-     */
     public function __construct(RecipeResultSerializer $recipeResultSerializer)
     {
         $this->recipeResultSerializer = $recipeResultSerializer;
     }
 
-    /**
-     * Returns the class this serializer is actually handling.
-     * @return string
-     */
     public function getHandledResultClass(): string
     {
         return ItemResult::class;
     }
 
-    /**
-     * Returns the serialized type.
-     * @return string
-     */
-    public function getSerializedType(): string
+    public function getSerializedType(): int
     {
         return SerializedResultType::ITEM;
     }
 
     /**
-     * Serializes the specified result into a string.
-     * @param ItemResult $item
-     * @return string
+     * @param DataWriter $writer
+     * @param ItemResult $result
+     * @throws WriterException
      */
-    public function serialize($item): string
+    public function serialize(DataWriter $writer, ResultInterface $result): void
     {
-        return implode(',', array_merge(
-            [($item->getId() !== null) ? $item->getId()->toString() : ''],
-            array_filter($this->serializeRecipes($item->getRecipes()))
-        ));
-    }
+        $itemId = $result->getId();
+        if ($itemId === null) {
+            throw new WriterException('Trying to serialize an item without id');
+        }
 
-    /**
-     * Serializes the specified recipes.
-     * @param array|RecipeResult[] $recipes
-     * @return array|string[]
-     */
-    protected function serializeRecipes(array $recipes): array
-    {
-        $result = [];
+        $recipes = $result->getRecipes();
+        $writer->writeId($itemId)
+               ->writeShort(count($recipes));
+
         foreach ($recipes as $recipe) {
-            $result[] = $this->recipeResultSerializer->serialize($recipe);
+            $this->recipeResultSerializer->serialize($writer, $recipe);
         }
-        return $result;
     }
 
     /**
-     * Unserializes the result into an entity.
-     * @param string $serializedResult
-     * @return ResultInterface
+     * @param DataReader $reader
+     * @return ItemResult
+     * @throws ReaderException
      */
-    public function unserialize(string $serializedResult): ResultInterface
+    public function unserialize(DataReader $reader): ResultInterface
     {
-        $ids = explode(',', $serializedResult);
-        $itemId = array_shift($ids);
-
         $result = new ItemResult();
-        try {
-            $result->setId(Uuid::fromString($itemId));
-        } catch (Exception $e) {
-            // Id is invalid, so ignore it.
+        $result->setId($reader->readId());
+
+        $count = $reader->readShort();
+        for ($i = 0; $i < $count; ++$i) {
+            $result->addRecipe($this->recipeResultSerializer->unserialize($reader));
         }
 
-        $this->unserializeRecipes($ids, $result);
         return $result;
-    }
-
-    /**
-     * Unserializes the recipes into the item.
-     * @param array|string[] $serializedRecipes
-     * @param ItemResult $item
-     */
-    protected function unserializeRecipes(array $serializedRecipes, ItemResult $item): void
-    {
-        foreach ($serializedRecipes as $serializedRecipe) {
-            $recipe = $this->recipeResultSerializer->unserialize($serializedRecipe);
-            if ($recipe instanceof RecipeResult) {
-                $item->addRecipe($recipe);
-            }
-        }
     }
 }

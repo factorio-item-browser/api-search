@@ -13,14 +13,9 @@ namespace FactorioItemBrowser\Api\Search\Constant;
 interface ConfigKey
 {
     /**
-     * The key holding the name of the project.
-     */
-    public const PROJECT = 'factorio-item-browser';
-
-    /**
      * The key holding the name of the library itself.
      */
-    public const API_SEARCH = 'api-search';
+    public const MAIN = 'api-search';
 
     /**
      * The key for the maximal number of search results to return.

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace FactorioItemBrowser\Api\Search\Entity\Result;
 
 use FactorioItemBrowser\Api\Database\Constant\SearchResultPriority;
-use FactorioItemBrowser\Api\Search\Collection\RecipeCollection;
+use FactorioItemBrowser\Api\Search\Collection\ResultCollection;
 use Ramsey\Uuid\UuidInterface;
 
 /**
@@ -16,109 +16,52 @@ use Ramsey\Uuid\UuidInterface;
  */
 class ItemResult implements ResultInterface
 {
-    /**
-     * The type of the item.
-     * @var string
-     */
-    protected $type = '';
+    private string $type = '';
+    private string $name = '';
+    private ?UuidInterface $id = null;
+    private int $priority = SearchResultPriority::ANY_MATCH;
 
-    /**
-     * The name of the item.
-     * @var string
-     */
-    protected $name = '';
+    /** @var ResultCollection<RecipeResult> */
+    private ResultCollection $recipes;
 
-    /**
-     * The id of the item.
-     * @var UuidInterface|null
-     */
-    protected $id;
-
-    /**
-     * The recipes of the item.
-     * @var RecipeCollection
-     */
-    protected $recipes;
-
-    /**
-     * The priority of the result.
-     * @var int
-     */
-    protected $priority = SearchResultPriority::ANY_MATCH;
-
-    /**
-     * Initializes the item result.
-     */
     public function __construct()
     {
-        $this->recipes = new RecipeCollection();
+        $this->recipes = new ResultCollection(); // @phpstan-ignore-line: https://github.com/phpstan/phpstan/issues/4494
     }
 
-    /**
-     * Sets the type of the item.
-     * @param string $type
-     * @return $this
-     */
     public function setType(string $type): self
     {
         $this->type = $type;
         return $this;
     }
 
-    /**
-     * Returns the type of the item.
-     * @return string
-     */
     public function getType(): string
     {
         return $this->type;
     }
 
-    /**
-     * Sets the name of the item.
-     * @param string $name
-     * @return $this
-     */
     public function setName(string $name): self
     {
         $this->name = $name;
         return $this;
     }
 
-    /**
-     * Returns the name of the item.
-     * @return string
-     */
     public function getName(): string
     {
         return $this->name;
     }
 
-    /**
-     * Sets the id of the item.
-     * @param UuidInterface|null $id
-     * @return $this
-     */
     public function setId(?UuidInterface $id): self
     {
         $this->id = $id;
         return $this;
     }
 
-    /**
-     * Returns the id of the item.
-     * @return UuidInterface|null
-     */
     public function getId(): ?UuidInterface
     {
         return $this->id;
     }
 
-    /**
-     * Adds the specified recipe to the item.
-     * @param RecipeResult $recipe
-     * @return ItemResult
-     */
     public function addRecipe(RecipeResult $recipe): self
     {
         $this->recipes->add($recipe);
@@ -126,46 +69,34 @@ class ItemResult implements ResultInterface
     }
 
     /**
-     * Returns the recipes of the item.
-     * @return array|RecipeResult[]
+     * @return array<RecipeResult>
      */
-    public function getRecipes()
+    public function getRecipes(): array
     {
         return $this->recipes->getAll();
     }
 
-    /**
-     * Sets the priority of the result.
-     * @param int $priority
-     * @return $this
-     */
     public function setPriority(int $priority): self
     {
         $this->priority = $priority;
         return $this;
     }
 
-    /**
-     * Returns the priority of the result.
-     * @return int
-     */
     public function getPriority(): int
     {
         return $this->priority;
     }
 
-    /**
-     * Merges the specified item into the current instance.
-     * @param ItemResult $item
-     */
-    public function merge(ItemResult $item): void
+    public function merge(ResultInterface $result): void
     {
-        if ($item->getId() !== null) {
-            $this->id = $item->getId();
+        if ($result instanceof ItemResult) {
+            if ($result->getId() !== null) {
+                $this->id = $result->getId();
+            }
+            foreach ($result->getRecipes() as $recipe) {
+                $this->recipes->add($recipe);
+            }
+            $this->priority = min($this->priority, $result->getPriority());
         }
-        foreach ($item->getRecipes() as $recipe) {
-            $this->recipes->add($recipe);
-        }
-        $this->priority = min($this->priority, $item->getPriority());
     }
 }

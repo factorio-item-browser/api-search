@@ -14,17 +14,9 @@ use FactorioItemBrowser\Api\Search\Entity\Term;
  */
 class TermCollection
 {
-    /**
-     * The terms grouped by their type.
-     * @var array|Term[][]
-     */
-    protected $termsByType = [];
+    /** @var array<string, array<Term>> */
+    private array $termsByType = [];
 
-    /**
-     * Adds a term to the collection.
-     * @param Term $term
-     * @return TermCollection
-     */
     public function add(Term $term): self
     {
         $this->termsByType[$term->getType()][] = $term;
@@ -32,8 +24,7 @@ class TermCollection
     }
 
     /**
-     * Returns all terms of the collection.
-     * @return array|Term[]
+     * @return array<Term>
      */
     public function getAll(): array
     {
@@ -45,18 +36,16 @@ class TermCollection
     }
 
     /**
-     * Returns the values of all terms.
-     * @return array|string[]
+     * @return array<string>
      */
     public function getAllValues(): array
     {
-        return $this->getValues($this->getAll());
+        return $this->extractValuesFromTerms($this->getAll());
     }
 
     /**
-     * Returns the terms of the specified types.
-     * @param array|string[] $types
-     * @return array|Term[]
+     * @param array<string> $types
+     * @return array<Term>
      */
     public function getByTypes(array $types): array
     {
@@ -68,46 +57,20 @@ class TermCollection
     }
 
     /**
-     * Returns the terms with the specified type.
-     * @param string $type
-     * @return array|Term[]
-     */
-    public function getByType(string $type): array
-    {
-        return $this->getByTypes([$type]);
-    }
-
-    /**
-     * Returns the values of the terms with the specified types.
-     * @param array|string[] $types
-     * @return array|string[]
+     * @param array<string> $types
+     * @return array<string>
      */
     public function getValuesByTypes(array $types): array
     {
-        return $this->getValues($this->getByTypes($types));
+        return $this->extractValuesFromTerms($this->getByTypes($types));
     }
 
     /**
-     * Returns the values of the terms with the specified type.
-     * @param string $type
-     * @return array|string[]
+     * @param array<Term> $terms
+     * @return array<string>
      */
-    public function getValuesByType(string $type): array
+    private function extractValuesFromTerms(array $terms): array
     {
-        return $this->getValues($this->getByType($type));
-    }
-
-    /**
-     * Returns the values of the specified terms.
-     * @param array|Term[] $terms
-     * @return array|string[]
-     */
-    protected function getValues(array $terms): array
-    {
-        $result = [];
-        foreach ($terms as $term) {
-            $result[] = $term->getValue();
-        }
-        return $result;
+        return array_values(array_unique(array_map(fn(Term $term): string => $term->getValue(), $terms)));
     }
 }

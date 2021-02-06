@@ -14,33 +14,26 @@ use FactorioItemBrowser\Common\Constant\RecipeMode;
  *
  * @author BluePsyduck <bluepsyduck@gmx.com>
  * @license http://opensource.org/licenses/GPL-3.0 GPL v3
+ *
+ * @implements StaticMapperInterface<RecipeData, RecipeResult>
  */
 class RecipeDataToRecipeResultMapper implements StaticMapperInterface
 {
-    /**
-     * Returns the source class supported by this mapper.
-     * @return string
-     */
     public function getSupportedSourceClass(): string
     {
         return RecipeData::class;
     }
 
-    /**
-     * Returns the destination class supported by this mapper.
-     * @return string
-     */
     public function getSupportedDestinationClass(): string
     {
         return RecipeResult::class;
     }
 
     /**
-     * Maps the source object to the destination one.
      * @param RecipeData $source
      * @param RecipeResult $destination
      */
-    public function map($source, $destination): void
+    public function map(object $source, object $destination): void
     {
         $destination->setName($source->getName());
         if ($source->getMode() === RecipeMode::EXPENSIVE) {

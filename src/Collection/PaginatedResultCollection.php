@@ -14,14 +14,10 @@ use FactorioItemBrowser\Api\Search\Entity\Result\ResultInterface;
  */
 class PaginatedResultCollection
 {
-    /**
-     * The results of the collection.
-     * @var array|ResultInterface[]
-     */
-    protected $results = [];
+    /** @var array<ResultInterface> */
+    protected array $results = [];
 
     /**
-     * Adds a result to the collection.
      * @param ResultInterface $result
      * @return PaginatedResultCollection
      */
@@ -31,20 +27,15 @@ class PaginatedResultCollection
         return $this;
     }
 
-    /**
-     * Returns the total number of results in the collection.
-     * @return int
-     */
     public function count(): int
     {
         return count($this->results);
     }
 
     /**
-     * Returns a page of the results.
      * @param int $offset
      * @param int $limit
-     * @return array|ResultInterface[]
+     * @return array<ResultInterface>
      */
     public function getResults(int $offset, int $limit): array
     {

@@ -49,12 +49,12 @@ return [
             Service\SerializerService::class => AutoWireFactory::class,
 
             // Auto-wire helpers
-            'array $apiSearchFetchers' => injectAliasArray(ConfigKey::PROJECT, ConfigKey::API_SEARCH, ConfigKey::FETCHERS),
-            'array $apiSearchSerializers' => injectAliasArray(ConfigKey::PROJECT, ConfigKey::API_SEARCH, ConfigKey::SERIALIZERS),
+            'array $apiSearchFetchers' => injectAliasArray(ConfigKey::MAIN, ConfigKey::FETCHERS),
+            'array $apiSearchSerializers' => injectAliasArray(ConfigKey::MAIN, ConfigKey::SERIALIZERS),
 
-            'int $apiSearchMaxSearchResults' => readConfig(ConfigKey::PROJECT, ConfigKey::API_SEARCH, ConfigKey::MAX_SEARCH_RESULTS),
+            'int $apiSearchMaxSearchResults' => readConfig(ConfigKey::MAIN, ConfigKey::MAX_SEARCH_RESULTS),
 
-            'string $apiSearchMaxCacheAge' => readConfig(ConfigKey::PROJECT, ConfigKey::API_SEARCH, ConfigKey::MAX_CACHE_AGE),
+            'string $apiSearchMaxCacheAge' => readConfig(ConfigKey::MAIN, ConfigKey::MAX_CACHE_AGE),
         ],
     ],
 ];

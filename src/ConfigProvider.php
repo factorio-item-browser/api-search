@@ -13,7 +13,6 @@ namespace FactorioItemBrowser\Api\Search;
 class ConfigProvider
 {
     /**
-     * Returns the configuration of the library.
      * @return array<mixed>
      */
     public function __invoke(): array

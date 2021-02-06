@@ -4,139 +4,74 @@ declare(strict_types=1);
 
 namespace FactorioItemBrowserTest\Api\Search\Entity\Result;
 
-use BluePsyduck\TestHelper\ReflectionTrait;
 use FactorioItemBrowser\Api\Database\Constant\SearchResultPriority;
-use FactorioItemBrowser\Api\Search\Collection\RecipeCollection;
 use FactorioItemBrowser\Api\Search\Entity\Result\ItemResult;
 use FactorioItemBrowser\Api\Search\Entity\Result\RecipeResult;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\UuidInterface;
-use ReflectionException;
 
 /**
  * The PHPUnit test of the ItemResult class.
  *
  * @author BluePsyduck <bluepsyduck@gmx.com>
  * @license http://opensource.org/licenses/GPL-3.0 GPL v3
- * @coversDefaultClass \FactorioItemBrowser\Api\Search\Entity\Result\ItemResult
+ * @covers \FactorioItemBrowser\Api\Search\Entity\Result\ItemResult
  */
 class ItemResultTest extends TestCase
 {
-    use ReflectionTrait;
-
-    /**
-     * Tests the constructing.
-     * @throws ReflectionException
-     * @covers ::__construct
-     */
     public function testConstruct(): void
     {
-        $result = new ItemResult();
+        $instance = new ItemResult();
 
-        $this->assertSame('', $result->getType());
-        $this->assertSame('', $result->getName());
-        $this->assertNull($result->getId());
-        $this->assertSame(SearchResultPriority::ANY_MATCH, $result->getPriority());
-        $this->assertInstanceOf(RecipeCollection::class, $this->extractProperty($result, 'recipes'));
+        $this->assertSame('', $instance->getType());
+        $this->assertSame('', $instance->getName());
+        $this->assertNull($instance->getId());
+        $this->assertSame(SearchResultPriority::ANY_MATCH, $instance->getPriority());
     }
 
-    /**
-     * Tests the setting and getting the type.
-     * @covers ::getType
-     * @covers ::setType
-     */
     public function testSetAndGetType(): void
     {
         $type = 'abc';
-        $result = new ItemResult();
+        $instance = new ItemResult();
 
-        $this->assertSame($result, $result->setType($type));
-        $this->assertSame($type, $result->getType());
+        $this->assertSame($instance, $instance->setType($type));
+        $this->assertSame($type, $instance->getType());
     }
 
-    /**
-     * Tests the setting and getting the name.
-     * @covers ::getName
-     * @covers ::setName
-     */
     public function testSetAndGetName(): void
     {
         $name = 'abc';
-        $result = new ItemResult();
+        $instance = new ItemResult();
 
-        $this->assertSame($result, $result->setName($name));
-        $this->assertSame($name, $result->getName());
+        $this->assertSame($instance, $instance->setName($name));
+        $this->assertSame($name, $instance->getName());
     }
 
-    /**
-     * Tests the setting and getting the id.
-     * @covers ::getId
-     * @covers ::setId
-     */
     public function testSetAndGetId(): void
     {
-        /* @var UuidInterface&MockObject $id */
         $id = $this->createMock(UuidInterface::class);
-        $result = new ItemResult();
+        $instance = new ItemResult();
 
-        $this->assertSame($result, $result->setId($id));
-        $this->assertSame($id, $result->getId());
+        $this->assertSame($instance, $instance->setId($id));
+        $this->assertSame($id, $instance->getId());
     }
 
-    /**
-     * Tests the addRecipe method.
-     * @throws ReflectionException
-     * @covers ::addRecipe
-     */
-    public function testAddRecipe(): void
+    public function testRecipes(): void
     {
-        /* @var RecipeResult&MockObject $recipe */
-        $recipe = $this->createMock(RecipeResult::class);
+        $recipe1 = new RecipeResult();
+        $recipe1->setName('abc');
+        $recipe2 = new RecipeResult();
+        $recipe2->setName('def');
 
-        /* @var RecipeCollection&MockObject $recipeCollection */
-        $recipeCollection = $this->createMock(RecipeCollection::class);
-        $recipeCollection->expects($this->once())
-                         ->method('add')
-                         ->with($this->identicalTo($recipe));
+        $instance = new ItemResult();
 
-        $itemResult = new ItemResult();
-        $this->injectProperty($itemResult, 'recipes', $recipeCollection);
-        $result = $itemResult->addRecipe($recipe);
+        $result = $instance->addRecipe($recipe1)
+                           ->addRecipe($recipe2);
+        $this->assertSame($instance, $result);
 
-        $this->assertSame($itemResult, $result);
+        $this->assertEquals([$recipe1, $recipe2], $instance->getRecipes());
     }
 
-    /**
-     * Tests the getRecipes method.
-     * @throws ReflectionException
-     * @covers ::getRecipes
-     */
-    public function testGetRecipes(): void
-    {
-        $recipes = [
-            $this->createMock(RecipeResult::class),
-            $this->createMock(RecipeResult::class),
-        ];
-
-        /* @var RecipeCollection&MockObject $recipeCollection */
-        $recipeCollection = $this->createMock(RecipeCollection::class);
-        $recipeCollection->expects($this->once())
-                         ->method('getAll')
-                         ->willReturn($recipes);
-
-        $itemResult = new ItemResult();
-        $this->injectProperty($itemResult, 'recipes', $recipeCollection);
-
-        $result = $itemResult->getRecipes();
-        $this->assertSame($recipes, $result);
-    }
-
-    /**
-     * Tests the setting and getting the priority.
-     * @covers ::getPriority
-     * @covers ::setPriority
-     */
     public function testSetAndGetPriority(): void
     {
         $priority = 42;
@@ -146,85 +81,59 @@ class ItemResultTest extends TestCase
         $this->assertSame($priority, $result->getPriority());
     }
 
-    /**
-     * Tests the merge method with actual data.
-     * @throws ReflectionException
-     * @covers ::merge
-     */
     public function testMergeWithData(): void
     {
-        /* @var UuidInterface&MockObject $id1 */
         $id1 = $this->createMock(UuidInterface::class);
-        /* @var UuidInterface&MockObject $id2 */
         $id2 = $this->createMock(UuidInterface::class);
 
-        /* @var RecipeResult&MockObject $recipe */
-        $recipe = $this->createMock(RecipeResult::class);
+        $recipe1 = new RecipeResult();
+        $recipe1->setName('abc');
+        $recipe2 = new RecipeResult();
+        $recipe2->setName('abc');
 
-        /* @var ItemResult&MockObject $itemToMerge */
-        $itemToMerge = $this->createMock(ItemResult::class);
-        $itemToMerge->expects($this->atLeastOnce())
-                    ->method('getId')
-                    ->willReturn($id1);
-        $itemToMerge->expects($this->atLeastOnce())
-                    ->method('getPriority')
-                    ->willReturn(21);
-        $itemToMerge->expects($this->once())
-                    ->method('getRecipes')
-                    ->willReturn([$recipe]);
+        $itemToMerge = new ItemResult();
+        $itemToMerge->setId($id1)
+                    ->setPriority(21)
+                    ->addRecipe($recipe1);
 
-        /* @var RecipeCollection&MockObject $recipeCollection */
-        $recipeCollection = $this->createMock(RecipeCollection::class);
-        $recipeCollection->expects($this->once())
-                         ->method('add')
-                         ->with($this->identicalTo($recipe));
+        $expectedItem = new ItemResult();
+        $expectedItem->setId($id1)
+                     ->setPriority(21)
+                     ->addRecipe($recipe2)
+                     ->addRecipe($recipe1);
 
-        $item = new ItemResult();
-        $item->setId($id2)
-             ->setPriority(100);
-        $this->injectProperty($item, 'recipes', $recipeCollection);
+        $instance = new ItemResult();
+        $instance->setId($id2)
+                 ->setPriority(100)
+                 ->addRecipe($recipe2);
 
-        $item->merge($itemToMerge);
+        $instance->merge($itemToMerge);
 
-        $this->assertSame($id1, $this->extractProperty($item, 'id'));
-        $this->assertSame(21, $this->extractProperty($item, 'priority'));
+        $this->assertEquals($expectedItem, $instance);
     }
 
-    /**
-     * Tests the merge method without actual data.
-     * @throws ReflectionException
-     * @covers ::merge
-     */
     public function testMergeWithoutData(): void
     {
-        /* @var UuidInterface&MockObject $id1 */
         $id1 = $this->createMock(UuidInterface::class);
 
-        /* @var ItemResult&MockObject $itemToMerge */
-        $itemToMerge = $this->createMock(ItemResult::class);
-        $itemToMerge->expects($this->atLeastOnce())
-                    ->method('getId')
-                    ->willReturn(null);
-        $itemToMerge->expects($this->atLeastOnce())
-                    ->method('getPriority')
-                    ->willReturn(100);
-        $itemToMerge->expects($this->once())
-                    ->method('getRecipes')
-                    ->willReturn([]);
+        $recipe1 = new RecipeResult();
+        $recipe1->setName('abc');
 
-        /* @var RecipeCollection&MockObject $recipeCollection */
-        $recipeCollection = $this->createMock(RecipeCollection::class);
-        $recipeCollection->expects($this->never())
-                         ->method('add');
+        $itemToMerge = new ItemResult();
+        $itemToMerge->setPriority(100);
 
-        $item = new ItemResult();
-        $item->setId($id1)
-             ->setPriority(21);
-        $this->injectProperty($item, 'recipes', $recipeCollection);
+        $expectedItem = new ItemResult();
+        $expectedItem->setId($id1)
+                     ->setPriority(21)
+                     ->addRecipe($recipe1);
 
-        $item->merge($itemToMerge);
+        $instance = new ItemResult();
+        $instance->setId($id1)
+                 ->setPriority(21)
+                 ->addRecipe($recipe1);
 
-        $this->assertSame($id1, $this->extractProperty($item, 'id'));
-        $this->assertSame(21, $this->extractProperty($item, 'priority'));
+        $instance->merge($itemToMerge);
+
+        $this->assertEquals($expectedItem, $instance);
     }
 }
