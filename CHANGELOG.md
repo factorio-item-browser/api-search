@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.1.0 - 2021-02-06
+
+### Changed
+
+- Serializing cached search result into a binary format rather than a text format to reduce their size.
+
 ## 2.0.0 - 2020-04-15
 
 ### Changed
