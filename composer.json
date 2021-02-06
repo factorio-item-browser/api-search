@@ -12,11 +12,11 @@
     }
   ],
   "require": {
-    "php": "^7.4",
+    "php": "^7.4 | ^8.0",
     "ext-json": "*",
     "bluepsyduck/laminas-autowire-factory": "^1.0",
     "bluepsyduck/mapper-manager": "^1.0",
-    "factorio-item-browser/api-database": "^3.0",
+    "factorio-item-browser/api-database": "^3.4",
     "psr/container": "^1.0"
   },
   "require-dev": {
