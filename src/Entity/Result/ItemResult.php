@@ -26,7 +26,7 @@ class ItemResult implements ResultInterface
 
     public function __construct()
     {
-        $this->recipes = new ResultCollection(); // @phpstan-ignore-line: https://github.com/phpstan/phpstan/issues/4494
+        $this->recipes = new ResultCollection();
     }
 
     public function setType(string $type): self

@@ -23,8 +23,8 @@ class AggregatingResultCollection
 
     public function __construct()
     {
-        $this->items = new ResultCollection(); // @phpstan-ignore-line: https://github.com/phpstan/phpstan/issues/4494
-        $this->recipes = new ResultCollection(); // @phpstan-ignore-line: https://github.com/phpstan/phpstan/issues/4494
+        $this->items = new ResultCollection();
+        $this->recipes = new ResultCollection();
     }
 
     public function addItem(ItemResult $item): self
