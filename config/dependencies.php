@@ -45,7 +45,6 @@ return [
             Serializer\RecipeResultSerializer::class => AutoWireFactory::class,
 
             Service\CachedSearchResultService::class => AutoWireFactory::class,
-            Service\FetcherService::class => AutoWireFactory::class,
             Service\SerializerService::class => AutoWireFactory::class,
 
             // Auto-wire helpers
