@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+
+- Left over entry of no longer existing class in the config files.
+
 ## 2.1.0 - 2021-02-06
 
 ### Changed
