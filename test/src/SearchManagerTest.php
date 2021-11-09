@@ -123,7 +123,12 @@ class SearchManagerTest extends TestCase
     public function testSearchWithCachedResults(): void
     {
         $query = $this->createMock(Query::class);
+
         $paginatedResults = $this->createMock(PaginatedResultCollection::class);
+        $paginatedResults->expects($this->once())
+                         ->method('setIsCached')
+                         ->with($this->identicalTo(true))
+                         ->willReturnSelf();
 
         $fetcher1 = $this->createMock(FetcherInterface::class);
         $fetcher1->expects($this->never())

@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.1.2 - 2021-11-09
+
+### Added
+
+- `isCached` to the `PaginatedResultCollection` for tracking purposes.
+
 ## 2.1.1 - 2021-05-18
 
 ### Fixed

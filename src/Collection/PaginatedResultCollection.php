@@ -15,7 +15,8 @@ use FactorioItemBrowser\Api\Search\Entity\Result\ResultInterface;
 class PaginatedResultCollection
 {
     /** @var array<ResultInterface> */
-    protected array $results = [];
+    private array $results = [];
+    private bool $isCached = false;
 
     /**
      * @param ResultInterface $result
@@ -40,5 +41,23 @@ class PaginatedResultCollection
     public function getResults(int $offset, int $limit): array
     {
         return array_values(array_slice($this->results, $offset, $limit));
+    }
+
+    /**
+     * @return bool
+     */
+    public function getIsCached(): bool
+    {
+        return $this->isCached;
+    }
+
+    /**
+     * @param bool $isCached
+     * @return $this
+     */
+    public function setIsCached(bool $isCached): self
+    {
+        $this->isCached = $isCached;
+        return $this;
     }
 }
