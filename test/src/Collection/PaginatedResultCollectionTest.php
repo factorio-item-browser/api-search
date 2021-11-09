@@ -17,7 +17,7 @@ use PHPUnit\Framework\TestCase;
  */
 class PaginatedResultCollectionTest extends TestCase
 {
-    public function test(): void
+    public function testAddAndGetResults(): void
     {
         $result1 = $this->createMock(ResultInterface::class);
         $result2 = $this->createMock(ResultInterface::class);
@@ -43,5 +43,13 @@ class PaginatedResultCollectionTest extends TestCase
         $this->assertSame(6, $instance->count());
         $this->assertSame([$result1, $result2, $result3, $result4, $result5, $result6], $instance->getResults(0, 42));
         $this->assertSame([$result3, $result4], $instance->getResults(2, 2));
+    }
+
+    public function testSetAndGetIsCached(): void
+    {
+        $instance = new PaginatedResultCollection();
+
+        $this->assertSame($instance, $instance->setIsCached(true));
+        $this->assertTrue($instance->getIsCached());
     }
 }

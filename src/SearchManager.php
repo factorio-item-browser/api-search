@@ -64,10 +64,13 @@ class SearchManager implements SearchManagerInterface
     public function search(Query $query): PaginatedResultCollection
     {
         $paginatedResults = $this->cachedSearchResultService->getResults($query);
-        if ($paginatedResults ===  null) {
-            $paginatedResults = $this->executeQuery($query);
-            $this->cachedSearchResultService->persistResults($query, $paginatedResults);
+        if ($paginatedResults !== null) {
+            $paginatedResults->setIsCached(true);
+            return $paginatedResults;
         }
+
+        $paginatedResults = $this->executeQuery($query);
+        $this->cachedSearchResultService->persistResults($query, $paginatedResults);
         return $paginatedResults;
     }
 
