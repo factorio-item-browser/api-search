@@ -8,7 +8,7 @@ use FactorioItemBrowser\Api\Database\Entity\Item;
 use FactorioItemBrowser\Api\Search\Entity\Result\ItemResult;
 use FactorioItemBrowser\Api\Search\Mapper\ItemToItemResultMapper;
 use PHPUnit\Framework\TestCase;
-use Ramsey\Uuid\UuidInterface;
+use Ramsey\Uuid\Uuid;
 
 /**
  * The PHPUnit test of the ItemToItemResultMapper class.
@@ -29,7 +29,7 @@ class ItemToItemResultMapperTest extends TestCase
 
     public function testMap(): void
     {
-        $id = $this->createMock(UuidInterface::class);
+        $id = Uuid::fromString('055b2276-16cc-4cc1-b5f0-56dd18c95553');
 
         $source = new Item();
         $source->setId($id)

@@ -15,7 +15,7 @@ use FactorioItemBrowser\Api\Search\Service\CachedSearchResultService;
 use PHPUnit\Framework\Constraint\Callback;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Ramsey\Uuid\UuidInterface;
+use Ramsey\Uuid\Uuid;
 
 /**
  * The PHPUnit test of the SearchManager class.
@@ -60,7 +60,7 @@ class SearchManagerTest extends TestCase
 
     public function testParse(): void
     {
-        $combinationId = $this->createMock(UuidInterface::class);
+        $combinationId = Uuid::fromString('2f4a45fa-a509-a9d1-aae6-ffcf984a7a76');
         $locale = 'abc';
         $queryString = 'def';
         $query = $this->createMock(Query::class);

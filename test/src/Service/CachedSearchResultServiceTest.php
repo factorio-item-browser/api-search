@@ -15,7 +15,7 @@ use FactorioItemBrowser\Api\Search\Service\CachedSearchResultService;
 use PHPUnit\Framework\Constraint\Callback;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Ramsey\Uuid\UuidInterface;
+use Ramsey\Uuid\Uuid;
 
 /**
  * The PHPUnit test of the CachedSearchResultService class.
@@ -57,8 +57,8 @@ class CachedSearchResultServiceTest extends TestCase
 
     public function testGetResultsWithEntity(): void
     {
-        $combinationId = $this->createMock(UuidInterface::class);
-        $searchHash = $this->createMock(UuidInterface::class);
+        $combinationId = Uuid::fromString('2f4a45fa-a509-a9d1-aae6-ffcf984a7a76');
+        $searchHash = Uuid::fromString('055b2276-16cc-4cc1-b5f0-56dd18c95553');
         $locale = 'abc';
         $resultData = 'ghi';
         $paginatedResults = $this->createMock(PaginatedResultCollection::class);
@@ -96,8 +96,8 @@ class CachedSearchResultServiceTest extends TestCase
 
     public function testGetResultsWithoutEntity(): void
     {
-        $combinationId = $this->createMock(UuidInterface::class);
-        $searchHash = $this->createMock(UuidInterface::class);
+        $combinationId = Uuid::fromString('2f4a45fa-a509-a9d1-aae6-ffcf984a7a76');
+        $searchHash = Uuid::fromString('055b2276-16cc-4cc1-b5f0-56dd18c95553');
         $locale = 'abc';
 
         $query = new Query();
@@ -127,8 +127,8 @@ class CachedSearchResultServiceTest extends TestCase
 
     public function testGetResultsWithException(): void
     {
-        $combinationId = $this->createMock(UuidInterface::class);
-        $searchHash = $this->createMock(UuidInterface::class);
+        $combinationId = Uuid::fromString('2f4a45fa-a509-a9d1-aae6-ffcf984a7a76');
+        $searchHash = Uuid::fromString('055b2276-16cc-4cc1-b5f0-56dd18c95553');
         $locale = 'abc';
         $resultData = 'ghi';
 
@@ -169,8 +169,8 @@ class CachedSearchResultServiceTest extends TestCase
         $searchQuery = 'def';
         $resultData = 'ghi';
 
-        $combinationId = $this->createMock(UuidInterface::class);
-        $searchHash = $this->createMock(UuidInterface::class);
+        $combinationId = Uuid::fromString('2f4a45fa-a509-a9d1-aae6-ffcf984a7a76');
+        $searchHash = Uuid::fromString('055b2276-16cc-4cc1-b5f0-56dd18c95553');
         $searchResults = $this->createMock(PaginatedResultCollection::class);
 
         $query = new Query();
@@ -209,8 +209,8 @@ class CachedSearchResultServiceTest extends TestCase
         $locale = 'abc';
         $searchQuery = 'def';
 
-        $combinationId = $this->createMock(UuidInterface::class);
-        $searchHash = $this->createMock(UuidInterface::class);
+        $combinationId = Uuid::fromString('2f4a45fa-a509-a9d1-aae6-ffcf984a7a76');
+        $searchHash = Uuid::fromString('055b2276-16cc-4cc1-b5f0-56dd18c95553');
         $searchResults = $this->createMock(PaginatedResultCollection::class);
 
         $query = new Query();

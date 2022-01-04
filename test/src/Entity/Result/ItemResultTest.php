@@ -8,7 +8,7 @@ use FactorioItemBrowser\Api\Database\Constant\SearchResultPriority;
 use FactorioItemBrowser\Api\Search\Entity\Result\ItemResult;
 use FactorioItemBrowser\Api\Search\Entity\Result\RecipeResult;
 use PHPUnit\Framework\TestCase;
-use Ramsey\Uuid\UuidInterface;
+use Ramsey\Uuid\Uuid;
 
 /**
  * The PHPUnit test of the ItemResult class.
@@ -49,7 +49,7 @@ class ItemResultTest extends TestCase
 
     public function testSetAndGetId(): void
     {
-        $id = $this->createMock(UuidInterface::class);
+        $id = Uuid::fromString('055b2276-16cc-4cc1-b5f0-56dd18c95553');
         $instance = new ItemResult();
 
         $this->assertSame($instance, $instance->setId($id));
@@ -83,8 +83,8 @@ class ItemResultTest extends TestCase
 
     public function testMergeWithData(): void
     {
-        $id1 = $this->createMock(UuidInterface::class);
-        $id2 = $this->createMock(UuidInterface::class);
+        $id1 = Uuid::fromString('11b19ed3-e772-44b1-9938-2cca1c63c7a1');
+        $id2 = Uuid::fromString('24db0d5a-a933-4e46-bb5a-0b7d88c6272e');
 
         $recipe1 = new RecipeResult();
         $recipe1->setName('abc');
@@ -114,7 +114,7 @@ class ItemResultTest extends TestCase
 
     public function testMergeWithoutData(): void
     {
-        $id1 = $this->createMock(UuidInterface::class);
+        $id1 = Uuid::fromString('11b19ed3-e772-44b1-9938-2cca1c63c7a1');
 
         $recipe1 = new RecipeResult();
         $recipe1->setName('abc');

@@ -9,7 +9,7 @@ use FactorioItemBrowser\Api\Search\Entity\Result\RecipeResult;
 use FactorioItemBrowser\Api\Search\Mapper\RecipeDataToRecipeResultMapper;
 use FactorioItemBrowser\Common\Constant\RecipeMode;
 use PHPUnit\Framework\TestCase;
-use Ramsey\Uuid\UuidInterface;
+use Ramsey\Uuid\Uuid;
 
 /**
  * The PHPUnit test of the RecipeDataToRecipeResultMapper class.
@@ -30,7 +30,7 @@ class RecipeDataToRecipeResultMapperTest extends TestCase
 
     public function testMapWithNormalRecipe(): void
     {
-        $id = $this->createMock(UuidInterface::class);
+        $id = Uuid::fromString('055b2276-16cc-4cc1-b5f0-56dd18c95553');
 
         $source = new RecipeData();
         $source->setId($id)
@@ -51,7 +51,7 @@ class RecipeDataToRecipeResultMapperTest extends TestCase
 
     public function testMapWithExpensiveRecipe(): void
     {
-        $id = $this->createMock(UuidInterface::class);
+        $id = Uuid::fromString('055b2276-16cc-4cc1-b5f0-56dd18c95553');
 
         $source = new RecipeData();
         $source->setId($id)

@@ -8,7 +8,7 @@ use FactorioItemBrowser\Api\Database\Constant\SearchResultPriority;
 use FactorioItemBrowser\Api\Search\Entity\Result\RecipeResult;
 use FactorioItemBrowser\Common\Constant\EntityType;
 use PHPUnit\Framework\TestCase;
-use Ramsey\Uuid\UuidInterface;
+use Ramsey\Uuid\Uuid;
 
 /**
  * The PHPUnit test of the RecipeResult class.
@@ -41,7 +41,7 @@ class RecipeResultTest extends TestCase
 
     public function testSetAndGetNormalRecipeId(): void
     {
-        $normalRecipeId = $this->createMock(UuidInterface::class);
+        $normalRecipeId = Uuid::fromString('055b2276-16cc-4cc1-b5f0-56dd18c95553');
         $instance = new RecipeResult();
 
         $this->assertSame($instance, $instance->setNormalRecipeId($normalRecipeId));
@@ -50,7 +50,7 @@ class RecipeResultTest extends TestCase
 
     public function testSetAndGetExpensiveRecipeId(): void
     {
-        $expensiveRecipeId = $this->createMock(UuidInterface::class);
+        $expensiveRecipeId = Uuid::fromString('055b2276-16cc-4cc1-b5f0-56dd18c95553');
         $instance = new RecipeResult();
 
         $this->assertSame($instance, $instance->setExpensiveRecipeId($expensiveRecipeId));
@@ -68,10 +68,10 @@ class RecipeResultTest extends TestCase
 
     public function testMergeWithData(): void
     {
-        $id1 = $this->createMock(UuidInterface::class);
-        $id2 = $this->createMock(UuidInterface::class);
-        $id3 = $this->createMock(UuidInterface::class);
-        $id4 = $this->createMock(UuidInterface::class);
+        $id1 = Uuid::fromString('11b19ed3-e772-44b1-9938-2cca1c63c7a1');
+        $id2 = Uuid::fromString('24db0d5a-a933-4e46-bb5a-0b7d88c6272e');
+        $id3 = Uuid::fromString('37451ec1-6b60-4870-a24f-41afd4cdd477');
+        $id4 = Uuid::fromString('4a3a8c6c-8d68-41f6-997a-8761c380cd7d');
 
         $recipeToMerge = new RecipeResult();
         $recipeToMerge->setNormalRecipeId($id1)
@@ -95,8 +95,8 @@ class RecipeResultTest extends TestCase
 
     public function testMergeWithoutData(): void
     {
-        $id1 = $this->createMock(UuidInterface::class);
-        $id2 = $this->createMock(UuidInterface::class);
+        $id1 = Uuid::fromString('11b19ed3-e772-44b1-9938-2cca1c63c7a1');
+        $id2 = Uuid::fromString('24db0d5a-a933-4e46-bb5a-0b7d88c6272e');
 
         $recipeToMerge = new RecipeResult();
         $recipeToMerge->setNormalRecipeId(null)

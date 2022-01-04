@@ -15,7 +15,6 @@ use FactorioItemBrowser\Api\Search\Fetcher\ProductRecipeFetcher;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Uuid;
-use Ramsey\Uuid\UuidInterface;
 
 /**
  * The PHPUnit test of the ProductRecipeFetcher class.
@@ -55,7 +54,7 @@ class ProductRecipeFetcherTest extends TestCase
 
     public function testFetch(): void
     {
-        $combinationId = $this->createMock(UuidInterface::class);
+        $combinationId = Uuid::fromString('2f4a45fa-a509-a9d1-aae6-ffcf984a7a76');
         $query = new Query();
         $query->setCombinationId($combinationId);
 

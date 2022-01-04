@@ -14,7 +14,7 @@ use FactorioItemBrowser\Api\Search\Entity\Result\ItemResult;
 use FactorioItemBrowser\Api\Search\Fetcher\MissingItemIdFetcher;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Ramsey\Uuid\UuidInterface;
+use Ramsey\Uuid\Uuid;
 
 /**
  * The PHPUnit test of the MissingItemIdFetcher class.
@@ -54,7 +54,7 @@ class MissingItemIdFetcherTest extends TestCase
 
     public function testFetch(): void
     {
-        $combinationId = $this->createMock(UuidInterface::class);
+        $combinationId = Uuid::fromString('2f4a45fa-a509-a9d1-aae6-ffcf984a7a76');
 
         $itemResult1 = new ItemResult();
         $itemResult1->setType('abc')
@@ -62,7 +62,7 @@ class MissingItemIdFetcherTest extends TestCase
         $itemResult2 = new ItemResult();
         $itemResult2->setType('abc')
                     ->setName('ghi')
-                    ->setId($this->createMock(UuidInterface::class));
+                    ->setId(Uuid::fromString('24db0d5a-a933-4e46-bb5a-0b7d88c6272e'));
         $itemResult3 = new ItemResult();
         $itemResult3->setType('jkl')
                     ->setName('mno');

@@ -7,7 +7,7 @@ namespace FactorioItemBrowserTest\Api\Search\Entity;
 use FactorioItemBrowser\Api\Search\Entity\Query;
 use FactorioItemBrowser\Api\Search\Entity\Term;
 use PHPUnit\Framework\TestCase;
-use Ramsey\Uuid\UuidInterface;
+use Ramsey\Uuid\Uuid;
 
 /**
  * The PHPUnit test of the Query class.
@@ -30,7 +30,7 @@ class QueryTest extends TestCase
 
     public function testSetAndGetCombinationId(): void
     {
-        $combinationId = $this->createMock(UuidInterface::class);
+        $combinationId = Uuid::fromString('2f4a45fa-a509-a9d1-aae6-ffcf984a7a76');
         $instance = new Query();
 
         $this->assertSame($instance, $instance->setCombinationId($combinationId));
@@ -57,7 +57,7 @@ class QueryTest extends TestCase
 
     public function testSetAndGetHash(): void
     {
-        $hash = $this->createMock(UuidInterface::class);
+        $hash = Uuid::fromString('055b2276-16cc-4cc1-b5f0-56dd18c95553');
         $instance = new Query();
 
         $this->assertSame($instance, $instance->setHash($hash));

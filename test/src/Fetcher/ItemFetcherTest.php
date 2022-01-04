@@ -16,7 +16,7 @@ use FactorioItemBrowser\Api\Search\Entity\Term;
 use FactorioItemBrowser\Api\Search\Fetcher\ItemFetcher;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Ramsey\Uuid\UuidInterface;
+use Ramsey\Uuid\Uuid;
 
 /**
  * The PHPUnit test of the ItemFetcher class.
@@ -56,7 +56,7 @@ class ItemFetcherTest extends TestCase
 
     public function testFetch(): void
     {
-        $combinationId = $this->createMock(UuidInterface::class);
+        $combinationId = Uuid::fromString('055b2276-16cc-4cc1-b5f0-56dd18c95553');
         $item1 = $this->createMock(Item::class);
         $item2 = $this->createMock(Item::class);
 

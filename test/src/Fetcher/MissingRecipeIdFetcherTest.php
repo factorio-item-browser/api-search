@@ -13,7 +13,7 @@ use FactorioItemBrowser\Api\Search\Entity\Result\RecipeResult;
 use FactorioItemBrowser\Api\Search\Fetcher\MissingRecipeIdFetcher;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Ramsey\Uuid\UuidInterface;
+use Ramsey\Uuid\Uuid;
 
 /**
  * The PHPUnit test of the MissingRecipeIdFetcher class.
@@ -53,20 +53,20 @@ class MissingRecipeIdFetcherTest extends TestCase
 
     public function testFetch(): void
     {
-        $combinationId = $this->createMock(UuidInterface::class);
+        $combinationId = Uuid::fromString('2f4a45fa-a509-a9d1-aae6-ffcf984a7a76');
 
         $recipeResult1 = new RecipeResult();
         $recipeResult1->setName('abc');
         $recipeResult2 = new RecipeResult();
         $recipeResult2->setName('def')
-                      ->setNormalRecipeId($this->createMock(UuidInterface::class))
-                      ->setExpensiveRecipeId($this->createMock(UuidInterface::class));
+                      ->setNormalRecipeId(Uuid::fromString('11b19ed3-e772-44b1-9938-2cca1c63c7a1'))
+                      ->setExpensiveRecipeId(Uuid::fromString('24db0d5a-a933-4e46-bb5a-0b7d88c6272e'));
         $recipeResult3 = new RecipeResult();
         $recipeResult3->setName('ghi')
-                      ->setNormalRecipeId($this->createMock(UuidInterface::class));
+                      ->setNormalRecipeId(Uuid::fromString('37451ec1-6b60-4870-a24f-41afd4cdd477'));
         $recipeResult4 = new RecipeResult();
         $recipeResult4->setName('jkl')
-                      ->setExpensiveRecipeId($this->createMock(UuidInterface::class));
+                      ->setExpensiveRecipeId(Uuid::fromString('4a3a8c6c-8d68-41f6-997a-8761c380cd7d'));
         $recipeResult5 = new RecipeResult();
         $recipeResult5->setName('mno');
 
