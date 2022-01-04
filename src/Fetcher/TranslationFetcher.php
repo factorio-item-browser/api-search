@@ -21,13 +21,10 @@ use FactorioItemBrowser\Common\Constant\EntityType;
  */
 class TranslationFetcher implements FetcherInterface
 {
-    private MapperManagerInterface $mapperManager;
-    private TranslationRepository $translationRepository;
-
-    public function __construct(MapperManagerInterface $mapperManager, TranslationRepository $translationRepository)
-    {
-        $this->mapperManager = $mapperManager;
-        $this->translationRepository = $translationRepository;
+    public function __construct(
+        private readonly MapperManagerInterface $mapperManager,
+        private readonly TranslationRepository $translationRepository,
+    ) {
     }
 
     public function fetch(Query $query, AggregatingResultCollection $searchResults): void

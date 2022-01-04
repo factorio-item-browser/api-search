@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace FactorioItemBrowser\Api\Search;
 
+use BluePsyduck\LaminasAutoWireFactory\Attribute\InjectAliasArray;
+use BluePsyduck\LaminasAutoWireFactory\Attribute\ReadConfig;
 use FactorioItemBrowser\Api\Search\Collection\AggregatingResultCollection;
 use FactorioItemBrowser\Api\Search\Collection\PaginatedResultCollection;
+use FactorioItemBrowser\Api\Search\Constant\ConfigKey;
 use FactorioItemBrowser\Api\Search\Entity\Query;
 use FactorioItemBrowser\Api\Search\Fetcher\FetcherInterface;
 use FactorioItemBrowser\Api\Search\Parser\QueryParser;
@@ -20,28 +23,17 @@ use Ramsey\Uuid\UuidInterface;
  */
 class SearchManager implements SearchManagerInterface
 {
-    private CachedSearchResultService $cachedSearchResultService;
-    private QueryParser $queryParser;
-    /** @var array<FetcherInterface> */
-    private array $fetchers;
-    private int $maxSearchResults;
-
     /**
-     * @param CachedSearchResultService $cachedSearchResultService
-     * @param QueryParser $queryParser
-     * @param array<FetcherInterface> $apiSearchFetchers
-     * @param int $apiSearchMaxSearchResults
+     * @param array<FetcherInterface> $fetchers
      */
     public function __construct(
-        CachedSearchResultService $cachedSearchResultService,
-        QueryParser $queryParser,
-        array $apiSearchFetchers,
-        int $apiSearchMaxSearchResults
+        private readonly CachedSearchResultService $cachedSearchResultService,
+        private readonly QueryParser $queryParser,
+        #[InjectAliasArray(ConfigKey::MAIN, ConfigKey::FETCHERS)]
+        private readonly array $fetchers,
+        #[ReadConfig(ConfigKey::MAIN, ConfigKey::MAX_SEARCH_RESULTS)]
+        private readonly int $maxSearchResults
     ) {
-        $this->cachedSearchResultService = $cachedSearchResultService;
-        $this->queryParser = $queryParser;
-        $this->fetchers = $apiSearchFetchers;
-        $this->maxSearchResults = $apiSearchMaxSearchResults;
     }
 
     /**

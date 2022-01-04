@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace FactorioItemBrowser\Api\Search\Service;
 
+use BluePsyduck\LaminasAutoWireFactory\Attribute\InjectAliasArray;
 use FactorioItemBrowser\Api\Search\Collection\PaginatedResultCollection;
+use FactorioItemBrowser\Api\Search\Constant\ConfigKey;
 use FactorioItemBrowser\Api\Search\Entity\Result\ResultInterface;
 use FactorioItemBrowser\Api\Search\Exception\ReaderException;
 use FactorioItemBrowser\Api\Search\Exception\WriterException;
@@ -26,11 +28,13 @@ class SerializerService
     private array $serializersByType = [];
 
     /**
-     * @param array<SerializerInterface<ResultInterface>> $apiSearchSerializers
+     * @param array<SerializerInterface<ResultInterface>> $serializers
      */
-    public function __construct(array $apiSearchSerializers)
-    {
-        foreach ($apiSearchSerializers as $serializer) {
+    public function __construct(
+        #[InjectAliasArray(ConfigKey::MAIN, ConfigKey::SERIALIZERS)]
+        array $serializers
+    ) {
+        foreach ($serializers as $serializer) {
             $this->serializersByClassName[$serializer->getHandledResultClass()] = $serializer;
             $this->serializersByType[$serializer->getSerializedType()] = $serializer;
         }

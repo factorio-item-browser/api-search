@@ -20,13 +20,10 @@ use FactorioItemBrowser\Api\Search\Entity\Result\ItemResult;
  */
 class ItemFetcher implements FetcherInterface
 {
-    private ItemRepository $itemRepository;
-    private MapperManagerInterface $mapperManager;
-
-    public function __construct(ItemRepository $itemRepository, MapperManagerInterface $mapperManager)
-    {
-        $this->itemRepository = $itemRepository;
-        $this->mapperManager = $mapperManager;
+    public function __construct(
+        private readonly ItemRepository $itemRepository,
+        private readonly MapperManagerInterface $mapperManager,
+    ) {
     }
 
     public function fetch(Query $query, AggregatingResultCollection $searchResults): void

@@ -20,11 +20,9 @@ use FactorioItemBrowser\Api\Search\Exception\WriterException;
  */
 class ItemResultSerializer implements SerializerInterface
 {
-    private RecipeResultSerializer $recipeResultSerializer;
-
-    public function __construct(RecipeResultSerializer $recipeResultSerializer)
-    {
-        $this->recipeResultSerializer = $recipeResultSerializer;
+    public function __construct(
+        private readonly RecipeResultSerializer $recipeResultSerializer,
+    ) {
     }
 
     public function getHandledResultClass(): string

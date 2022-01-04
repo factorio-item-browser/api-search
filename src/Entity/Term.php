@@ -12,17 +12,10 @@ namespace FactorioItemBrowser\Api\Search\Entity;
  */
 class Term
 {
-    private string $type;
-    private string $value;
-
-    /**
-     * @param string $type
-     * @param string $value
-     */
-    public function __construct(string $type, string $value)
-    {
-        $this->type = $type;
-        $this->value = $value;
+    public function __construct(
+        private string $type,
+        private string $value
+    ) {
     }
 
     public function setType(string $type): self

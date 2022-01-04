@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace FactorioItemBrowser\Api\Search\Service;
 
+use BluePsyduck\LaminasAutoWireFactory\Attribute\ReadConfig;
 use DateTimeImmutable;
 use DateTimeInterface;
 use Exception;
 use FactorioItemBrowser\Api\Database\Entity\CachedSearchResult;
 use FactorioItemBrowser\Api\Database\Repository\CachedSearchResultRepository;
+use FactorioItemBrowser\Api\Search\Constant\ConfigKey;
 use FactorioItemBrowser\Api\Search\SearchCacheClearInterface;
 use FactorioItemBrowser\Api\Search\Collection\PaginatedResultCollection;
 use FactorioItemBrowser\Api\Search\Entity\Query;
@@ -21,24 +23,18 @@ use FactorioItemBrowser\Api\Search\Entity\Query;
  */
 class CachedSearchResultService implements SearchCacheClearInterface
 {
-    private CachedSearchResultRepository $cachedSearchResultRepository;
-    private SerializerService $serializerService;
-    private DateTimeInterface $maxCacheAge;
+    private readonly DateTimeInterface $maxCacheAge;
 
     /**
-     * @param CachedSearchResultRepository $cachedSearchResultRepository
-     * @param SerializerService $serializerService
-     * @param string $apiSearchMaxCacheAge
      * @throws Exception
      */
     public function __construct(
-        CachedSearchResultRepository $cachedSearchResultRepository,
-        SerializerService $serializerService,
-        string $apiSearchMaxCacheAge
+        private readonly CachedSearchResultRepository $cachedSearchResultRepository,
+        private readonly SerializerService $serializerService,
+        #[ReadConfig(ConfigKey::MAIN, ConfigKey::MAX_CACHE_AGE)]
+        string $maxCacheAge
     ) {
-        $this->cachedSearchResultRepository = $cachedSearchResultRepository;
-        $this->serializerService = $serializerService;
-        $this->maxCacheAge = new DateTimeImmutable($apiSearchMaxCacheAge);
+        $this->maxCacheAge = new DateTimeImmutable($maxCacheAge);
     }
 
     /**

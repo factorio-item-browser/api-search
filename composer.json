@@ -13,9 +13,9 @@
   ],
   "require": {
     "php": "^8.1",
-    "bluepsyduck/laminas-autowire-factory": "^1.0",
+    "bluepsyduck/laminas-autowire-factory": "^2.0",
     "bluepsyduck/mapper-manager": "^1.0",
-    "factorio-item-browser/api-database": "^3.4"
+    "factorio-item-browser/api-database": "dev-feature/refactor-php81"
   },
   "require-dev": {
     "bluepsyduck/test-helper": "^2.0",

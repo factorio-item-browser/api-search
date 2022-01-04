@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * The configuration of the API search dependencies.
  *
@@ -9,13 +7,11 @@ declare(strict_types=1);
  * @license http://opensource.org/licenses/GPL-3.0 GPL v3
  */
 
+declare(strict_types=1);
+
 namespace FactorioItemBrowser\Api\Search;
 
 use BluePsyduck\LaminasAutoWireFactory\AutoWireFactory;
-use FactorioItemBrowser\Api\Search\Constant\ConfigKey;
-
-use function BluePsyduck\LaminasAutoWireFactory\injectAliasArray;
-use function BluePsyduck\LaminasAutoWireFactory\readConfig;
 
 return [
     'dependencies' => [
@@ -46,14 +42,6 @@ return [
 
             Service\CachedSearchResultService::class => AutoWireFactory::class,
             Service\SerializerService::class => AutoWireFactory::class,
-
-            // Auto-wire helpers
-            'array $apiSearchFetchers' => injectAliasArray(ConfigKey::MAIN, ConfigKey::FETCHERS),
-            'array $apiSearchSerializers' => injectAliasArray(ConfigKey::MAIN, ConfigKey::SERIALIZERS),
-
-            'int $apiSearchMaxSearchResults' => readConfig(ConfigKey::MAIN, ConfigKey::MAX_SEARCH_RESULTS),
-
-            'string $apiSearchMaxCacheAge' => readConfig(ConfigKey::MAIN, ConfigKey::MAX_CACHE_AGE),
         ],
     ],
 ];

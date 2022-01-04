@@ -18,15 +18,10 @@ use FactorioItemBrowser\Api\Search\Entity\Result\RecipeResult;
  */
 class MissingRecipeIdFetcher implements FetcherInterface
 {
-    private MapperManagerInterface $mapperManager;
-    private RecipeRepository $recipeRepository;
-
     public function __construct(
-        MapperManagerInterface $mapperManager,
-        RecipeRepository $recipeRepository
+        private readonly MapperManagerInterface $mapperManager,
+        private readonly RecipeRepository $recipeRepository
     ) {
-        $this->mapperManager = $mapperManager;
-        $this->recipeRepository = $recipeRepository;
     }
 
     public function fetch(Query $query, AggregatingResultCollection $searchResults): void
